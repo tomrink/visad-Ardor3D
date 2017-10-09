@@ -188,6 +188,12 @@ public class DisplayImplA3D extends DisplayImpl {
          throws VisADException, RemoteException {
     this(name, null, JPANEL, config);
   }
+  
+  public DisplayImplA3D(String name, int width, int height, int api)
+         throws VisADException, RemoteException {
+     super(name, null);
+     initialize(api, null, width, height);
+  }
 
   /** construct a DisplayImpl for Java3D with a non-default
       DisplayRenderer;
@@ -343,23 +349,16 @@ public class DisplayImplA3D extends DisplayImpl {
     projection = new ProjectionControlA3D(this);
     addControl(projection);
 
-    if (api == JOGL_AWT) {
-       if (width < 0) width = 400;
-       if (height < 0) height = 400;
+    if (api == JOGL_AWT || api == JOGL_SWING) {
+       if (width < 0 || height < 0) {
+          throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
+       }
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
        dspRenderer.createSceneGraph();
-       DisplayManagerA3D manager = DisplayManagerA3D.createDisplayManager(new Dimension(width, height), dspRenderer);
+       DisplayManagerA3D manager = DisplayManagerA3D.createDisplayManager(new Dimension(width, height), dspRenderer, api);
        Component component = manager.getCanvas();
        setComponent(component);
        apiValue = api;
-    }
-    else if (api == JOGL_SWING) {
-       
-    }
-    else if (api == JPANEL) {
-      Component component = new DisplayPanelA3D(this, config, c);
-      setComponent(component);
-      apiValue = api;
     }
     else if (api == TRANSFORM_ONLY) {
       if (!(getDisplayRenderer() instanceof TransformOnlyDisplayRendererA3D)) {
@@ -646,11 +645,15 @@ public class DisplayImplA3D extends DisplayImpl {
    }
    
     private static void createAndShowGUI() throws VisADException, RemoteException {
-       final DisplayImplA3D display = new DisplayImplA3D("Display", JOGL_AWT);
+       int width = 500;
+       int height = 500;
        
        final JFrame frame = new JFrame();
-       frame.setPreferredSize(new Dimension(500, 500));
+       frame.setPreferredSize(new Dimension(width, height));
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+       
+       final DisplayImplA3D display = new DisplayImplA3D("Display", width, height, JOGL_AWT);
        
        final JComponent outerComp = new JPanel(new BorderLayout());
        JPanel cntrlPanel = new JPanel(new FlowLayout());
@@ -668,7 +671,6 @@ public class DisplayImplA3D extends DisplayImpl {
        //Display the window.
        frame.pack();
        frame.setVisible(true);
-       
     }   
    
    public static void main(String[] args) throws VisADException, RemoteException {
