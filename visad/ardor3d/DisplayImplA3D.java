@@ -166,14 +166,14 @@ public class DisplayImplA3D extends DisplayImpl {
       default DisplayRenderer, in a JFC JPanel */
   public DisplayImplA3D(String name)
          throws VisADException, RemoteException {
-    this(name, null, JPANEL, null);
+    this(name, null, JOGL_AWT, null);
   }
 
   /** construct a DisplayImpl for Java3D with a non-default
       DisplayRenderer, in a JFC JPanel */
   public DisplayImplA3D(String name, DisplayRendererA3D renderer)
          throws VisADException, RemoteException {
-    this(name, renderer, JPANEL, null);
+    this(name, renderer, JOGL_AWT, null);
   }
 
   /** constructor with default DisplayRenderer */
@@ -186,7 +186,7 @@ public class DisplayImplA3D extends DisplayImpl {
       GraphicsConfiguration, in a JFC JPanel */
   public DisplayImplA3D(String name, GraphicsConfiguration config)
          throws VisADException, RemoteException {
-    this(name, null, JPANEL, config);
+    this(name, null, JOGL_AWT, config);
   }
   
   public DisplayImplA3D(String name, int width, int height, int api)
@@ -209,7 +209,7 @@ public class DisplayImplA3D extends DisplayImpl {
   public DisplayImplA3D(String name, DisplayRendererA3D renderer,
                         GraphicsConfiguration config)
          throws VisADException, RemoteException {
-    this(name, renderer, JPANEL, config);
+    this(name, renderer, JOGL_AWT, config);
   }
 
   /** constructor with default DisplayRenderer and a non-default
