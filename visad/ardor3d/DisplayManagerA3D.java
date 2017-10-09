@@ -156,7 +156,7 @@ public class DisplayManagerA3D implements Updater {
         */
     }
     
-    public synchronized void markNeedDraw() {
+    public void markNeedDraw() {
        dspRenderer.markNeedDraw();
     }
     
