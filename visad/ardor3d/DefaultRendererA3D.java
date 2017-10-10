@@ -1,5 +1,5 @@
 //
-// DefaultRendererJ3D.java
+// DefaultRendererA3D.java
 //
 
 /*
@@ -26,12 +26,12 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.scenegraph.Node;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
-import javax.media.j3d.BranchGroup;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -79,12 +79,9 @@ public class DefaultRendererA3D extends RendererA3D {
   }
 
   /** create a BranchGroup scene graph for Data in links[0] */
-  public BranchGroup doTransform() throws VisADException, RemoteException {
+  public Node doTransform() throws VisADException, RemoteException {
     if (link == null) return null;
-    BranchGroup branch = new BranchGroup();
-    branch.setCapability(BranchGroup.ALLOW_DETACH);
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND); // BMF
+    Node branch = new Node();
     ShadowTypeA3D type = (ShadowTypeA3D) link.getShadow();
 
 
@@ -98,7 +95,10 @@ public class DefaultRendererA3D extends RendererA3D {
               isAnimation = true;
       }
     }
+    
+    /* May not be necessary with Ardor3D 
     if (isAnimation) setBranchEarly(branch);
+    */
 
     // initialize valueArray to missing
     int valueArrayLength = getDisplay().getValueArrayLength();
@@ -148,8 +148,7 @@ public class DefaultRendererA3D extends RendererA3D {
     return branch;
   }
 
-  public void addSwitch(DisplayRendererA3D displayRenderer,
-                        BranchGroup branch) {
+  public void addSwitch(DisplayRendererA3D displayRenderer, Node branch) {
     displayRenderer.addSceneGraphComponent(branch);
   }
 
