@@ -26,11 +26,17 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.scenegraph.Node;
 import visad.*;
 
-import javax.media.j3d.*;
+//import javax.media.j3d.*;
 
 import java.rmi.*;
+import javax.media.j3d.Appearance;
+import javax.media.j3d.BranchGroup;
+import javax.media.j3d.GeometryArray;
+import javax.media.j3d.Group;
+import javax.media.j3d.Shape3D;
 
 
 /**
@@ -39,7 +45,7 @@ import java.rmi.*;
 */
 public class DirectManipulationRendererA3D extends RendererA3D {
 
-  BranchGroup branch = null;
+  Node branch = null;
 
   /** this DataRenderer supports direct manipulation for Real,
       RealTuple and Field Data objects (Field data objects must
@@ -70,6 +76,7 @@ public class DirectManipulationRendererA3D extends RendererA3D {
   }
 
   public void addPoint(float[] x) throws VisADException {
+    /*
     if (branch == null) return;
     int count = x.length / 3;
     VisADGeometryArray array = null;
@@ -116,16 +123,13 @@ public class DirectManipulationRendererA3D extends RendererA3D {
     group.setCapability(Group.ALLOW_CHILDREN_READ);
     group.addChild(shape);
     branch.addChild(group);
+    */
   }
 
   /** create a BranchGroup scene graph for Data in links[0] */
-  public synchronized BranchGroup doTransform()
+  public synchronized Node doTransform()
          throws VisADException, RemoteException {
-    branch = new BranchGroup();
-    branch.setCapability(BranchGroup.ALLOW_DETACH);
-    branch.setCapability(Group.ALLOW_CHILDREN_READ);
-    branch.setCapability(Group.ALLOW_CHILDREN_WRITE);
-    branch.setCapability(Group.ALLOW_CHILDREN_EXTEND);
+    branch = new Node();
 
     DataDisplayLink[] Links = getLinks();
     if (Links == null || Links.length == 0) {
@@ -185,11 +189,11 @@ public class DirectManipulationRendererA3D extends RendererA3D {
   }
 
   /** for use by sub-classes that override doTransform() */
-  public void setBranch(BranchGroup b) {
+  public void setBranch(Node b) {
     branch = b;
   }
 
-  void addSwitch(DisplayRendererA3D displayRenderer, BranchGroup branch) {
+  void addSwitch(DisplayRendererA3D displayRenderer, Node branch) {
     displayRenderer.addDirectManipulationSceneGraphComponent(branch, this);
   }
 
