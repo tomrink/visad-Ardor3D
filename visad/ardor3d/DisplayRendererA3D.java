@@ -32,6 +32,7 @@ import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.scenegraph.Node;
+import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.event.DirtyType;
 import com.ardor3d.scenegraph.extension.SwitchNode;
 import java.awt.image.BufferedImage;
@@ -801,9 +802,12 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
 
-  public void clearScene(DataRenderer renderer) {
+  public void clearScene(DataRenderer renderer, Object group) {
     if (not_destroyed == null) return;
     directs.removeElement(renderer);
+    if (group != null) {
+      non_direct.detachChild((Spatial)group);
+    }
   }
 
   /** 
@@ -1480,7 +1484,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void rendererDeleted(DataRenderer renderer)
   {
     if (not_destroyed == null) return;
-    clearScene(renderer);
+    clearScene(renderer, null);
   }
 
   public void setLineWidth(float width) {

@@ -1,5 +1,5 @@
 //
-// RendererJ3D.java
+// RendererA3D.java
 //
 
 /*
@@ -26,10 +26,13 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.scenegraph.Node;
+import com.ardor3d.scenegraph.Spatial;
+import com.ardor3d.scenegraph.extension.SwitchNode;
 import visad.*;
 import visad.util.Delay;
 
-import javax.media.j3d.*;
+//import javax.media.j3d.*;
 
 import java.util.*;
 import java.rmi.*;
@@ -47,18 +50,12 @@ import java.awt.Image;
 public abstract class RendererA3D extends DataRenderer {
 
   /** switch is parent of any BranchGroups created by this */
-  Switch sw = null;
+  SwitchNode sw = null;
+  
   /** parent of sw for 'detach' */
-  BranchGroup swParent = null;
-  /** index of current 'intended' child of Switch sw;
-      not necessarily == sw.getWhichChild() */
-  /** currentIndex is always = 0; this logic is a vestige of a
-      workaround for an old (circa 1998) bug in Java3D */
-  private static final int currentIndex = 0;
-  BranchGroup[] branches = null;
-  boolean[] switchFlags = {false, false, false};
-  boolean[] branchNonEmpty = {false, false, false};
-
+  Node swParent = null;
+  
+  Node dataBranch = null;
   
   public RendererA3D() {
     super();
@@ -78,38 +75,20 @@ public abstract class RendererA3D extends DataRenderer {
     setLinks(links);
 
     // set up switch logic for clean BranchGroup replacement
-    Switch swt = new Switch(); // J3D
-    swt.setCapability(Group.ALLOW_CHILDREN_READ);
-    swt.setCapability(Group.ALLOW_CHILDREN_WRITE);
-    swt.setCapability(Group.ALLOW_CHILDREN_EXTEND);
-    swt.setCapability(Switch.ALLOW_SWITCH_READ);
-    swt.setCapability(Switch.ALLOW_SWITCH_WRITE);
+    SwitchNode swt = new SwitchNode();
 
-    swParent = new BranchGroup();
-    swParent.setCapability(BranchGroup.ALLOW_DETACH);
-    swParent.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-    swParent.addChild(swt);
-    // make it 'live'
+    swParent = new Node();
+    swParent.attachChild(swt);
+    
+    // add to DisplayRenderer
     addSwitch((DisplayRendererA3D) getDisplayRenderer(), swParent);
 
-    branches = new BranchGroup[3];
-    for (int i=0; i<3; i++) {
-      branches[i] = new BranchGroup();
-      branches[i].setCapability(Group.ALLOW_CHILDREN_READ);
-      branches[i].setCapability(Group.ALLOW_CHILDREN_WRITE);
-      branches[i].setCapability(Group.ALLOW_CHILDREN_EXTEND);
-      swt.addChild(branches[i]);
-    }
-/*
-System.out.println("setLinks: sw.setWhichChild(" + currentIndex + ")");
-*/
-    swt.setWhichChild(currentIndex);
-    sw = swt; // avoid IndexOutOfBoundsException in toggle()
+    sw = swt;
     toggle(getEnabled());
   }
 
   public void toggle(boolean on) {
-    if (sw != null) sw.setWhichChild(on ? currentIndex : ((currentIndex+1)%3));
+    sw.setVisible(0, on);
     super.toggle(on);
   }
 
@@ -149,14 +128,12 @@ System.out.println("setLinks: sw.setWhichChild(" + currentIndex + ")");
     return new ShadowTupleTypeA3D(type, link, parent);
   }
 
-  abstract void addSwitch(DisplayRendererA3D displayRenderer,
-                          BranchGroup branch);
+  abstract void addSwitch(DisplayRendererA3D displayRenderer, Node branch);
 
   /** re-transform if needed;
       return false if not done */
   public boolean doAction() throws VisADException, RemoteException {
-    if (branches == null) return false;
-    BranchGroup branch; // J3D
+    Node branch;
     boolean all_feasible = get_all_feasible();
     boolean any_changed = get_any_changed();
     boolean any_transform_control = get_any_transform_control();
@@ -224,26 +201,33 @@ System.out.println("doAction " + getDisplay().getName() + " " +
       }
 
       if (branch != null) {
-        synchronized (this) {
-          if (!branchNonEmpty[currentIndex] ||
-              branches[currentIndex].numChildren() == 0) {
-            /* WLH 18 Nov 98 */
-            branches[currentIndex].addChild(branch);
-            branchNonEmpty[currentIndex] = true;
-          }
-          else { // if (branchNonEmpty[currentIndex])
-            if (!(branches[currentIndex].getChild(0) == branch)) {// TDR, Nov 02
-              flush(branches[currentIndex]);
-              branches[currentIndex].setChild(branch, 0);
-            }
-          } // end if (branchNonEmpty[currentIndex])
-        } // end synchronized (this)
+         
+        Spatial prevNode = sw.getChild(0);
+         
+        if (prevNode != null) {
+          sw.detachChild(prevNode);
+          // release resources in prevNode ?
+        }
+        sw.attachChildAt(branch, 0);
+        dataBranch = branch;
+         
+//        synchronized (this) {
+//          if (!branchNonEmpty[currentIndex] ||
+//              branches[currentIndex].numChildren() == 0) {
+//            /* WLH 18 Nov 98 */
+//            branches[currentIndex].addChild(branch);
+//            branchNonEmpty[currentIndex] = true;
+//          }
+//          else { // if (branchNonEmpty[currentIndex])
+//            if (!(branches[currentIndex].getChild(0) == branch)) {// TDR, Nov 02
+//              flush(branches[currentIndex]);
+//              branches[currentIndex].setChild(branch, 0);
+//            }
+//          } // end if (branchNonEmpty[currentIndex])
+//        } // end synchronized (this)
       }
       else { // if (branch == null)
-
-        // WLH 31 March 99
         clearBranch();
-
         all_feasible = false;
         set_all_feasible(all_feasible);
       }
@@ -257,18 +241,11 @@ System.out.println("doAction " + getDisplay().getName() + " " +
     return (all_feasible && (any_changed || any_transform_control));
   }
 
-  public BranchGroup getBranch() {
-    synchronized (this) {
-      if (branches != null && branchNonEmpty[currentIndex] &&
-          branches[currentIndex].numChildren() > 0) {
-        return (BranchGroup) branches[currentIndex].getChild(0);
-      }
-      else {
-        return null;
-      }
-    }
+  public Node getBranch() {
+    return dataBranch;
   }
 
+  /* Probably not need using Ardor3D
   public void setBranchEarly(BranchGroup branch) {
     if (branches == null) return;
     // needed (?) to avoid NullPointerException
@@ -278,7 +255,7 @@ System.out.println("doAction " + getDisplay().getName() + " " +
     synchronized (this) {
       if (!branchNonEmpty[currentIndex] ||
           branches[currentIndex].numChildren() == 0) {
-        /* WLH 18 Nov 98 */
+        // WLH 18 Nov 98
         branches[currentIndex].addChild(branch);
         branchNonEmpty[currentIndex] = true;
       }
@@ -290,23 +267,15 @@ System.out.println("doAction " + getDisplay().getName() + " " +
       } // end if (branchNonEmpty[currentIndex])
     } // end synchronized (this)
   }
+  */
 
   public void clearBranch() {
-    if (branches == null) return;
-    synchronized (this) {
-      if (branchNonEmpty[currentIndex]) {
-        flush(branches[currentIndex]);
-        Enumeration ch = branches[currentIndex].getAllChildren();
-        while(ch.hasMoreElements()) {
-          BranchGroup b = (BranchGroup) ch.nextElement();
-          b.detach();
-        }
-      }
-      branchNonEmpty[currentIndex] = false;
-    }
+     sw.detachChild(dataBranch);
+     dataBranch = null;
   }
 
-  public void flush(Group branch) {
+  public void flush(Node branch) {
+    /*
     if (branches == null) return;
     Enumeration ch = branch.getAllChildren();
     while(ch.hasMoreElements()) {
@@ -343,14 +312,13 @@ System.out.println("doAction " + getDisplay().getName() + " " +
         }
       }
     }
+    */
   }
 
   public void clearScene() {
-    if (branches == null) return;
     flush(swParent);
-    swParent.detach();
-    ((DisplayRendererA3D) getDisplayRenderer()).clearScene(this);
-    branches = null;
+    ((DisplayRendererA3D) getDisplayRenderer()).clearScene(this, swParent);
+    dataBranch = null;
     sw = null;
     swParent = null;
     super.clearScene();
@@ -364,7 +332,7 @@ System.out.println("doAction " + getDisplay().getName() + " " +
       1. use boolean[] changed to determine which Data objects have changed
       2. if Data has not changed, then use Control.checkTicks loop like in
          prepareAction to determine which Control-s have changed */
-  public abstract BranchGroup doTransform()
+  public abstract Node doTransform()
          throws VisADException, RemoteException;
 
 }
