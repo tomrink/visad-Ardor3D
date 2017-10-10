@@ -169,9 +169,9 @@ public class DisplayManagerA3D implements Updater {
     }
     
     
-    public static DisplayManagerA3D createDisplayManager(Dimension size, DisplayRendererA3D dspRenderer) {
+    public static DisplayManagerA3D createDisplayManager(Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
        DisplayManagerA3D display = null;
-       DisplayManagerInitializer dspInitializer = new DisplayManagerInitializer(size, dspRenderer);
+       DisplayManagerInitializer dspInitializer = new DisplayManagerInitializer(size, dspRenderer, canvasType);
        
        if (!SwingUtilities.isEventDispatchThread()) {
           try {
@@ -183,7 +183,7 @@ public class DisplayManagerA3D implements Updater {
           }
        }
        else {
-          display = new DisplayManagerA3D(size, dspRenderer);
+          display = new DisplayManagerA3D(size, dspRenderer, canvasType);
        }
        
        return display;
@@ -217,16 +217,18 @@ class DisplayManagerInitializer implements Runnable {
       
       private final Dimension size;
       private final DisplayRendererA3D dspRenderer;
+      private final int canvasType;
       
       
-      DisplayManagerInitializer(Dimension size, DisplayRendererA3D dspRenderer) {
+      DisplayManagerInitializer(Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
          this.size = size;
          this.dspRenderer = dspRenderer;
+         this.canvasType = canvasType;
       }
 
       @Override
       public void run() {
-         display = new DisplayManagerA3D(size, dspRenderer);
+         display = new DisplayManagerA3D(size, dspRenderer, canvasType);
       }
       
       DisplayManagerA3D getTheDisplay() {
