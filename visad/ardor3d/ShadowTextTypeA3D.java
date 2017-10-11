@@ -60,7 +60,6 @@ public class ShadowTextTypeA3D extends ShadowScalarTypeA3D {
     boolean post = ((ShadowTextType) adaptedShadowType).
                         doTransform(group, data, value_array,
                                     default_values, renderer, this);
-    ensureNotEmpty(group);
     return post;
   }
 

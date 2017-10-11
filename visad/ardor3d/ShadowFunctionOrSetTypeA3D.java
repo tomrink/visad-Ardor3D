@@ -270,7 +270,6 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
       post = shadow.doTransform(group, data, value_array, default_values, renderer, this); 
     }
     
-    ensureNotEmpty(group);
     return post;
   }
 
@@ -1183,7 +1182,6 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
       node.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
       node.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
       node.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
-      ensureNotEmpty(node);
       addToSwitch(swit, node);
     }
     return swit;
@@ -1202,7 +1200,6 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
    empty BranchGroup or Shape3D may cause NullPointerException
    from Shape3DRetained.setLive
 */
-    ensureNotEmpty((BranchGroup) branch);
     ((BranchGroup) group).addChild((BranchGroup) branch);
   }
 
@@ -1212,7 +1209,6 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
    empty BranchGroup or Shape3D may cause NullPointerException
    from Shape3DRetained.setLive
 */
-    ensureNotEmpty((BranchGroup) branch);
     ((Switch) swit).addChild((BranchGroup) branch);
   }
 

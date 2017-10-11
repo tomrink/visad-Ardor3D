@@ -504,9 +504,11 @@ public class VisADCanvasA3D {
     displayRenderer = null;
     if (component != null) {
       try {
+        /*
         if (component instanceof DisplayPanelA3D) {
           ((DisplayPanelA3D)component).destroy();
         }
+        */
       }
       catch (Exception exc) {
         //jeffmc: we kept getting these exceptions so for now

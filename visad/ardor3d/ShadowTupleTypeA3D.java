@@ -89,7 +89,6 @@ public class ShadowTupleTypeA3D extends ShadowTypeA3D {
     boolean post = ((ShadowTupleType) adaptedShadowType).
                         doTransform(group, data, value_array,
                                     default_values, renderer, this);
-    ensureNotEmpty(group);
     return post;
   }
 

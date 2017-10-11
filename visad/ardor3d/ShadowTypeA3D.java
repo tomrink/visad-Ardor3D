@@ -1163,56 +1163,7 @@ public abstract class ShadowTypeA3D extends ShadowType {
     boolean post = adaptedShadowType.terminalTupleOrScalar(group,
         display_values, text_value, text_control, valueArrayLength,
         valueToScalar, default_values, inherited_values, renderer, this);
-    ensureNotEmpty(group);
     return post;
-  }
-
-  /**
-   * this is a work-around for the NullPointerException at
-   * javax.media.j3d.Shape3DRetained.setLive(Shape3DRetained.java:448)
-   *
-   * @param obj
-   */
-  public void ensureNotEmpty(Object obj) {
-    ensureNotEmpty(obj, display);
-  }
-
-  /**
-   *
-   *
-   * @param obj
-   * @param display
-   */
-  public static void ensureNotEmpty(Object obj, DisplayImpl display) {
-    if (!(obj instanceof Group))
-      return;
-    Group group = (Group) obj;
-    if (group.numChildren() > 0)
-      return;
-    GeometryArray geometry = new PointArray(1, GeometryArray.COORDINATES
-        | GeometryArray.COLOR_3);
-    geometry.setCapability(GeometryArray.ALLOW_COLOR_READ);
-    geometry.setCapability(GeometryArray.ALLOW_COORDINATE_READ);
-    geometry.setCapability(GeometryArray.ALLOW_COUNT_READ);
-    geometry.setCapability(GeometryArray.ALLOW_FORMAT_READ);
-    geometry.setCapability(GeometryArray.ALLOW_NORMAL_READ);
-    // geometry.setCapability(GeometryArray.ALLOW_REF_DATA_READ);
-    float[] coordinates = new float[3];
-    coordinates[0] = 1000000.0f;
-    coordinates[1] = 1000000.0f;
-    coordinates[2] = 1000000.0f;
-    geometry.setCoordinates(0, coordinates);
-    float[] colors = new float[3];
-    colors[0] = 0.0f;
-    colors[1] = 0.0f;
-    colors[2] = 0.0f;
-    geometry.setColors(0, colors);
-    Appearance appearance = staticMakeCachedAppearance(display
-        .getGraphicsModeControl(), null, null, geometry, false, true);
-    Shape3D shape = new Shape3D(geometry, appearance);
-    shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-    shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-    group.addChild(shape);
   }
 
   /**
