@@ -1297,70 +1297,13 @@ public abstract class ShadowTypeA3D extends ShadowType {
   public boolean addTextToGroup(Object group, VisADGeometryArray array,
       GraphicsModeControl mode, float constant_alpha, float[] constant_color)
       throws VisADException {
+     
     if (array != null && array.vertexCount > 0) {
-      float af = 0.0f;
-      TransparencyAttributes c_alpha = null;
-      if (constant_alpha == 1.0f) {
-        // constant opaque alpha = NONE
-        c_alpha = getTransparencyAttributes(TransparencyAttributes.NONE, 0.0f);
-      } else if (constant_alpha == constant_alpha) {
-        c_alpha = getTransparencyAttributes(mode.getTransparencyMode(),
-            constant_alpha);
-        af = constant_alpha;
-      } else {
-        // WLH - 18 Aug 99 - how could this have gone undetected for so long?
-        // c_alpha = getTransparencyAttributes(mode.getTransparencyMode(),
-        // 1.0f);
-        c_alpha = getTransparencyAttributes(mode.getTransparencyMode(), 0.0f);
-      }
-      ColoringAttributes c_color = null;
-      if (constant_color != null && constant_color.length == 3) {
-        c_color = getColoringAttributes(constant_color[0], constant_color[1],
-            constant_color[2]);
 
-        // WLH 16 Oct 2001 (really 10 Dec 2001)
-        if (!(array instanceof VisADLineArray
-            || array instanceof VisADPointArray || array instanceof VisADLineStripArray)
-            && array.colors == null) {
-          int color_len = 3;
-          if (af != 0.0f) {
-            color_len = 4;
-          }
-          byte r = ShadowType.floatToByte(constant_color[0]);
-          byte g = ShadowType.floatToByte(constant_color[1]);
-          byte b = ShadowType.floatToByte(constant_color[2]);
-          int len = array.vertexCount * color_len;
-          byte[] colors = new byte[len];
-
-          if (color_len == 3) {
-            for (int i = 0; i < len; i += 3) {
-              colors[i] = r;
-              colors[i + 1] = g;
-              colors[i + 2] = b;
-            }
-          } else {
-            byte a = ShadowType.floatToByte(af);
-            for (int i = 0; i < len; i += 4) {
-              colors[i] = r;
-              colors[i + 1] = g;
-              colors[i + 2] = b;
-              colors[i + 3] = a;
-            }
-          }
-          array.colors = colors;
-        }
-
-      }
-      // MEM - for coordinates if mode2d
-      GeometryArray geometry = display.makeGeometry(array);
-      Appearance appearance = makeCachedAppearance(mode, c_alpha, c_color,
-          geometry, false, true);
-      Shape3D shape = new Shape3D(geometry, appearance);
-      shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      ((Group) group).addChild(shape);
-
+      addToGroup(group, array, mode, constant_alpha, constant_color);
+      
       if (array instanceof VisADTriangleArray) {
+        /* Keep for reference, what is this?
         GeometryArray geometry2 = display.makeGeometry(array);
         // Don't cache the appearance
         Appearance appearance2 = makeCachedAppearance(mode, c_alpha, c_color,
@@ -1374,10 +1317,12 @@ public abstract class ShadowTypeA3D extends ShadowType {
         shape2.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
         shape2.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
         ((Group) group).addChild(shape2);
+        */
       }
 
       return true;
-    } else {
+    } 
+    else {
       return false;
     }
   }
