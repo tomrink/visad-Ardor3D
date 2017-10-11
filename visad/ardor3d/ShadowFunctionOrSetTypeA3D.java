@@ -26,10 +26,11 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.scenegraph.Node;
+import com.ardor3d.scenegraph.extension.SwitchNode;
 import visad.*;
 import visad.util.ThreadManager;
 
-import javax.media.j3d.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,22 @@ import java.util.Vector;
 import java.rmi.*;
 
 import java.awt.image.*;
+import javax.media.j3d.Appearance;
+import javax.media.j3d.BranchGroup;
+import javax.media.j3d.ColoringAttributes;
+import javax.media.j3d.GeometryArray;
+import javax.media.j3d.Group;
+import javax.media.j3d.ImageComponent;
+import javax.media.j3d.ImageComponent2D;
+import javax.media.j3d.ImageComponent3D;
+import javax.media.j3d.OrderedGroup;
+import javax.media.j3d.Shape3D;
+import javax.media.j3d.Switch;
+import javax.media.j3d.Texture;
+import javax.media.j3d.Texture2D;
+import javax.media.j3d.Texture3D;
+import javax.media.j3d.TextureAttributes;
+import javax.media.j3d.TransparencyAttributes;
 
 
 /**
@@ -1162,54 +1179,33 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
   }
 
   public Object makeSwitch() {
-    Switch swit = new Switch(Switch.CHILD_MASK);
-    swit.setCapability(Switch.ALLOW_SWITCH_READ);
-    swit.setCapability(Switch.ALLOW_SWITCH_WRITE);
-    swit.setCapability(BranchGroup.ALLOW_DETACH);
-    swit.setCapability(Group.ALLOW_CHILDREN_READ);
-    swit.setCapability(Group.ALLOW_CHILDREN_WRITE);
+    SwitchNode swit = new SwitchNode();
     return swit;
   }
 
   public Object makeSwitch(int length) throws VisADException {
-    Switch swit = (Switch)makeSwitch();
+    SwitchNode swit = (SwitchNode) makeSwitch();
 
-//  -TDR
-    swit.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
     for (int i=0; i<length; i++) {
-      BranchGroup node = new BranchGroup();
-      node.setCapability(BranchGroup.ALLOW_DETACH);
-      node.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
-      node.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-      node.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
+      Node node = new Node();
       addToSwitch(swit, node);
     }
     return swit;
   }
   
   public Object makeBranch() {
-    BranchGroup branch = new BranchGroup();
-    branch.setCapability(BranchGroup.ALLOW_DETACH);
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
+    Node branch = new Node();
     return branch;
   }
 
   public void addToGroup(Object group, Object branch)
          throws VisADException {
-/* WLH 18 Aug 98
-   empty BranchGroup or Shape3D may cause NullPointerException
-   from Shape3DRetained.setLive
-*/
-    ((BranchGroup) group).addChild((BranchGroup) branch);
+    ((Node) group).attachChild((Node) branch);
   }
 
   public void addToSwitch(Object swit, Object branch)
          throws VisADException {
-/* WLH 18 Aug 98
-   empty BranchGroup or Shape3D may cause NullPointerException
-   from Shape3DRetained.setLive
-*/
-    ((Switch) swit).addChild((BranchGroup) branch);
+    ((SwitchNode) swit).attachChild((Node) branch);
   }
 
   public void addSwitch(Object group, Object swit, Control control,
@@ -1218,13 +1214,11 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
     ((AVControlA3D) control).addPair((Switch) swit, domain_set, renderer);
     ((AVControlA3D) control).init();
     // WLH 06 Feb 06 - fix problem adding a new switch to an existing group
+    // TDR Oct 17 - something might depend extra Node so keep this for now.
     // ((Group) group).addChild((Switch) swit);
-    BranchGroup branch = new BranchGroup();
-    branch.setCapability(BranchGroup.ALLOW_DETACH);
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-    branch.addChild((Switch) swit);
-    ((Group) group).addChild(branch);
-
+    Node branch = new Node();
+    branch.attachChild((SwitchNode) swit);
+    ((Node) group).attachChild(branch);
   }
 
   public boolean recurseRange(Object group, Data data, float[] value_array,
