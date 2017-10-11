@@ -15,10 +15,6 @@ import com.ardor3d.scenegraph.Spatial;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
-/**
- *
- * @author Andreas Hauffe
- */
 public class MouseControlA3D {
 
     protected Spatial _lookAtSpatial = null;
