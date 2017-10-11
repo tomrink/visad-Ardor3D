@@ -435,8 +435,8 @@ public class DisplayImplA3D extends DisplayImpl {
     return apiValue;
   }
 
-  public GeometryArray makeGeometry(VisADGeometryArray vga) throws VisADException {
-     return null;
+  public Spatial makeGeometry(VisADGeometryArray vga) throws VisADException {
+     return makeGeometry(vga, null);
   }
   
   public Spatial makeGeometry(VisADGeometryArray vga, ColorRGBA defaultColor) throws VisADException {
