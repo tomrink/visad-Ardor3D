@@ -28,6 +28,7 @@ package visad.ardor3d;
 
 import com.ardor3d.framework.Scene;
 import com.ardor3d.intersection.PickResults;
+import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
 import com.ardor3d.renderer.Renderer;
@@ -1244,37 +1245,25 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
               VisADLineArray array, VisADTriangleArray labels,
               float[] scale_color)
          throws VisADException {
-    if (not_destroyed == null) return;
-// DisplayImpl.printStack("setScale");
-    // add array to scale_on
-    // replace any existing at axis, axis_ordinal
+    if (not_destroyed == null) {
+       return;
+    }
+    
     DisplayImplA3D display = (DisplayImplA3D) getDisplay();
-    GeometryArray geometry = display.makeGeometry(array);
-    GraphicsModeControl mode = display.getGraphicsModeControl();
-    ColoringAttributes color = new ColoringAttributes();
-    color.setColor(scale_color[0], scale_color[1], scale_color[2]);
-    Appearance appearance =
-      ShadowTypeA3D.staticMakeAppearance(mode, null, color, geometry, false);
-    Shape3D shape = new Shape3D(geometry, appearance);
-    shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-    shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-    BranchGroup group = new BranchGroup();
-    group.setCapability(BranchGroup.ALLOW_DETACH);
-    group.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-    group.addChild(shape);
+    
+    ColorRGBA color = new ColorRGBA(scale_color[0], scale_color[1], scale_color[2], 1);
+    Spatial geometry = display.makeGeometry(array, color);
+    
+    Node group = new Node();
+    group.attachChild(geometry);
+    
     if (labels != null) {
-      GeometryArray labelGeometry = display.makeGeometry(labels);
-      Appearance labelAppearance =
-        ShadowTypeA3D.staticMakeAppearance(mode, null, null,
-                                           labelGeometry, true);
-      Shape3D labelShape = new Shape3D(labelGeometry, labelAppearance);
-      labelShape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      labelShape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
+      Spatial labelGeometry = display.makeGeometry(labels);
       
-      group.addChild(labelShape);
+      group.attachChild(labelGeometry);
 
-
-      if (labels instanceof VisADTriangleArray) {
+      if (labels instanceof VisADTriangleArray) { // Keep for reference. What is this?
+        /*
         GeometryArray labelGeometry2 = display.makeGeometry(labels);
         Appearance labelAppearance2 =
           ShadowTypeA3D.staticMakeAppearance(mode, null, null,
@@ -1290,10 +1279,10 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
         labelShape2.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
         labelShape2.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
         group.addChild(labelShape2);
+        */
       }
-
-
     }
+    
     //TDR Ardor3D may not need this logic
     // may only add BranchGroup to 'live' scale_on
     int dim = getMode2D() ? 2 : 3;
@@ -1306,7 +1295,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
           scale_on.attachChild(empty);
         }
       }
-     // scale_on.setChild(group, m);
+     scale_on.attachChildAt(group, m);
     }
   }
 
