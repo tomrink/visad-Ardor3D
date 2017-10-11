@@ -26,8 +26,17 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.image.Image;
+import com.ardor3d.image.ImageDataFormat;
+import com.ardor3d.image.PixelDataType;
+import com.ardor3d.renderer.state.MaterialState;
+import com.ardor3d.renderer.state.OffsetState;
+import com.ardor3d.renderer.state.RenderState;
+import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Node;
+import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.extension.SwitchNode;
+import com.ardor3d.util.TextureManager;
 import visad.*;
 import visad.util.ThreadManager;
 
@@ -39,22 +48,13 @@ import java.util.Vector;
 import java.rmi.*;
 
 import java.awt.image.*;
-import javax.media.j3d.Appearance;
+import java.nio.ByteBuffer;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.Group;
-import javax.media.j3d.ImageComponent;
 import javax.media.j3d.ImageComponent2D;
-import javax.media.j3d.ImageComponent3D;
-import javax.media.j3d.OrderedGroup;
-import javax.media.j3d.Shape3D;
 import javax.media.j3d.Switch;
-import javax.media.j3d.Texture;
 import javax.media.j3d.Texture2D;
-import javax.media.j3d.Texture3D;
-import javax.media.j3d.TextureAttributes;
-import javax.media.j3d.TransparencyAttributes;
 
 
 /**
@@ -574,114 +574,80 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
                             int texture_width, int texture_height, 
                             boolean byReference, boolean yUp, VisADImageTileA3D tile, boolean smoothen)
          throws VisADException {
-    GeometryArray geometry = display.makeGeometry(array);
-    // System.out.println("texture geometry");
-    // create basic Appearance
-    TransparencyAttributes c_alpha = null;
-
-    if (constant_alpha == 1.0f) {
-      // constant opaque alpha = NONE
-      c_alpha = null;
-    }
-    else if (constant_alpha == constant_alpha) {
-      	//12NOV2012: GHANSHAM Use inversed alpha for 3 byte buffered images too
-        int image_type = image.getType();
-        boolean inversed_alpha = (image_type == BufferedImage.TYPE_3BYTE_BGR) || (image_type == BufferedImage.TYPE_BYTE_GRAY);
-      	c_alpha = new TransparencyAttributes(TransparencyAttributes.BLENDED,
-                                (inversed_alpha)? (1.0f - constant_alpha): constant_alpha);
-      c_alpha.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE); //REUSE GEOMETRY/COLORBYTE REQUIREMENT
-    }
-    else {
-      c_alpha = new TransparencyAttributes();
-      c_alpha.setTransparencyMode(TransparencyAttributes.BLENDED);
-      c_alpha.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE); //REUSE GEOMETRY/COLORBYTE REQUIREMENT
-    }
-    ColoringAttributes c_color = null;
-    if (constant_color != null && constant_color.length == 3) {
-      c_color = new ColoringAttributes();
-      c_color.setColor(constant_color[0], constant_color[1], constant_color[2]);
-    }
-    Appearance appearance =
-      makeAppearance(mode, c_alpha, null, geometry, false);
-    appearance.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE); //REUSE GEOMETRY/COLORBYTE REQUIREMENT
-    // create TextureAttributes
-    TextureAttributes texture_attributes = new TextureAttributes();
-
-    // WLH 20 June 2001
-    if (smoothen) {
-      texture_attributes.setTextureMode(TextureAttributes.MODULATE);
-    } else {
-      texture_attributes.setTextureMode(TextureAttributes.REPLACE);
-    }
-
-    texture_attributes.setPerspectiveCorrectionMode(TextureAttributes.NICEST);
-    appearance.setTextureAttributes(texture_attributes);
-    // create Texture2D
-// TextureLoader uses 1st argument = 1
-/*
-System.out.println("Texture.BASE_LEVEL = " + Texture.BASE_LEVEL); // 1
-System.out.println("Texture.RGBA = " + Texture.RGBA); // 6
-*/
-    Texture2D texture = new Texture2D(Texture.BASE_LEVEL, getTextureType(image.getType()),
-                                      texture_width, texture_height);
-    texture.setCapability(Texture.ALLOW_IMAGE_READ);
-    ImageComponent2D image2d =
-      new ImageComponent2D(getImageComponentType(image.getType()), image, byReference, yUp);
-    image2d.setCapability(ImageComponent.ALLOW_IMAGE_READ);
-    if (byReference) {
-      image2d.setCapability(ImageComponent.ALLOW_IMAGE_WRITE);
-    }
-    texture.setImage(0, image2d);
-
-    //
-    // from TextureLoader
-    // TextureLoader uses 3 for both setMinFilter and setMagFilter
-/*
-System.out.println("Texture.FASTEST = " + Texture.FASTEST); // 0
-System.out.println("Texture.NICEST = " + Texture.NICEST); // 1
-System.out.println("Texture.BASE_LEVEL_POINT = " + Texture.BASE_LEVEL_POINT); // 2
-System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); // 3
-*/
-/* for interpolation:
-    texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-    texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-*/
-    if (smoothen) {
-      texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-      texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-    } else {
-      texture.setMinFilter(Texture.BASE_LEVEL_POINT);
-      texture.setMagFilter(Texture.BASE_LEVEL_POINT);
-    }
-
-    texture.setEnable(true);
-    // end of from TextureLoader
-    //
-    Shape3D shape = new Shape3D(geometry, appearance);
-    shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-    shape.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);	//REUSE GEOMETRY/COLORBYTE REQUIREMENT
-    shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-    appearance.setTexture(texture);
-    appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-    appearance.setCapability(Appearance.ALLOW_TEXTURE_WRITE);  //REUSE GEOMETRY/COLORBYTE REQUIREMENT
-
-    // WLH 6 April 2000
-    // ((Group) group).addChild(shape);
-    BranchGroup branch = new BranchGroup();
-    branch.setCapability(BranchGroup.ALLOW_DETACH);
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-    branch.addChild(shape);
-    if (((Group) group).numChildren() > 0) {
-      ((Group) group).setChild(branch, 0);
-    }
-    else {
-      ((Group) group).addChild(branch);
-    }
-
-    if (tile != null) {
-    }
+     
+    
+      Raster raster = image.getRaster();
+      DataBuffer db = raster.getDataBuffer();
+      int imageType = image.getType();
+      if (imageType == BufferedImage.TYPE_4BYTE_ABGR || imageType == BufferedImage.TYPE_3BYTE_BGR) {
+        byte[] byteData = ((DataBufferByte)db).getData();
+      }
+    
+    //textureToGroup(group, array, null, mode, constant_alpha, constant_color, texture_width, texture_height, byReference, yUp, tile, smoothen);
+    
   }
 
+  public void textureToGroup(Object group, VisADGeometryArray array,
+                            byte[] byteData, GraphicsModeControl mode,
+                            float constant_alpha, float[] constant_color,
+                            int textureWidth, int textureHeight, 
+                            boolean byReference, boolean yUp, VisADImageTileA3D tile, boolean smoothen) throws VisADException {
+    // Note: constant_color did not appear to be used in the Java3D graphics dependent API
+     
+    ByteBuffer bbuf = ByteBuffer.wrap(byteData);
+    Image aImage = new Image(ImageDataFormat.BGR, PixelDataType.UnsignedByte, textureWidth, textureHeight, bbuf, null);
+    
+    if (constant_alpha == 1.0f) {
+      // constant opaque alpha = NONE
+    }
+    else if (constant_alpha == constant_alpha) {
+    }
+    else { // constant_alpha == NaN
+    }    
+       
+    TextureState ts = new TextureState();
+    ts.setCorrectionType(TextureState.CorrectionType.Affine);
+    ts.setEnabled(true);
+    
+    com.ardor3d.image.Texture.MinificationFilter minFilter;
+    com.ardor3d.image.Texture.ApplyMode applyMode = com.ardor3d.image.Texture.ApplyMode.Replace;
+    if (smoothen) {
+       minFilter = com.ardor3d.image.Texture.MinificationFilter.BilinearNoMipMaps;
+    }
+    else {
+       minFilter = com.ardor3d.image.Texture.MinificationFilter.NearestNeighborNoMipMaps;
+    }
+        
+    com.ardor3d.image.Texture texture = TextureManager.loadFromImage(aImage, minFilter);
+    texture.setMagnificationFilter(com.ardor3d.image.Texture.MagnificationFilter.NearestNeighbor);
+    texture.setApply(applyMode);
+    ts.setTexture(texture);
+    
+    /* this may only be necessary if array is filled */
+    OffsetState offset = (OffsetState) RenderState.createState(RenderState.StateType.Offset);
+    offset.setFactor(1f);
+    offset.setUnits(1f);
+    offset.setTypeEnabled(OffsetState.OffsetType.Fill, true);
+        
+    MaterialState material = new MaterialState();
+    material.setColorMaterial(MaterialState.ColorMaterial.Emissive);
+    
+    Spatial geom = display.makeGeometry(array);
+    
+    Node branch = new Node();
+        
+    branch.attachChild(geom);
+    branch.setRenderState(material);
+    branch.setRenderState(ts);
+    branch.setRenderState(offset);
+    
+    ((Node)group).attachChildAt(geom, 0);
+    
+    if (tile != null) { // something may need to be done here!
+       
+    }
+     
+  }  
   public void texture3DToGroup(Object group, VisADGeometryArray arrayX,
                     VisADGeometryArray arrayY, VisADGeometryArray arrayZ,
                     VisADGeometryArray arrayXrev,
@@ -692,7 +658,9 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
                     int texture_width, int texture_height,
                     int texture_depth, DataRenderer renderer)
          throws VisADException {
+    throw new VisADException("texture3DtoGroup: not yet implemented for Ardor3D");
 
+    /*
     GeometryArray geometryX = display.makeGeometry(arrayX);
     GeometryArray geometryY = display.makeGeometry(arrayY);
     GeometryArray geometryZ = display.makeGeometry(arrayZ);
@@ -732,10 +700,6 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
     appearance.setTextureAttributes(texture_attributes);
     // create Texture2D
 // TextureLoader uses 1st argument = 1
-/*
-System.out.println("Texture.BASE_LEVEL = " + Texture.BASE_LEVEL); // 1
-System.out.println("Texture.RGBA = " + Texture.RGBA); // 6
-*/
     Texture3D texture = new Texture3D(Texture.BASE_LEVEL, Texture.RGBA,
                           texture_width, texture_height, texture_depth);
     texture.setCapability(Texture.ALLOW_IMAGE_READ);
@@ -751,19 +715,12 @@ System.out.println("Texture.RGBA = " + Texture.RGBA); // 6
     //
     // from TextureLoader
     // TextureLoader uses 3 for both setMinFilter and setMagFilter
-/*
-System.out.println("Texture.FASTEST = " + Texture.FASTEST); // 0
-System.out.println("Texture.NICEST = " + Texture.NICEST); // 1
-System.out.println("Texture.BASE_LEVEL_POINT = " + Texture.BASE_LEVEL_POINT); // 2
-System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); // 3
-*/
-/* for interpolation: */
+    //for interpolation:
     texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
     texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-/* for sampling:
-    texture.setMinFilter(Texture.BASE_LEVEL_POINT);
-    texture.setMagFilter(Texture.BASE_LEVEL_POINT);
-*/
+    //for sampling:
+    //texture.setMinFilter(Texture.BASE_LEVEL_POINT);
+    //texture.setMagFilter(Texture.BASE_LEVEL_POINT);
     texture.setEnable(true);
     // end of from TextureLoader
 
@@ -817,6 +774,7 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
     ProjectionControlA3D control =
       (ProjectionControlA3D) display.getProjectionControl();
     control.addPair(swit, renderer);
+    */
   }
 
   public void textureStackToGroup(Object group, VisADGeometryArray arrayX,
@@ -832,15 +790,16 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
                     int texture_width, int texture_height,
                     int texture_depth, DataRenderer renderer)
          throws VisADException {
-
+     throw new VisADException("textureStackToGroup: Not yet implemented for Ardor3D");
+     
+    /*
     GeometryArray[] geometryX = makeGeometrys(arrayX);
     GeometryArray[] geometryY = makeGeometrys(arrayY);
     GeometryArray[] geometryZ = makeGeometrys(arrayZ);
-/* not needed ??
-    GeometryArray[] geometryXrev = makeGeometrys(arrayXrev);
-    GeometryArray[] geometryYrev = makeGeometrys(arrayYrev);
-    GeometryArray[] geometryZrev = makeGeometrys(arrayZrev);
-*/
+    //not needed ??
+    //GeometryArray[] geometryXrev = makeGeometrys(arrayXrev);
+    //GeometryArray[] geometryYrev = makeGeometrys(arrayYrev);
+    //GeometryArray[] geometryZrev = makeGeometrys(arrayZrev);
 
     int nx = arrayX.coordinates.length;
     boolean flipX = (arrayX.coordinates[0] > arrayX.coordinates[nx-3]);
@@ -1130,15 +1089,16 @@ System.out.println("Texture.BASE_LEVEL_LINEAR = " + Texture.BASE_LEVEL_LINEAR); 
     ProjectionControlA3D control =
       (ProjectionControlA3D) display.getProjectionControl();
     control.addPair(swit, renderer);
+    */
   }
 
 
-  public GeometryArray[] makeGeometrys(VisADGeometryArray array)
+  public Spatial[] makeGeometrys(VisADGeometryArray array)
                   throws VisADException {
     int count = array.vertexCount;
     int depth = count / 4;
     VisADGeometryArray[] qarrays = makeVisADGeometrys(array);
-    GeometryArray[] geometrys = new GeometryArray[depth];
+    Spatial[] geometrys = new Spatial[depth];
     for (int d=0; d<depth; d++) {
       geometrys[d] = display.makeGeometry(qarrays[d]);
     }
