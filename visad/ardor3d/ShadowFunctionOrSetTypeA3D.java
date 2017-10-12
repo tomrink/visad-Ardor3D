@@ -571,31 +571,26 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
   public void textureToGroup(Object group, VisADGeometryArray array,
                             BufferedImage image, GraphicsModeControl mode,
                             float constant_alpha, float[] constant_color,
-                            int texture_width, int texture_height, 
-                            boolean byReference, boolean yUp, VisADImageTileA3D tile, boolean smoothen)
-         throws VisADException {
-     
-    
-      Raster raster = image.getRaster();
-      DataBuffer db = raster.getDataBuffer();
-      int imageType = image.getType();
-      if (imageType == BufferedImage.TYPE_4BYTE_ABGR || imageType == BufferedImage.TYPE_3BYTE_BGR) {
-        byte[] byteData = ((DataBufferByte)db).getData();
-      }
-    
-    //textureToGroup(group, array, null, mode, constant_alpha, constant_color, texture_width, texture_height, byReference, yUp, tile, smoothen);
-    
-  }
-
-  public void textureToGroup(Object group, VisADGeometryArray array,
-                            byte[] byteData, GraphicsModeControl mode,
-                            float constant_alpha, float[] constant_color,
                             int textureWidth, int textureHeight, 
                             boolean byReference, boolean yUp, VisADImageTileA3D tile, boolean smoothen) throws VisADException {
-    // Note: constant_color did not appear to be used in the Java3D graphics dependent API
+    // Note: constant_color did not appear to be used in the Java3D graphics dependent API version, but keep for now.
+    
+    ByteBuffer bbuf = null;
+    Raster raster = image.getRaster();
+    DataBuffer db = raster.getDataBuffer();
+    int imageType = image.getType();
+    
+    ImageDataFormat imgFrmt = null;
+    
+    if (imageType == BufferedImage.TYPE_4BYTE_ABGR || imageType == BufferedImage.TYPE_3BYTE_BGR) {
+      byte[] byteData = ((DataBufferByte)db).getData();
+      bbuf = ByteBuffer.wrap(byteData);
+      
+      if (imageType == BufferedImage.TYPE_4BYTE_ABGR) imgFrmt = ImageDataFormat.BGRA;
+      if (imageType == BufferedImage.TYPE_3BYTE_BGR) imgFrmt = ImageDataFormat.BGR;
+    }    
      
-    ByteBuffer bbuf = ByteBuffer.wrap(byteData);
-    Image aImage = new Image(ImageDataFormat.BGR, PixelDataType.UnsignedByte, textureWidth, textureHeight, bbuf, null);
+    Image aImage = new Image(imgFrmt, PixelDataType.UnsignedByte, textureWidth, textureHeight, bbuf, null);
     
     if (constant_alpha == 1.0f) {
       // constant opaque alpha = NONE
