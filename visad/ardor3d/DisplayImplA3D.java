@@ -40,7 +40,6 @@ import java.rmi.*;
 
 import java.awt.*;
 
-import javax.media.j3d.*;
 import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.JComponent;
