@@ -209,6 +209,7 @@ System.out.println("doAction " + getDisplay().getName() + " " +
           // release resources in prevNode ?
         }
         sw.attachChildAt(branch, 0);
+        ((DisplayRendererA3D)getDisplayRenderer()).markNeedDraw();
         dataBranch = branch;
          
 //        synchronized (this) {
@@ -271,6 +272,7 @@ System.out.println("doAction " + getDisplay().getName() + " " +
 
   public void clearBranch() {
      sw.detachChild(dataBranch);
+     ((DisplayRendererA3D)getDisplayRenderer()).markNeedDraw();
      dataBranch = null;
   }
 
