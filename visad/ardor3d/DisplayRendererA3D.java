@@ -765,11 +765,13 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void addSceneGraphComponent(Object group) {
     if (not_destroyed == null) return;
     non_direct.attachChild((Node)group);
+    markNeedDraw();
   }
 
   public void addLockedSceneGraphComponent(Object node) {
     if (not_destroyed == null || screen_locked == null) return;
     screen_locked.attachChild((Node)node);
+    markNeedDraw();
   }
 
   //- TDR, Hydra stuff
@@ -780,6 +782,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       //locked_trans.setTransform(new Transform3D(proj.getMatrix()));
     }
     screen_locked.attachChild((Node)node);
+    markNeedDraw();
   }
                                                                                                                                          
   public void updateLockedTrans(double[] matrix) {
@@ -794,6 +797,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     if (not_destroyed == null) return;
     non_direct.attachChild((Node)group);
     directs.addElement(renderer);
+    markNeedDraw();
   }
 
 
@@ -803,6 +807,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     if (group != null) {
       non_direct.detachChild((Spatial)group);
     }
+    markNeedDraw();
   }
 
   /** 
