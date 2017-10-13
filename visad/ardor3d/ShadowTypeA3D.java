@@ -28,6 +28,7 @@ package visad.ardor3d;
 
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.renderer.state.BlendState;
+import com.ardor3d.renderer.state.MaterialState;
 import com.ardor3d.scenegraph.Spatial;
 import visad.*;
 
@@ -1190,7 +1191,7 @@ public abstract class ShadowTypeA3D extends ShadowType {
       GraphicsModeControl mode, float constant_alpha, float[] constant_color)
       throws VisADException {
     
-    if (array != null && array.vertexCount > 0) {
+    if (array != null && array.vertexCount <= 0) {
        return false;
     }
     
@@ -1216,13 +1217,18 @@ public abstract class ShadowTypeA3D extends ShadowType {
     else {
       defaultColor = new ColorRGBA(0, 0, 0, af);
     }
-      
+    
     Spatial geometry = display.makeGeometry(array, defaultColor);
     if (af != 1f) {
       BlendState blendState = new BlendState();
       blendState.setSourceFunction(BlendState.SourceFunction.ConstantAlpha);       
       geometry.setRenderState(blendState);
     }
+       
+//    MaterialState material = new MaterialState();
+//    material.setColorMaterial(MaterialState.ColorMaterial.Diffuse);
+//    //material.setColorMaterial(MaterialState.ColorMaterial.AmbientAndDiffuse);          
+//    geometry.setRenderState(material);    
       
     ((com.ardor3d.scenegraph.Node)group).attachChild(geometry);
       
