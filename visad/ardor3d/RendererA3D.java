@@ -32,11 +32,8 @@ import com.ardor3d.scenegraph.extension.SwitchNode;
 import visad.*;
 import visad.util.Delay;
 
-//import javax.media.j3d.*;
 
-import java.util.*;
 import java.rmi.*;
-import java.awt.Image;
 
 
 /**
@@ -201,8 +198,10 @@ System.out.println("doAction " + getDisplay().getName() + " " +
       }
 
       if (branch != null) {
-         
-        Spatial prevNode = sw.getChild(0);
+        Spatial prevNode = null;
+        if (sw.getNumberOfChildren() > 0) {
+          prevNode = sw.getChild(0);
+        }
          
         if (prevNode != null) {
           sw.detachChild(prevNode);
