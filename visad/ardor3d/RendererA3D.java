@@ -204,11 +204,9 @@ System.out.println("doAction " + getDisplay().getName() + " " +
         }
          
         if (prevNode != null) {
-          sw.detachChild(prevNode);
           // release resources in prevNode ?
         }
         sw.attachChildAt(branch, 0);
-        ((DisplayRendererA3D)getDisplayRenderer()).markNeedDraw();
         dataBranch = branch;
          
 //        synchronized (this) {
