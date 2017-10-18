@@ -42,11 +42,13 @@ import java.awt.*;
 
 import java.util.Iterator;
 import java.util.Vector;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import visad.util.ContourWidget;
 
 /**
    DisplayImplJ3D is the VisAD class for displays that use
@@ -462,7 +464,8 @@ public class DisplayImplA3D extends DisplayImpl {
 
       
       meshData.setIndexMode(IndexMode.TriangleStrip);
-      basicGeometry(vga, meshData, mode2d);
+      meshData.setIndexLengths(vgb.stripVertexCounts);
+      basicGeometry(vgb, meshData, mode2d);
       mesh.setMeshData(meshData);
       
       return mesh;
@@ -648,11 +651,72 @@ public class DisplayImplA3D extends DisplayImpl {
        int height = 500;
        
        final JFrame frame = new JFrame();
-       frame.setPreferredSize(new Dimension(width, height));
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-       
+       /* quick test */
        final DisplayImplA3D display = new DisplayImplA3D("Display", width, height, JOGL_AWT);
+       //final visad.java3d.DisplayImplJ3D display = new DisplayImplJ3D("Display");
+       
+//       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth3DTuple, RealType.Generic);
+//       FlatField vFld = FlatField.makeField(fncType, 6, false);
+//       
+//       
+//       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
+//       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
+//       ScalarMap zmap = new ScalarMap(RealType.Altitude, Display.ZAxis);
+//       ScalarMap vmap = new ScalarMap(RealType.Generic, Display.IsoContour);
+//       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGB);
+//       
+//       display.addMap(xmap);
+//       display.addMap(ymap);
+//       display.addMap(zmap);
+//       display.addMap(vmap);
+//       display.addMap(cmap);
+//       
+//       ContourControl cntrl =  (ContourControl) vmap.getControl();
+//       cntrl.setSurfaceValue(0.04f);
+//       cntrl.enableLabels(false);
+//       
+//       
+//       
+//       DataReferenceImpl ref = new DataReferenceImpl("vfld");
+//       ref.setData(vFld);
+//       display.addReference(ref);
+       
+ 
+    RealType[] types3d = {RealType.Latitude, RealType.Longitude, RealType.Radius};
+    RealTupleType earth_location3d = new RealTupleType(types3d);
+    RealType vis_radiance = RealType.getRealType("vis_radiance", CommonUnit.degree);
+    RealType ir_radiance = RealType.getRealType("ir_radiance", CommonUnit.degree);
+    //RealType[] types2 = {vis_radiance, ir_radiance};
+    RealType[] types2 = {vis_radiance};
+    RealTupleType radiance = new RealTupleType(types2);
+    FunctionType grid_tuple = new FunctionType(earth_location3d, radiance);
+
+    FlatField grid3d = FlatField.makeField(grid_tuple, 64, false);
+
+    ScalarMap lat_map = new ScalarMap(RealType.Latitude, Display.YAxis);
+    display.addMap(lat_map);
+    lat_map.setOverrideUnit(CommonUnit.radian);
+    display.addMap(new ScalarMap(RealType.Longitude, Display.XAxis));
+    display.addMap(new ScalarMap(RealType.Radius, Display.ZAxis));
+    ScalarMap map1color = new ScalarMap(vis_radiance, Display.RGB);
+    display.addMap(map1color);
+    map1color.setOverrideUnit(CommonUnit.radian);
+    ScalarMap map1contour = new ScalarMap(vis_radiance, Display.IsoContour);
+    display.addMap(map1contour);
+    map1contour.setOverrideUnit(CommonUnit.radian);
+
+    GraphicsModeControl mode = display.getGraphicsModeControl();
+
+    ContourControl cntrl = (ContourControl)map1contour.getControl();
+    cntrl.setSurfaceValue(0.4f, false);
+
+    DataReferenceImpl ref_grid3d = new DataReferenceImpl("ref_grid3d");
+    ref_grid3d.setData(grid3d);
+    display.addReference(ref_grid3d, new ConstantMap[] {new ConstantMap(0.0, Display.Red),
+            new ConstantMap(1.0, Display.Green), new ConstantMap(0.0, Display.Blue)});
+       
        
        final JComponent outerComp = new JPanel(new BorderLayout());
        JPanel cntrlPanel = new JPanel(new FlowLayout());
@@ -670,6 +734,22 @@ public class DisplayImplA3D extends DisplayImpl {
        //Display the window.
        frame.pack();
        frame.setVisible(true);
+       
+    JPanel panel2 = new JPanel();
+    panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
+    panel2.setAlignmentY(JPanel.TOP_ALIGNMENT);
+    panel2.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+    panel2.add(new ContourWidget(map1contour));
+    
+       final JFrame frame2 = new JFrame();
+       frame2.setPreferredSize(new Dimension(width, height));
+       frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       frame2.getContentPane().add(panel2);
+       
+       frame2.pack();
+       frame2.setVisible(true);
+
+       
     }   
    
    public static void main(String[] args) throws VisADException, RemoteException {
