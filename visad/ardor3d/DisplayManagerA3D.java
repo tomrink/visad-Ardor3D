@@ -137,6 +137,8 @@ public class DisplayManagerA3D implements Updater {
        if (myRunner == null) {
           myRunner = new RunnerA3D(frameWork);
        }
+       // Looks like a DirtyType.Transform is the initial state of a node, so this may not be needed here.
+       // More investigation needed.
        markNeedDraw();
     }
     
