@@ -380,12 +380,6 @@ public class DisplayImplA3D extends DisplayImpl {
       throw new DisplayException("DisplayImplA3D: bad graphics API " + api);
     }
     
-    if (api != TRANSFORM_ONLY) {
-      // initialize projection and set Display in Canvas
-      projection.setAspect(new double[] {1.0, 1.0, 1.0});
-      //((DisplayRendererA3D) getDisplayRenderer()).getCanvas().setDisplay();
-    }
-
     // a GraphicsModeControl always exists
     mode = new GraphicsModeControlA3D(this);
     addControl(mode);
