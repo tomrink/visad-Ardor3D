@@ -212,7 +212,7 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
     root.getSceneHints().setRenderBucketType(RenderBucketType.Opaque);    
     
     
-    //markNeedDraw();
+    markNeedDraw();
     return root;
   }  
 
