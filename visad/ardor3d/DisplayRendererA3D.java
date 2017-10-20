@@ -1493,12 +1493,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public void render_trigger() {
-    ProjectionControl proj = getDisplay().getProjectionControl();
-    try {
-      if (proj != null) proj.setMatrix(proj.getMatrix());
-    }
-    catch (VisADException e) { }
-    catch (RemoteException e) { }
+    /* This was here ostensibly for a Java3D hack */
+    return;
   }
 
   public void setWaitFlag(boolean b) {
@@ -1506,7 +1502,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     boolean old = getWaitFlag();
     super.setWaitFlag(b);
     if (b != old) {
-      render_trigger();
+      render_trigger(); // noop, see above. Likely remove.
     }
   }
 
@@ -1518,24 +1514,19 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     return VisADCanvasA3D.getTextureWidthMax();
   }
   
-   @Override
+   //@Override
    public boolean renderUnto(Renderer renderer) {
-       if (trans.isDirty(DirtyType.Transform)) {
-          root.updateGeometricState(20, true);
-          root.draw(renderer);
-          return true;
-       }
-       else if (needDraw) {
-          synchronized(MUTEX) {
-             root.updateGeometricState(20, true);
-             root.draw(renderer);
-             needDraw = false;
-          }
-          return true;
-       }
-       return false;      
+      synchronized (MUTEX) {
+         if (trans.isDirty(DirtyType.Transform) || needDraw) {
+            root.updateGeometricState(20, false);
+            root.draw(renderer);
+            needDraw = false;
+            return true;
+         }
+      }
+      return false;      
    }
-
+      
    @Override
    public PickResults doPick(Ray3 pickRay) {
       return null;
