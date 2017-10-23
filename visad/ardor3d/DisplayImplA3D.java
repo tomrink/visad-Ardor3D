@@ -545,7 +545,7 @@ public class DisplayImplA3D extends DisplayImpl {
         meshData.setNormalBuffer(BufferUtils.createFloatBuffer(vga.normals));
      }
      if (vga.texCoords != null) {
-        // Not sure
+        meshData.setTextureBuffer(BufferUtils.createFloatBuffer(vga.texCoords), 0);
      }
   }
   
@@ -649,35 +649,28 @@ public class DisplayImplA3D extends DisplayImpl {
 
        /* quick test */
        final DisplayImplA3D display = new DisplayImplA3D("Display", width, height, JOGL_AWT);
-       //final visad.java3d.DisplayImplJ3D display = new DisplayImplJ3D("Display");
+       //final visad.java3d.DisplayImplJ3D display = new visad.java3d.DisplayImplJ3D("Display");
        
-//       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth3DTuple, RealType.Generic);
-//       FlatField vFld = FlatField.makeField(fncType, 6, false);
-//       
-//       
-//       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
-//       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
-//       ScalarMap zmap = new ScalarMap(RealType.Altitude, Display.ZAxis);
-//       ScalarMap vmap = new ScalarMap(RealType.Generic, Display.IsoContour);
-//       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGB);
-//       
-//       display.addMap(xmap);
-//       display.addMap(ymap);
-//       display.addMap(zmap);
-//       display.addMap(vmap);
-//       display.addMap(cmap);
-//       
-//       ContourControl cntrl =  (ContourControl) vmap.getControl();
-//       cntrl.setSurfaceValue(0.04f);
-//       cntrl.enableLabels(false);
-//       
-//       
-//       
-//       DataReferenceImpl ref = new DataReferenceImpl("vfld");
-//       ref.setData(vFld);
-//       display.addReference(ref);
+       /* Simple Test 1 */
+       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
+       FlatField vFld = FlatField.makeField(fncType, 8192, false);
+       
+       
+       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
+       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
+       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGB);
+       
+       display.addMap(xmap);
+       display.addMap(ymap);
+       display.addMap(cmap);
+       
+       DataReferenceImpl ref = new DataReferenceImpl("vfld");
+       ref.setData(vFld);
+       display.addReference(ref);
+       /*  */
        
  
+    /* Simple test 2
     RealType[] types3d = {RealType.Latitude, RealType.Longitude, RealType.Radius};
     RealTupleType earth_location3d = new RealTupleType(types3d);
     RealType vis_radiance = RealType.getRealType("vis_radiance", CommonUnit.degree);
@@ -710,6 +703,7 @@ public class DisplayImplA3D extends DisplayImpl {
     ref_grid3d.setData(grid3d);
     display.addReference(ref_grid3d, new ConstantMap[] {new ConstantMap(0.0, Display.Red),
             new ConstantMap(1.0, Display.Green), new ConstantMap(0.0, Display.Blue)});
+    */
        
        
        final JComponent outerComp = new JPanel(new BorderLayout());
@@ -728,7 +722,8 @@ public class DisplayImplA3D extends DisplayImpl {
        //Display the window.
        frame.pack();
        frame.setVisible(true);
-       
+ 
+    /* test2
     JPanel panel2 = new JPanel();
     panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
     panel2.setAlignmentY(JPanel.TOP_ALIGNMENT);
@@ -742,6 +737,7 @@ public class DisplayImplA3D extends DisplayImpl {
        
        frame2.pack();
        frame2.setVisible(true);
+     */
 
        
     }   
