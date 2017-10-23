@@ -203,10 +203,7 @@ System.out.println("doAction " + getDisplay().getName() + " " +
           prevNode = sw.getChild(0);
         }
         sw.attachChildAt(branch, 0);
-        if (prevNode != null) {
-          ((DisplayRendererA3D) getDisplayRenderer()).markNeedDraw();
-          // release resources in prevNode ? see orig Java3d code below
-        }
+        ((DisplayRendererA3D) getDisplayRenderer()).markNeedDraw();
         dataBranch = branch;
          
 //        synchronized (this) {
