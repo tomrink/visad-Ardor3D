@@ -50,7 +50,6 @@ import java.rmi.*;
 import java.awt.image.*;
 import java.nio.ByteBuffer;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.GeometryArray;
 import javax.media.j3d.Group;
 import javax.media.j3d.ImageComponent2D;
 import javax.media.j3d.Switch;
@@ -553,6 +552,89 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
       return text.getSelectedMapVector();
     }
   }
+  
+  public BufferedImage createImage(int data_width, int data_height,
+                       int texture_width, int texture_height,
+                       byte[][] color_values) {
+     
+    BufferedImage image;
+  
+    int clrDim = color_values.length;
+    if (clrDim == 4) {
+      image = new BufferedImage(texture_width, texture_height, BufferedImage.TYPE_4BYTE_ABGR);
+      Raster raster = image.getRaster();
+      DataBuffer db = raster.getDataBuffer();
+      byte[] byteData = ((DataBufferByte)db).getData();
+
+      int k = 0;
+      int m = 0;
+      byte r, g, b, a;
+      for (int j=0; j<data_height; j++) {
+        for (int i=0; i<data_width; i++) {
+          r = color_values[0][k];
+          g = color_values[1][k];
+          b = color_values[2][k];
+          a = color_values[3][k];
+
+          byteData[m++] = a;
+          byteData[m++] = b;
+          byteData[m++] = g;
+          byteData[m++] = r;
+          k++;
+        }
+        for (int i=data_width; i<texture_width; i++) {
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+        }
+      }
+      for (int j=data_height; j<texture_height; j++) {
+        for (int i=0; i<texture_width; i++) {
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+        }
+      }
+    }
+    else { // must be 3
+      image = new BufferedImage(texture_width, texture_height, BufferedImage.TYPE_3BYTE_BGR);
+      Raster raster = image.getRaster();
+      DataBuffer db = raster.getDataBuffer();
+      byte[] byteData = ((DataBufferByte)db).getData();
+
+      int k = 0;
+      int m = 0;
+      byte r, g, b;
+      for (int j=0; j<data_height; j++) {
+        for (int i=0; i<data_width; i++) {
+          r = color_values[0][k];
+          g = color_values[1][k];
+          b = color_values[2][k];
+
+          byteData[m++] = b;
+          byteData[m++] = g;
+          byteData[m++] = r;
+          k++;
+        }
+        for (int i=data_width; i<texture_width; i++) {
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+        }
+      }
+      for (int j=data_height; j<texture_height; j++) {
+        for (int i=0; i<texture_width; i++) {
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+          byteData[m++] = 0;
+        }
+      }       
+    }
+      
+    return image;
+  }
 
   public void textureToGroup(Object group, VisADGeometryArray array,
                             BufferedImage image, GraphicsModeControl mode,
@@ -574,7 +656,6 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
                             int textureWidth, int textureHeight, 
                             boolean byReference, boolean yUp, VisADImageTileA3D tile, boolean smoothen) throws VisADException {
     // Note: constant_color did not appear to be used in the Java3D graphics dependent API version, but keep for now.
-    
     ByteBuffer bbuf = null;
     Raster raster = image.getRaster();
     DataBuffer db = raster.getDataBuffer();
@@ -588,7 +669,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
       
       if (imageType == BufferedImage.TYPE_4BYTE_ABGR) imgFrmt = ImageDataFormat.BGRA;
       if (imageType == BufferedImage.TYPE_3BYTE_BGR) imgFrmt = ImageDataFormat.BGR;
-    }    
+    }
      
     Image aImage = new Image(imgFrmt, PixelDataType.UnsignedByte, textureWidth, textureHeight, bbuf, null);
     
@@ -636,13 +717,14 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
     branch.setRenderState(ts);
     branch.setRenderState(offset);
     
-    ((Node)group).attachChildAt(geom, 0);
+    ((Node)group).attachChildAt(branch, 0);
     
     if (tile != null) { // something may need to be done here!
        
     }
      
-  }  
+  }
+  
   public void texture3DToGroup(Object group, VisADGeometryArray arrayX,
                     VisADGeometryArray arrayY, VisADGeometryArray arrayZ,
                     VisADGeometryArray arrayXrev,
