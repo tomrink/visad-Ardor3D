@@ -155,32 +155,6 @@ System.out.println("doAction " + getDisplay().getName() + " " +
         // doTransform creates a BranchGroup from a Data object
         branch = doTransform();
       }
-      catch (OutOfMemoryError e) {
-        // System.out.println("OutOfMemoryError, try again ...");
-        clearBranch();
-        branch = null;
-        new Delay(250);
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-        try {
-          branch = doTransform();
-        }
-        catch (BadMappingException ee) {
-          addException(ee);
-          branch = null;
-        }
-        catch (UnimplementedException ee) {
-          addException(ee);
-          branch = null;
-        }
-        catch (RemoteException ee) {
-          addException(ee);
-          branch = null;
-        }
-        catch (DisplayInterruptException ee) {
-          branch = null;
-        }
-      }
       catch (BadMappingException e) {
         addException(e);
         branch = null;
