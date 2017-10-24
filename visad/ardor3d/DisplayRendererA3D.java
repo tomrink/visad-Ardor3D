@@ -1451,15 +1451,11 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public int getTextureWidthMax() {
-    return 8192;
-//    System.out.println(contextCapabilities.getMaxTextureSize());
-//    return contextCapabilities.getMaxTextureSize();
+    return contextCapabilities.getMaxTextureSize();
   }
 
   public int getTextureHeightMax() {
-     return 8192;
-//    System.out.println(contextCapabilities.getMaxTextureSize());
-//    return contextCapabilities.getMaxTextureSize();
+    return contextCapabilities.getMaxTextureSize();
   }
   
   public void setCapabilities(ContextCapabilities obj) {

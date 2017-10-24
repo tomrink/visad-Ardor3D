@@ -131,7 +131,7 @@ public class DisplayA3D implements Updater {
     
     public void start() {
        if (myRunner == null) {
-          myRunner = new RunnerA3D(frameWork);
+          myRunner = new RunnerA3D(frameWork, canvasRenderer, null);
        }
        markNeedDraw();
     }
