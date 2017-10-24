@@ -553,18 +553,14 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
     }
   }
   
-  public BufferedImage createImage(int data_width, int data_height,
-                       int texture_width, int texture_height,
-                       byte[][] color_values) {
+  public Object createImage(int data_width, int data_height, int textureWidth, int textureHeight, byte[][] color_values) {
      
-    BufferedImage image;
-  
     int clrDim = color_values.length;
+    byte[] byteData = new byte[clrDim*textureWidth*textureHeight];
+    ImageDataFormat imgFrmt = null;
+    
     if (clrDim == 4) {
-      image = new BufferedImage(texture_width, texture_height, BufferedImage.TYPE_4BYTE_ABGR);
-      Raster raster = image.getRaster();
-      DataBuffer db = raster.getDataBuffer();
-      byte[] byteData = ((DataBufferByte)db).getData();
+      imgFrmt = ImageDataFormat.BGRA;
 
       int k = 0;
       int m = 0;
@@ -582,28 +578,26 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
           byteData[m++] = r;
           k++;
         }
-        for (int i=data_width; i<texture_width; i++) {
+        for (int i=data_width; i<textureWidth; i++) {
           byteData[m++] = 0;
           byteData[m++] = 0;
           byteData[m++] = 0;
           byteData[m++] = 0;
         }
       }
-      for (int j=data_height; j<texture_height; j++) {
-        for (int i=0; i<texture_width; i++) {
+      for (int j=data_height; j<textureHeight; j++) {
+        for (int i=0; i<textureWidth; i++) {
           byteData[m++] = 0;
           byteData[m++] = 0;
           byteData[m++] = 0;
           byteData[m++] = 0;
         }
       }
+      
     }
     else { // must be 3
-      image = new BufferedImage(texture_width, texture_height, BufferedImage.TYPE_3BYTE_BGR);
-      Raster raster = image.getRaster();
-      DataBuffer db = raster.getDataBuffer();
-      byte[] byteData = ((DataBufferByte)db).getData();
-
+      imgFrmt = ImageDataFormat.BGR;
+      
       int k = 0;
       int m = 0;
       byte r, g, b;
@@ -618,60 +612,50 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
           byteData[m++] = r;
           k++;
         }
-        for (int i=data_width; i<texture_width; i++) {
+        for (int i=data_width; i<textureWidth; i++) {
           byteData[m++] = 0;
           byteData[m++] = 0;
           byteData[m++] = 0;
         }
       }
-      for (int j=data_height; j<texture_height; j++) {
-        for (int i=0; i<texture_width; i++) {
+      for (int j=data_height; j<textureHeight; j++) {
+        for (int i=0; i<textureWidth; i++) {
           byteData[m++] = 0;
           byteData[m++] = 0;
           byteData[m++] = 0;
         }
-      }       
+      }
+      
     }
+    
+    ByteBuffer bbuf = ByteBuffer.wrap(byteData);
+    Image image = new Image(imgFrmt, PixelDataType.UnsignedByte, textureWidth, textureHeight, bbuf, null);
       
     return image;
-  }
+  }  
 
   public void textureToGroup(Object group, VisADGeometryArray array,
-                            BufferedImage image, GraphicsModeControl mode,
+                            Object image, GraphicsModeControl mode,
                             float constant_alpha, float[] constant_color,
                             int texture_width, int texture_height, boolean byReference, boolean yUp, VisADImageTileA3D tile) throws VisADException {
     textureToGroup(group, array, image, mode, constant_alpha, constant_color, texture_width, texture_height, byReference, yUp, tile, false);
   }
 
   public void textureToGroup(Object group, VisADGeometryArray array,
-                            BufferedImage image, GraphicsModeControl mode,
+                            Object image, GraphicsModeControl mode,
                             float constant_alpha, float[] constant_color,
                             int texture_width, int texture_height) throws VisADException {
     textureToGroup(group, array, image, mode, constant_alpha, constant_color, texture_width, texture_height, false, false, null, false);
   }
 
   public void textureToGroup(Object group, VisADGeometryArray array,
-                            BufferedImage image, GraphicsModeControl mode,
+                            Object img, GraphicsModeControl mode,
                             float constant_alpha, float[] constant_color,
                             int textureWidth, int textureHeight, 
                             boolean byReference, boolean yUp, VisADImageTileA3D tile, boolean smoothen) throws VisADException {
     // Note: constant_color did not appear to be used in the Java3D graphics dependent API version, but keep for now.
-    ByteBuffer bbuf = null;
-    Raster raster = image.getRaster();
-    DataBuffer db = raster.getDataBuffer();
-    int imageType = image.getType();
     
-    ImageDataFormat imgFrmt = null;
-    
-    if (imageType == BufferedImage.TYPE_4BYTE_ABGR || imageType == BufferedImage.TYPE_3BYTE_BGR) {
-      byte[] byteData = ((DataBufferByte)db).getData();
-      bbuf = ByteBuffer.wrap(byteData);
-      
-      if (imageType == BufferedImage.TYPE_4BYTE_ABGR) imgFrmt = ImageDataFormat.BGRA;
-      if (imageType == BufferedImage.TYPE_3BYTE_BGR) imgFrmt = ImageDataFormat.BGR;
-    }
-     
-    Image aImage = new Image(imgFrmt, PixelDataType.UnsignedByte, textureWidth, textureHeight, bbuf, null);
+    Image aImage = (Image) img;
     
     if (constant_alpha == 1.0f) {
       // constant opaque alpha = NONE
