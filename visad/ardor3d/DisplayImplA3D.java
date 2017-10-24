@@ -231,7 +231,7 @@ public class DisplayImplA3D extends DisplayImpl {
       be JPANEL and its super() constructor for VisADCanvasJ3D
       must be 'super(renderer, config)' */
   public DisplayImplA3D(String name, DisplayRendererA3D renderer, int api,
-                        GraphicsConfiguration config, VisADCanvasA3D c)
+                        GraphicsConfiguration config, Object c)
          throws VisADException, RemoteException {
     super(name, renderer);
 
@@ -257,7 +257,7 @@ public class DisplayImplA3D extends DisplayImpl {
       constructor for VisADCanvasJ3D must be
       'super(renderer, width, height)' */
   public DisplayImplA3D(String name, DisplayRendererA3D renderer,
-                        int width, int height, VisADCanvasA3D c)
+                        int width, int height, Object c)
          throws VisADException, RemoteException {
     super(name, renderer);
 
@@ -314,7 +314,7 @@ public class DisplayImplA3D extends DisplayImpl {
       must be 'super(renderer, config)' */
   public DisplayImplA3D(RemoteDisplay rmtDpy, DisplayRendererA3D renderer,
                         int api, GraphicsConfiguration config,
-                        VisADCanvasA3D c)
+                        Object c)
          throws VisADException, RemoteException {
     super(rmtDpy,
           ((renderer == null && api == TRANSFORM_ONLY) ?
@@ -331,7 +331,7 @@ public class DisplayImplA3D extends DisplayImpl {
   }
 
   private void initialize(int api, GraphicsConfiguration config,
-                          VisADCanvasA3D c)
+                          Object c)
           throws VisADException, RemoteException {
     initialize(api, config, -1, -1, c);
   }
@@ -343,7 +343,7 @@ public class DisplayImplA3D extends DisplayImpl {
   }
 
   private void initialize(int api, GraphicsConfiguration config,
-                          int width, int height, VisADCanvasA3D c)
+                          int width, int height, Object c)
           throws VisADException, RemoteException {
      
     // a ProjectionControl always exists
@@ -371,8 +371,6 @@ public class DisplayImplA3D extends DisplayImpl {
     }
     else if (api == OFFSCREEN) {
       DisplayRendererA3D renderer = (DisplayRendererA3D) getDisplayRenderer();
-      VisADCanvasA3D canvas = (c != null) ? c :
-                              new VisADCanvasA3D(renderer, width, height);
       setComponent(null);
       apiValue = api;
     }

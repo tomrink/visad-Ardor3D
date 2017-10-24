@@ -78,10 +78,10 @@ public class VisADCanvasA3D {
   private int height;
 
   /**           */
-  private static int textureWidthMax = 0;
+  private static int textureWidthMax = 8192;
 
   /**           */
-  private static int textureHeightMax = 0;
+  private static int textureHeightMax = 8192;
 
   /**           */
   private final static int textureWidthMaxDefault = 1024;

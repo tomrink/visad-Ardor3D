@@ -31,6 +31,7 @@ import com.ardor3d.intersection.PickResults;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
+import com.ardor3d.renderer.ContextCapabilities;
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
@@ -45,7 +46,6 @@ import java.util.Vector;
 
 import javax.media.j3d.Background;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.Canvas3D;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Group;
 import javax.media.j3d.TransformGroup;
@@ -122,8 +122,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   /** View associated with this VirtualUniverse */
   private View view;
-  /** VisADCanvasJ3D associated with this VirtualUniverse */
-  private VisADCanvasA3D canvas;
+  private Object canvas;
 
   /** root BranchGroup of scene graph under Locale */
   //private BranchGroup root = null;
@@ -203,6 +202,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   private Object modelClip = null;
   private boolean[] modelClipEnables =
     {false, false, false, false, false, false};
+  
+  private ContextCapabilities contextCapabilities;
 
   public DisplayRendererA3D () {
     super();
@@ -212,12 +213,14 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void destroy() {
     not_destroyed = null;
 
+    /* Keep for reference
     if (canvas != null) canvas.stop();
     if (mouse != null) mouse.destroy();
     if (root != null) {
       //root.detach();
       root = null;
     }
+    */
 
     axis_vector.removeAllElements();
     directs.removeAllElements();
@@ -261,9 +264,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     boxOn = getRendererControl().getBoxOn();
   }
 
-//  public View getView() {
-//    return view;
-//  }
 
   public TransformGroup getViewTrans() {
     return (TransformGroup) vpTrans;
@@ -271,11 +271,11 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   /**
    * Get the canvas for this renderer
-   * @return  <CODE>VisADCanvasJ3D</CODE> that this renderer uses.
+   * @return  <CODE></CODE> that this renderer uses.
    */
-//  public VisADCanvasA3D getCanvas() {
-//    return canvas;
-//  }
+  public Object getCanvas() {
+    return canvas;
+  }
 
   /**
    * Capture the display rendition as an image.
@@ -284,64 +284,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   
   public BufferedImage getImage() {
     if (not_destroyed == null) return null;
-    BufferedImage image = null;
-    canvas.captureImage = null;
-    ProjectionControl proj = getDisplay().getProjectionControl();
-    double[] matrix= proj.getMatrix();
-    while (image == null) {
-      try {
-        synchronized (this) {
-          canvas.setDoubleBufferEnable(false);
-          canvas.captureFlag = true;
-          hasNotifyBeenCalled = false;
-          if (canvas.getOffscreen()) {
-              try {
-              Method renderMethod =
-                Canvas3D.class.getMethod("renderOffScreenBuffer",
-                                         new Class[] {});
-              renderMethod.invoke(canvas, new Object[] {});
-              /*        Method waitMethod =
-                Canvas3D.class.getMethod("waitForOffScreenRendering", new Class[] {});
-                waitMethod.invoke(canvas, new Object[] {});*/
-            }
-            catch (NoSuchMethodException e) {}
-            catch (IllegalAccessException e) {}
-            catch (InvocationTargetException e) {}
-          }
-          try {
-              proj.setMatrix(matrix);
-          } catch (RemoteException e) { 
-              e.printStackTrace();
-          } catch (VisADException e) { 
-              e.printStackTrace();
-          }
-          //Make sure the notify has not been called. There is the possbility that the above renderOffScreenBuffer call
-          //gets completed before we get to this wait, resulting in a starvation lockup here because the canvas already 
-          //notifies the display renderer and when we get to the wait nothing is going to notify this object.
-          image = canvas.captureImage;
-          if(image == null && !hasNotifyBeenCalled) {
-              waitingOnImageCapture = true;
-              wait();
-              waitingOnImageCapture = false;
-          } 
-        }
-      } catch(InterruptedException e) {
-        // note notify generates a normal return from wait rather
-        // than an Exception - control doesn't normally come here
-        canvas.setDoubleBufferEnable(true); //- just in case
-        e.printStackTrace();
-      }
-      if(image==null) {
-          image = canvas.captureImage;
-      }
-      canvas.captureImage = null;
-      canvas.setDoubleBufferEnable(true);
-      if(image == null) {
-          //What do we do here?
-          //          break?;
-      }
-    }
-    return image;
+
+    return null;
   }
 
   /** used for doing offscreen capture to prevent a starvation lockup */
@@ -1507,11 +1451,19 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public int getTextureWidthMax() {
-    return VisADCanvasA3D.getTextureWidthMax();
+    return 8192;
+//    System.out.println(contextCapabilities.getMaxTextureSize());
+//    return contextCapabilities.getMaxTextureSize();
   }
 
   public int getTextureHeightMax() {
-    return VisADCanvasA3D.getTextureWidthMax();
+     return 8192;
+//    System.out.println(contextCapabilities.getMaxTextureSize());
+//    return contextCapabilities.getMaxTextureSize();
+  }
+  
+  public void setCapabilities(ContextCapabilities obj) {
+     this.contextCapabilities = obj;
   }
   
    //@Override

@@ -118,32 +118,6 @@ public class ProjectionControlA3D extends ProjectionControl {
     trans.setScale(scale[0], scale[1], scale[2]);
     trans.setTranslation(trns[0], trns[1], trns[2]);
 
-    /*
-    VisADCanvasA3D canvas = ((DisplayRendererA3D) getDisplayRenderer()).getCanvas();
-    if (canvas != null && canvas.getOffscreen()) {
-      try {
-        Method renderMethod =
-          Canvas3D.class.getMethod("renderOffScreenBuffer",
-                                   new Class[] {});
-        renderMethod.invoke(canvas, new Object[] {});
-        Method waitMethod =
-          Canvas3D.class.getMethod("waitForOffScreenRendering",
-                                   new Class[] {});
-        waitMethod.invoke(canvas, new Object[] {});
-      }
-      catch (NoSuchMethodException e) {
-        // System.out.println(e);
-      }
-      catch (IllegalAccessException e) {
-        // System.out.println(e);
-      }
-      catch (InvocationTargetException e) {
-        // System.out.println(e + "\n" +
-        //    ((InvocationTargetException) e).getTargetException());
-      }
-      // canvas.renderOffScreenBuffer();
-    }
-    */
 
     ((DisplayRendererA3D) getDisplayRenderer()).setTransform(trans);
     if (!switches.isEmpty()) selectSwitches();
