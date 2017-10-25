@@ -100,7 +100,7 @@ public class TransformOnlyDisplayRendererA3D extends DisplayRendererA3D {
   public void setCursorLoc(float x, float y, float z) {
   }
 
-  public void drawCursorStringVector(VisADCanvasA3D canvas) {
+  public void drawCursorStringVector(Object canvas) {
   }
 
   public DataRenderer findDirect(VisADRay ray, int mouseModifiers) {

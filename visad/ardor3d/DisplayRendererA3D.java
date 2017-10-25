@@ -848,7 +848,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * @param canvas
    */
   
-  public void drawCursorStringVector(VisADCanvasA3D canvas) {
+  public void drawCursorStringVector(Object canvas) {
   /*  
 	if (not_destroyed == null) return;
 
