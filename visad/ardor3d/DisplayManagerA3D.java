@@ -15,7 +15,6 @@ import com.ardor3d.input.awt.AwtMouseWrapper;
 import com.ardor3d.input.logical.DummyControllerWrapper;
 import com.ardor3d.input.logical.LogicalLayer;
 import com.ardor3d.renderer.ContextCapabilities;
-import com.ardor3d.renderer.RenderContext;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
@@ -34,8 +33,6 @@ public class DisplayManagerA3D implements Updater {
     
     private Component canvas;
     private final CanvasRenderer canvasRenderer;
-//    private final RenderContext renderContext;
-//    private final ContextCapabilities contextCapabilities;
     
     private final Timer timer = new Timer();
     private final FrameHandler frameWork = new FrameHandler(timer);
