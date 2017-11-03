@@ -28,7 +28,6 @@ public class DisplayManagerA3D implements Updater {
 
     private final Node root;
     private final Node transform;
-    private Node branch = null;
     
     private Component canvas;
     private final CanvasRenderer canvasRenderer;
