@@ -211,12 +211,6 @@ public class DisplayManagerA3D implements Updater {
     public boolean getFrameHandlerInitialized() {
        return frameHandlerInitialized;
     }
-    
-    public ContextCapabilities getCapabilities() {
-       //return contextCapabilities;
-       return null;
-    }
-    
 }
 
 class DisplayManagerInitializer implements Runnable {
