@@ -50,9 +50,7 @@ import java.rmi.*;
 import java.awt.image.*;
 import java.nio.ByteBuffer;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.Group;
 import javax.media.j3d.ImageComponent2D;
-import javax.media.j3d.Switch;
 import javax.media.j3d.Texture2D;
 
 
@@ -82,9 +80,9 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
   CoordinateSystem dspCoordSys;
   
   
-  List<BranchGroup> branches = null;
-  Switch swit = null;
-  Switch switB = null;
+  List<Node> branches = null;
+  SwitchNode swit = null;
+  SwitchNode switB = null;
   //TrajectoryAVHandlerJ3D avHandler = null;
   AVHandler avHandler = null;
 
@@ -219,7 +217,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
 
       // create and add switch with nodes for animation images
       domainLength = domainSet.getLength(); // num of domain nodes
-      swit = (Switch) makeSwitch(domainLength);
+      swit = (SwitchNode) makeSwitch(domainLength);
       AnimationControlA3D control = (AnimationControlA3D)timeMap.getControl();
       
       if (!doTrajectory) {
@@ -239,36 +237,32 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
         ((AVControlA3D) control).addPair(swit, domainSet, renderer, avHandler);
         ((AVControlA3D) control).init();
         
-        BranchGroup branch = new BranchGroup();
-        branch.setCapability(BranchGroup.ALLOW_DETACH);
-        branch.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-        branch.addChild((Switch) swit);
-        
-        ((Group) group).addChild(branch);
+        Node branch = new Node();
+        branch.attachChild((SwitchNode) swit);
+        ((Node) group).attachChild(branch);
 
         // this node holds the trajectory tracer display geometry
-        switB = (Switch) makeSwitch(domainLength);
+        switB = (SwitchNode) makeSwitch(domainLength);
         addSwitch(group, switB, control, domainSet, renderer);
       }
 
-      branches = new ArrayList<BranchGroup>();
+      branches = new ArrayList<Node>();
       for (int i=0; i<domainLength; i++) {
-          //BranchGroup node = (BranchGroup) swit.getChild(i);
-          BranchGroup branch = (BranchGroup) makeBranch();
+          Node branch = (Node) makeBranch();
           branches.add(branch);
-      }
+      }      
 
       ThreadManager threadManager = new ThreadManager("animation rendering");
       for (int i=0; i<domainLength; i++) {
-          final BranchGroup branch = (BranchGroup) branches.get(i);
+          final Node branch = (Node) branches.get(i);
           final Data sample  = ((Field) data).getSample(i);
-          final BranchGroup node = (BranchGroup) swit.getChild(i);
+          final Node node = (Node) swit.getChild(i);
           threadManager.addRunnable(new ThreadManager.MyRunnable() {
                   public void run()  throws Exception {
                       recurseRange(branch, sample,
                                    value_array, default_values, renderer);
                       if (!doTrajectory) {
-                        node.addChild(branch);          
+                        node.attachChild(branch);          
                       }
                   }
               });
@@ -1234,7 +1228,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
   public void addSwitch(Object group, Object swit, Control control,
                         Set domain_set, DataRenderer renderer)
          throws VisADException {
-    ((AVControlA3D) control).addPair((Switch) swit, domain_set, renderer);
+    ((AVControlA3D) control).addPair((SwitchNode) swit, domain_set, renderer);
     ((AVControlA3D) control).init();
     // WLH 06 Feb 06 - fix problem adding a new switch to an existing group
     // TDR Oct 17 - something might depend extra Node so keep this for now.
@@ -1360,20 +1354,20 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
         }
       }
 
-      BranchGroup branch = (BranchGroup) branches.get(i);
+      Node branch = (Node) branches.get(i);
       addToGroup(branch, arrays[0], mode, info.constant_alpha, info.constant_color);
       if (trajForm == TrajectoryManager.CYLINDER) {
         // cylinder elbows
         addToGroup(branch, arrays[2], mode, info.constant_alpha, info.constant_color);                  
       }
-      BranchGroup node = (BranchGroup) swit.getChild(i);
-      node.addChild(branch);
+      Node node = (Node) swit.getChild(i);
+      node.attachChild(branch);
       
       if (trajForm == TrajectoryManager.CYLINDER) {
-        BranchGroup auxBrnch = (BranchGroup) makeBranch();
+        Node auxBrnch = (Node) makeBranch();
         // cylinder cone
         addToGroup(auxBrnch, arrays[1], mode, info.constant_alpha, info.constant_color);  
-        ((BranchGroup)switB.getChild(i)).addChild(auxBrnch);
+        ((Node)switB.getChild(i)).attachChild(auxBrnch);
       }      
       
     } //---  domain length (time steps) outer time loop  -------------------------

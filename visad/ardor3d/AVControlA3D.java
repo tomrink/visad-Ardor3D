@@ -26,6 +26,7 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.scenegraph.extension.SwitchNode;
 import visad.*;
 
 import javax.media.j3d.*;
@@ -47,11 +48,11 @@ public abstract class AVControlA3D extends Control implements AVControl {
     super(d);
   }
 
-  public void addPair(Switch sw, Set se, DataRenderer re) {
+  public void addPair(SwitchNode sw, Set se, DataRenderer re) {
     switches.addElement(new SwitchSet(sw, se, re));
   }
   
-  public void addPair(Switch sw, Set se, DataRenderer re, AVHandler adptr) {
+  public void addPair(SwitchNode sw, Set se, DataRenderer re, AVHandler adptr) {
     switches.addElement(new SwitchSet(sw, se, re, adptr));
   }
 
@@ -144,7 +145,7 @@ public abstract class AVControlA3D extends Control implements AVControl {
         indices = new int[] {getIndexForRange(set, lower, upper)};
       }
 
-      if (0 <= indices[0] && indices[0] < ss.swit.numChildren()) {
+      if (0 <= indices[0] && indices[0] < ss.swit.getNumberOfChildren()) {
         ss.setWhichChild(indices[0]);
       }
       else {
@@ -197,18 +198,18 @@ public abstract class AVControlA3D extends Control implements AVControl {
   /** SwitchSet is an inner class of AVControlJ3D for
       (Switch, Set, DataRenderer) structures */
   protected class SwitchSet extends Object {
-    Switch swit;
+    SwitchNode swit;
     Set set;
     DataRenderer renderer;
     AVHandler handler;
 
-    SwitchSet(Switch sw, Set se, DataRenderer re) {
+    SwitchSet(SwitchNode sw, Set se, DataRenderer re) {
       swit = sw;
       set = se;
       renderer = re;
     }
     
-    SwitchSet(Switch sw, Set se, DataRenderer re, AVHandler adptr) {
+    SwitchSet(SwitchNode sw, Set se, DataRenderer re, AVHandler adptr) {
       swit = sw;
       set = se;
       renderer = re;
@@ -217,7 +218,7 @@ public abstract class AVControlA3D extends Control implements AVControl {
     
     void setWhichChild(int idx) {
       if (handler == null) {
-        swit.setWhichChild(idx);
+        swit.setSingleVisible(idx);
       }
       else {
         handler.setWhichChild(idx);
