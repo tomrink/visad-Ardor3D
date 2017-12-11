@@ -79,6 +79,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
   ScalarMap flowMap = null;
   TrajectoryParams trajParams;
   ScalarMap altitudeToDisplayZ;
+  CoordinateSystem dspCoordSys;
   
   
   List<BranchGroup> branches = null;
@@ -175,13 +176,14 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
         ScalarMap scalarMap = (ScalarMap) scalarMaps.elementAt(kk);
         if (scalarMap.getScalarName().equals(RealType.Altitude.getName())) {
            DisplayRealType dspType = scalarMap.getDisplayScalar();
-           RealType[] rtypes = dspType.getTuple().getCoordinateSystem().getReference().getRealComponents();
+           dspCoordSys = dspType.getTuple().getCoordinateSystem();
+           RealType[] rtypes = dspCoordSys.getReference().getRealComponents();
            for (int t=0; t<rtypes.length; t++) {
               if (rtypes[t].equals(Display.ZAxis)) {
                  altitudeToDisplayZ = scalarMap;
               }
            }
-        }
+        }         
         DisplayRealType dspType = scalarMap.getDisplayScalar();
         boolean isFlow = false;
         if (dspType.equals(Display.Flow1X) || dspType.equals(Display.Flow1Y) || dspType.equals(Display.Flow1Z)) {
@@ -1306,7 +1308,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
     double[] times = TrajectoryManager.getTimes((Gridded1DSet)anim1DdomainSet);
     double[] timeSteps = TrajectoryManager.getTimeSteps((Gridded1DSet)anim1DdomainSet);
     
-    TrajectoryManager trajMan = new TrajectoryManager(renderer, trajParams, flowInfoList, dataDomainLength, times[0], altitudeToDisplayZ);
+    TrajectoryManager trajMan = new TrajectoryManager(renderer, trajParams, flowInfoList, dataDomainLength, times[0], altitudeToDisplayZ, dspCoordSys);
     
     trcrEnabled = (trcrEnabled && (trajForm == TrajectoryManager.LINE)) && trajForm != TrajectoryManager.POINT;
     
