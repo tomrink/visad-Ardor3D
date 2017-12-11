@@ -27,14 +27,8 @@ MA 02111-1307, USA
 package visad.ardor3d;
 
 import java.rmi.RemoteException;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
 
-import javax.media.j3d.Behavior;
-import javax.media.j3d.BoundingSphere;
-import javax.media.j3d.BranchGroup;
-import javax.media.j3d.WakeupOnElapsedTime;
-import javax.vecmath.Point3d;
 
 import visad.AnimationControl;
 import visad.AnimationSetControl;
@@ -45,7 +39,6 @@ import visad.DisplayException;
 import visad.RealType;
 import visad.Set;
 import visad.ToggleControl;
-import visad.VisADError;
 import visad.VisADException;
 import visad.browser.Convert;
 
