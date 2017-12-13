@@ -45,14 +45,12 @@ import visad.browser.Convert;
 /**
    AnimationControlA3D is the VisAD class for controlling Animation
    display scalars under JOGAMP Ardor3D.<P>
-
-   WLH - manipulate a list of Switch nodes in scene graph.<P>
 */
 public class AnimationControlA3D extends AVControlA3D
-       implements AnimationControl {
+       implements AnimationControl, Runnable {
 
   private static final long serialVersionUID = 7763197458917167330L;
-  private static final long DEFAULT_DWELL = 500;
+  private static final long DEFAULT_DWELL = 100;
   protected int current = 0;//DML: made protected so subclass can use it.
   private boolean direction; // true = forward
   private long step = DEFAULT_DWELL; // time in milliseconds between animation steps
@@ -61,6 +59,9 @@ public class AnimationControlA3D extends AVControlA3D
   private ToggleControl animate;
   private RealType real;
   private boolean computeSet = true;
+  
+  private Thread animationThread;
+  private DisplayRendererA3D displayRenderer;
 
   public AnimationControlA3D(DisplayImplA3D d, RealType r) {
     super(d);
@@ -87,8 +88,37 @@ public class AnimationControlA3D extends AVControlA3D
     } catch (VisADException v) {
     } catch (RemoteException v) {
     }
-
+    
+    displayRenderer = (DisplayRendererA3D) d.getDisplayRenderer();
+    animationThread = new Thread(this);
+    animationThread.start();
   }
+  
+  @Override
+  public void run() {
+        
+     while (true) {
+       if (animate.getOn()) {
+          try {
+            takeStep();
+            displayRenderer.markNeedDraw();
+          }
+          catch (VisADException exc) {
+            exc.printStackTrace();
+          }
+          catch (RemoteException exc) {
+            exc.printStackTrace();
+          }
+       }
+
+       try {
+         java.lang.Thread.sleep(step);
+       }
+       catch (Exception e) {
+         e.printStackTrace();
+       }      
+     }
+   }
 
   AnimationControlA3D() {
     this(null, null);
@@ -585,11 +615,5 @@ public class AnimationControlA3D extends AVControlA3D
   public void stop() {
   }
 
-  /**
-   * Start animating.
-   */
-  @Override
-  public void run() {
-  }
   
 }
