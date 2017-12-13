@@ -41,6 +41,7 @@ import java.rmi.*;
 import java.awt.*;
 
 import java.util.Iterator;
+import java.util.Random;
 import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -651,24 +652,40 @@ public class DisplayImplA3D extends DisplayImpl {
        
        /* Simple Test 1 */
        FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
-       FlatField vFld = FlatField.makeField(fncType, 8192, false);
+       FlatField vFld = FlatField.makeField(fncType, 4096, false);
+       
+       FunctionType fldType = new FunctionType(RealType.Time, fncType);
+       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
+       
+       FieldImpl timeFld = new FieldImpl(fldType, outerDom);
+       int len = outerDom.getLength();
+       for (int k=0; k<len; k++) {
+          vFld = FlatField.makeField(fncType, 4096, false);
+          fillField(vFld, 1, k*(4096/len));
+          timeFld.setSample(k, vFld);
+       }
        
        
        ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
        ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
        ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGB);
+       ScalarMap tmap = new ScalarMap(RealType.Time, Display.Animation);
        
        display.addMap(xmap);
        display.addMap(ymap);
        display.addMap(cmap);
+       display.addMap(tmap);
+       AnimationControl acntrl = (AnimationControl) tmap.getControl();
+       acntrl.setOn(true);
        
        DataReferenceImpl ref = new DataReferenceImpl("vfld");
-       ref.setData(vFld);
+       //ref.setData(vFld);
+       ref.setData(timeFld);
        display.addReference(ref);
-       /*  */
+       /**/
        
  
-    /* Simple test 2
+    /* Simple test 2 
     RealType[] types3d = {RealType.Latitude, RealType.Longitude, RealType.Radius};
     RealTupleType earth_location3d = new RealTupleType(types3d);
     RealType vis_radiance = RealType.getRealType("vis_radiance", CommonUnit.degree);
@@ -721,7 +738,7 @@ public class DisplayImplA3D extends DisplayImpl {
        frame.pack();
        frame.setVisible(true);
  
-    /* test2
+    /* test2 
     JPanel panel2 = new JPanel();
     panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
     panel2.setAlignmentY(JPanel.TOP_ALIGNMENT);
@@ -738,7 +755,84 @@ public class DisplayImplA3D extends DisplayImpl {
      */
 
        
-    }   
+    }
+    
+public static void fillField(FlatField image, double step, double half)
+         throws VisADException, RemoteException {
+    Random random = new Random();
+    FunctionType type = (FunctionType) image.getType();
+    RealTupleType dtype = type.getDomain();
+    RealTupleType rtype = type.getFlatRange();
+    int domain_dim = dtype.getDimension();
+    int range_dim = rtype.getDimension();
+    SampledSet domain_set = (SampledSet) image.getDomainSet();
+    int dsize = domain_set.getLength();
+
+    double[][] data = new double[range_dim][dsize];
+    float[][] samples = domain_set.getSamples();
+    for (int k=0; k<range_dim; k++) {
+      if (domain_dim == 1) {
+        for (int i=0; i<dsize; i++) {
+          float x = samples[0][i];
+          if (k == 0) {
+            data[k][i] = (float) Math.abs(step * (x - half));
+          }
+          else if (k == 1) {
+            data[k][i] = x;
+          }
+          else {
+            data[k][i] = random.nextDouble();
+          }
+        }
+      }
+      else if (domain_dim == 2) {
+        for (int i=0; i<dsize; i++) {
+          float x = samples[0][i];
+          float y = samples[1][i];
+          if (k == 0) {
+            data[k][i] = (float) (step * Math.sqrt(
+              (x - half) * (x - half) +
+              (y - half) * (y - half)));
+          }
+          else if (k == 1) {
+            data[k][i] = x;
+          }
+          else if (k == 2) {
+            data[k][i] = y;
+          }
+          else {
+            data[k][i] = random.nextDouble();
+          }
+        }
+      }
+      else if (domain_dim == 3) {
+        for (int i=0; i<dsize; i++) {
+          float x = samples[0][i];
+          float y = samples[1][i];
+          float z = samples[2][i];
+          if (k == 0) {
+            data[k][i] = (float) (step * Math.sqrt(
+              (x - half) * (x - half) +
+              (y - half) * (y - half) +
+              (z - half) * (z - half)));
+          }
+          else if (k == 1) {
+            data[k][i] = x;
+          }
+          else if (k == 2) {
+            data[k][i] = y;
+          }
+          else if (k == 3) {
+            data[k][i] = z;
+          }
+          else {
+            data[k][i] = random.nextDouble();
+          }
+        }
+      }
+    }
+    image.setSamples(data);
+  }
    
    public static void main(String[] args) throws VisADException, RemoteException {
          SwingUtilities.invokeLater(new Runnable() {
