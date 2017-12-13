@@ -71,6 +71,7 @@ import visad.MouseBehavior;
 import visad.KeyboardBehavior;
 import visad.ProjectionControl;
 import visad.RangeControl;
+import visad.RealType;
 import visad.RendererControl;
 import visad.RendererSourceListener;
 import visad.ScalarMap;
@@ -1343,17 +1344,16 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     else if (type.equals(Display.Animation)) {
       // note only one RealType may be mapped to Animation
       // so control must be null
-      Control control = null;
-      //Control control = display.getControl(AnimationControlJ3D.class);
+      Control control = display.getControl(AnimationControlA3D.class);
       if (control != null) {
          return control;
       }
       else {
-         return null;
-         //return new AnimationControlJ3D(display, (RealType) map.getScalar());
+         return new AnimationControlA3D(display, (RealType) map.getScalar());
       }
     }
     else if (type.equals(Display.SelectValue)) {
+      System.out.println("ValueControlA3D not yet implemented");
       return null;
       //return new ValueControlJ3D(display);
     }
@@ -1451,10 +1451,22 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public int getTextureWidthMax() {
+    // TODO: fix this. Need to make sure we have this when we need it
+    while (contextCapabilities == null) {
+       try {
+          java.lang.Thread.sleep(5);
+       } catch (InterruptedException e) {}
+    }
     return contextCapabilities.getMaxTextureSize();
   }
 
   public int getTextureHeightMax() {
+    // same as above
+    while (contextCapabilities == null) {
+       try {
+          java.lang.Thread.sleep(5);
+       } catch (InterruptedException e) {}
+    }
     return contextCapabilities.getMaxTextureSize();
   }
   
