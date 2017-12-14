@@ -49,6 +49,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import visad.util.AnimationWidget;
+import visad.util.ColorMapWidget;
 import visad.util.ContourWidget;
 
 /**
@@ -643,117 +645,116 @@ public class DisplayImplA3D extends DisplayImpl {
        int width = 500;
        int height = 500;
        
+       JPanel widget = null;
+       
        final JFrame frame = new JFrame();
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-       /* quick test */
        final DisplayImplA3D display = new DisplayImplA3D("Display", width, height, JOGL_AWT);
        //final visad.java3d.DisplayImplJ3D display = new visad.java3d.DisplayImplJ3D("Display");
        
        /* Simple Test 1 */
+       FieldImpl dataFld;
        FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
-       FlatField vFld = FlatField.makeField(fncType, 4096, false);
-       
-       FunctionType fldType = new FunctionType(RealType.Time, fncType);
-       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
-       
-       FieldImpl timeFld = new FieldImpl(fldType, outerDom);
-       int len = outerDom.getLength();
-       for (int k=0; k<len; k++) {
-          vFld = FlatField.makeField(fncType, 4096, false);
-          fillField(vFld, 1, k*(4096/len));
-          timeFld.setSample(k, vFld);
-       }
-       
+       dataFld = FlatField.makeField(fncType, 2048, false);
        
        ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
        ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
        ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGB);
-       ScalarMap tmap = new ScalarMap(RealType.Time, Display.Animation);
        
        display.addMap(xmap);
        display.addMap(ymap);
        display.addMap(cmap);
-       display.addMap(tmap);
-       AnimationControl acntrl = (AnimationControl) tmap.getControl();
-       acntrl.setOn(true);
        
-       DataReferenceImpl ref = new DataReferenceImpl("vfld");
-       //ref.setData(vFld);
-       ref.setData(timeFld);
-       display.addReference(ref);
-       /**/
+       widget = new ColorMapWidget(cmap);
+       
+       /* test 2 */
+//       FunctionType fldType = new FunctionType(RealType.Time, fncType);
+//       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
+//       dataFld = new FieldImpl(fldType, outerDom);
+//       int len = outerDom.getLength();
+//       for (int k=0; k<len; k++) {
+//          FlatField vFld = FlatField.makeField(fncType, 2048, false);
+//          fillField(vFld, 1, k*(2048/len));
+//          dataFld.setSample(k, vFld);
+//       }
+//       
+//       ScalarMap tmap = new ScalarMap(RealType.Time, Display.Animation);
+//       
+//       display.addMap(tmap);
+//       AnimationControl acntrl = (AnimationControl) tmap.getControl();
+//       acntrl.setOn(true);
+//       widget = new AnimationWidget(tmap);
+//
+//       
+//       DataReferenceImpl ref = new DataReferenceImpl("vfld");
+//       ref.setData(dataFld);
+//       display.addReference(ref);
        
  
-    /* Simple test 2 
-    RealType[] types3d = {RealType.Latitude, RealType.Longitude, RealType.Radius};
-    RealTupleType earth_location3d = new RealTupleType(types3d);
-    RealType vis_radiance = RealType.getRealType("vis_radiance", CommonUnit.degree);
-    RealType ir_radiance = RealType.getRealType("ir_radiance", CommonUnit.degree);
-    //RealType[] types2 = {vis_radiance, ir_radiance};
-    RealType[] types2 = {vis_radiance};
-    RealTupleType radiance = new RealTupleType(types2);
-    FunctionType grid_tuple = new FunctionType(earth_location3d, radiance);
-
-    FlatField grid3d = FlatField.makeField(grid_tuple, 64, false);
-
-    ScalarMap lat_map = new ScalarMap(RealType.Latitude, Display.YAxis);
-    display.addMap(lat_map);
-    lat_map.setOverrideUnit(CommonUnit.radian);
-    display.addMap(new ScalarMap(RealType.Longitude, Display.XAxis));
-    display.addMap(new ScalarMap(RealType.Radius, Display.ZAxis));
-    ScalarMap map1color = new ScalarMap(vis_radiance, Display.RGB);
-    display.addMap(map1color);
-    map1color.setOverrideUnit(CommonUnit.radian);
-    ScalarMap map1contour = new ScalarMap(vis_radiance, Display.IsoContour);
-    display.addMap(map1contour);
-    map1contour.setOverrideUnit(CommonUnit.radian);
-
-    GraphicsModeControl mode = display.getGraphicsModeControl();
-
-    ContourControl cntrl = (ContourControl)map1contour.getControl();
-    cntrl.setSurfaceValue(0.4f, false);
-
-    DataReferenceImpl ref_grid3d = new DataReferenceImpl("ref_grid3d");
-    ref_grid3d.setData(grid3d);
-    display.addReference(ref_grid3d, new ConstantMap[] {new ConstantMap(0.0, Display.Red),
-            new ConstantMap(1.0, Display.Green), new ConstantMap(0.0, Display.Blue)});
-    */
+       /* Simple test 3 */
+//       RealType[] types3d = {RealType.Latitude, RealType.Longitude, RealType.Radius};
+//       RealTupleType earth_location3d = new RealTupleType(types3d);
+//       RealType vis_radiance = RealType.getRealType("vis_radiance", CommonUnit.degree);
+//       RealType ir_radiance = RealType.getRealType("ir_radiance", CommonUnit.degree);
+//       //RealType[] types2 = {vis_radiance, ir_radiance};
+//       RealType[] types2 = {vis_radiance};
+//       RealTupleType radiance = new RealTupleType(types2);
+//       FunctionType grid_tuple = new FunctionType(earth_location3d, radiance);
+//
+//       FlatField grid3d = FlatField.makeField(grid_tuple, 64, false);
+//
+//       ScalarMap lat_map = new ScalarMap(RealType.Latitude, Display.YAxis);
+//       display.addMap(lat_map);
+//       lat_map.setOverrideUnit(CommonUnit.radian);
+//       display.addMap(new ScalarMap(RealType.Longitude, Display.XAxis));
+//       display.addMap(new ScalarMap(RealType.Radius, Display.ZAxis));
+//       ScalarMap map1color = new ScalarMap(vis_radiance, Display.RGB);
+//       display.addMap(map1color);
+//       map1color.setOverrideUnit(CommonUnit.radian);
+//       ScalarMap map1contour = new ScalarMap(vis_radiance, Display.IsoContour);
+//       display.addMap(map1contour);
+//       map1contour.setOverrideUnit(CommonUnit.radian);
+//       widget = new ContourWidget(map1contour);
+//
+//       GraphicsModeControl mode = display.getGraphicsModeControl();
+//
+//       ContourControl cntrl = (ContourControl)map1contour.getControl();
+//       cntrl.setSurfaceValue(0.4f, false);
+//
+//       DataReferenceImpl ref_grid3d = new DataReferenceImpl("ref_grid3d");
+//       ref_grid3d.setData(grid3d);
+//       display.addReference(ref_grid3d, new ConstantMap[] {new ConstantMap(0.0, Display.Red),
+//               new ConstantMap(1.0, Display.Green), new ConstantMap(0.0, Display.Blue)});
        
        
        final JComponent outerComp = new JPanel(new BorderLayout());
        JPanel cntrlPanel = new JPanel(new FlowLayout());
-       
-       
        JPanel panel = new JPanel();
        final Component comp = display.getComponent();
-       
-       
        outerComp.add(comp, BorderLayout.CENTER);
        outerComp.add(cntrlPanel, BorderLayout.SOUTH);
        frame.getContentPane().add(outerComp);  
-       
-
        //Display the window.
        frame.pack();
        frame.setVisible(true);
  
-    /* test2 
-    JPanel panel2 = new JPanel();
-    panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
-    panel2.setAlignmentY(JPanel.TOP_ALIGNMENT);
-    panel2.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-    panel2.add(new ContourWidget(map1contour));
-    
-       final JFrame frame2 = new JFrame();
-       frame2.setPreferredSize(new Dimension(width, height));
-       frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-       frame2.getContentPane().add(panel2);
-       
-       frame2.pack();
-       frame2.setVisible(true);
-     */
+      /* If we have a control widget */
+       if (widget != null) {
+          JPanel panel2 = new JPanel();
+          panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
+          panel2.setAlignmentY(JPanel.TOP_ALIGNMENT);
+          panel2.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+          panel2.add(widget);
 
+          final JFrame frame2 = new JFrame();
+          frame2.setPreferredSize(new Dimension(width, height));
+          frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+          frame2.getContentPane().add(panel2);
+
+          frame2.pack();
+          frame2.setVisible(true);
+       }
        
     }
     
