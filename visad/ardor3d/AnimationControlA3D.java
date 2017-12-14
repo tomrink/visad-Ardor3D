@@ -101,7 +101,6 @@ public class AnimationControlA3D extends AVControlA3D
        if (animate.getOn()) {
           try {
             takeStep();
-            displayRenderer.markNeedDraw();
           }
           catch (VisADException exc) {
             exc.printStackTrace();
@@ -262,7 +261,7 @@ public class AnimationControlA3D extends AVControlA3D
       current = animationSet.clipCurrent(current);
       init();
     }
-    getDisplayRenderer().render_trigger();
+    displayRenderer.markNeedDraw();
     changeControl(false);
   }
 
