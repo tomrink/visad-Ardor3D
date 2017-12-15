@@ -567,11 +567,11 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
           g = color_values[1][k];
           b = color_values[2][k];
           a = color_values[3][k];
-
-          byteData[m++] = a;
+          
           byteData[m++] = b;
           byteData[m++] = g;
           byteData[m++] = r;
+          byteData[m++] = a;
           k++;
         }
         for (int i=data_width; i<textureWidth; i++) {
