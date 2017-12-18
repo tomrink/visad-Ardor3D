@@ -660,7 +660,7 @@ public class DisplayImplA3D extends DisplayImpl {
        
        ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
        ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
-       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGB);
+       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
        
        display.addMap(xmap);
        display.addMap(ymap);
