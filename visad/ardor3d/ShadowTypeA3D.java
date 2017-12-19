@@ -1190,6 +1190,10 @@ public abstract class ShadowTypeA3D extends ShadowType {
   public boolean addToGroup(Object group, VisADGeometryArray array,
       GraphicsModeControl mode, float constant_alpha, float[] constant_color)
       throws VisADException {
+     
+    if (array == null) {
+       return false;
+    }
     
     if (array != null && array.vertexCount <= 0) {
        return false;
@@ -1219,21 +1223,17 @@ public abstract class ShadowTypeA3D extends ShadowType {
     }
     
     Spatial geometry = display.makeGeometry(array, defaultColor);
-    if (af != 1f) {
-      BlendState blendState = new BlendState();
-      blendState.setSourceFunction(BlendState.SourceFunction.ConstantAlpha);       
-      geometry.setRenderState(blendState);
-    }
        
-//    MaterialState material = new MaterialState();
-//    material.setColorMaterial(MaterialState.ColorMaterial.Diffuse);
-//    //material.setColorMaterial(MaterialState.ColorMaterial.AmbientAndDiffuse);          
-//    geometry.setRenderState(material);    
+    MaterialState material = new MaterialState();
+    material.setColorMaterial(MaterialState.ColorMaterial.Diffuse);
+    //material.setColorMaterial(MaterialState.ColorMaterial.AmbientAndDiffuse);          
+    geometry.setRenderState(material);    
       
-    ((com.ardor3d.scenegraph.Node)group).attachChild(geometry);
-      
+//      Leave here for reference for now.      
 //      Appearance appearance = makeCachedAppearance(mode, c_alpha, c_color, geometry, false, true);
 //      addToShape((Group) group, geometry, appearance);
+
+    ((com.ardor3d.scenegraph.Node)group).attachChild(geometry);
 
     return true;
   }
