@@ -536,9 +536,24 @@ public class DisplayImplA3D extends DisplayImpl {
        }        
      }
      if (vga.colors != null) {
-        float[] fltClrs = new float[vga.colors.length];
-        for (int i=0; i<fltClrs.length; i++) {
-          fltClrs[i] = ((float)Byte.toUnsignedInt(vga.colors[i]))/255f;
+        float[] fltClrs;
+        int numVerts = vga.vertexCount;
+        if (numVerts == vga.colors.length/3) { // Always expand to 4 component color
+          fltClrs = new float[numVerts*4];
+          for (int k=0; k<numVerts; k++) {
+            int idx = k*3;
+            int idxA = k*4;
+            fltClrs[idxA] = ((float)Byte.toUnsignedInt(vga.colors[idx]))/255f;
+            fltClrs[idxA+1] = ((float)Byte.toUnsignedInt(vga.colors[idx+1]))/255f;
+            fltClrs[idxA+2] = ((float)Byte.toUnsignedInt(vga.colors[idx+2]))/255f;
+            fltClrs[idxA+3] = 1f; 
+          }
+        }
+        else { // Must be 4 component
+          fltClrs = new float[vga.colors.length];
+          for (int i=0; i<fltClrs.length; i++) {
+            fltClrs[i] = ((float)Byte.toUnsignedInt(vga.colors[i]))/255f;
+          }
         }
         meshData.setColorBuffer(BufferUtils.createFloatBuffer(fltClrs));
      }
@@ -709,7 +724,7 @@ public class DisplayImplA3D extends DisplayImpl {
 //       lat_map.setOverrideUnit(CommonUnit.radian);
 //       display.addMap(new ScalarMap(RealType.Longitude, Display.XAxis));
 //       display.addMap(new ScalarMap(RealType.Radius, Display.ZAxis));
-//       ScalarMap map1color = new ScalarMap(vis_radiance, Display.RGB);
+//       ScalarMap map1color = new ScalarMap(vis_radiance, Display.RGBA);
 //       display.addMap(map1color);
 //       map1color.setOverrideUnit(CommonUnit.radian);
 //       ScalarMap map1contour = new ScalarMap(vis_radiance, Display.IsoContour);
@@ -724,10 +739,10 @@ public class DisplayImplA3D extends DisplayImpl {
 //
 //       DataReferenceImpl ref_grid3d = new DataReferenceImpl("ref_grid3d");
 //       ref_grid3d.setData(grid3d);
-//       display.addReference(ref_grid3d, new ConstantMap[] {new ConstantMap(0.0, Display.Red),
-//               new ConstantMap(1.0, Display.Green), new ConstantMap(0.0, Display.Blue)});
-       
-       
+//       display.addReference(ref_grid3d, new ConstantMap[] {new ConstantMap(0.8, Display.Red),
+//               new ConstantMap(0.2, Display.Green), new ConstantMap(0.8, Display.Blue), new ConstantMap(1.0, Display.Alpha)});
+//       
+//       
        final JComponent outerComp = new JPanel(new BorderLayout());
        JPanel cntrlPanel = new JPanel(new FlowLayout());
        JPanel panel = new JPanel();
