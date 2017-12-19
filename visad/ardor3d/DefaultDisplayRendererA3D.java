@@ -31,6 +31,7 @@ import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.IndexMode;
 import com.ardor3d.renderer.queue.RenderBucketType;
+import com.ardor3d.renderer.state.BlendState;
 import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.MaterialState;
 import com.ardor3d.renderer.state.ZBufferState;
@@ -187,20 +188,23 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
     root.setRenderState(buf);
 
     /**
-     * Set up a basic, default light.
+     * Set up a basic, default lights.
      */
     PointLight light = new PointLight();
-    PointLight light2 = new PointLight();
-    light2.setLocation(new Vector3(-100,-100,-100));
-    light2.setEnabled(true);
-
-    light.setDiffuse(new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
-    light.setAmbient(new ColorRGBA(0.05f, 0.05f, 0.05f, 1.0f));
+    light.setDiffuse(new ColorRGBA(1f, 1f, 1f, 1.0f));
+    //light.setAmbient(new ColorRGBA(0.05f, 0.05f, 0.05f, 1.0f));
     light.setLocation(new Vector3(100, 100, 100));
-    light.setEnabled(true);
-
+    light.setEnabled(true);      
+      
+    PointLight light2 = new PointLight();
+    light2.setDiffuse(new ColorRGBA(1f, 1f, 1f, 1.0f));
+    //light2.setAmbient(new ColorRGBA(0.05f, 0.05f, 0.05f, 1.0f));
+    light2.setLocation(new Vector3(-100, -100, -100));
+    light2.setEnabled(true);    
+    
+    
     /**
-     * Attach the light to a lightState and the lightState to rootNode.
+     * Attach the lights to a lightState and the lightState to rootNode.
      */
     LightState lightState = new LightState();
     lightState.setEnabled(true);
@@ -209,8 +213,15 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
     lightState.attach(light2);
     root.setRenderState(lightState);
 
-    root.getSceneHints().setRenderBucketType(RenderBucketType.Opaque);    
+    root.getSceneHints().setRenderBucketType(RenderBucketType.Opaque);
     
+    final BlendState as = new BlendState();
+    as.setEnabled(true);
+    as.setBlendEnabled(true);
+    as.setSourceFunction(BlendState.SourceFunction.SourceAlpha);
+    as.setDestinationFunction(BlendState.DestinationFunction.OneMinusSourceAlpha);
+      
+    root.setRenderState(as);
     
     markNeedDraw();
     return root;
