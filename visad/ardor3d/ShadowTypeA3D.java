@@ -1222,7 +1222,7 @@ public abstract class ShadowTypeA3D extends ShadowType {
       defaultColor = new ColorRGBA(0, 0, 0, af);
     }
     
-    Spatial geometry = display.makeGeometry(array, defaultColor);
+    Spatial geometry = display.makeGeometry(array, defaultColor, mode);
        
     MaterialState material = new MaterialState();
     material.setColorMaterial(MaterialState.ColorMaterial.Diffuse);

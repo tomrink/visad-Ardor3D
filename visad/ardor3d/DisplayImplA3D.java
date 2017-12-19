@@ -437,6 +437,10 @@ public class DisplayImplA3D extends DisplayImpl {
   }
   
   public Spatial makeGeometry(VisADGeometryArray vga, ColorRGBA defaultColor) throws VisADException {
+     return makeGeometry(vga, defaultColor, null);
+  }
+  
+  public Spatial makeGeometry(VisADGeometryArray vga, ColorRGBA defaultColor, GraphicsModeControl mode) throws VisADException {
     if (vga == null) return null;
     
     Mesh mesh = new Mesh();
@@ -495,7 +499,9 @@ public class DisplayImplA3D extends DisplayImpl {
       meshData.setIndexMode(IndexMode.Points);
       basicGeometry(vga, meshData, false);
       mesh = new com.ardor3d.scenegraph.Point();
-      GraphicsModeControl mode = getGraphicsModeControl();
+      if (mode == null) {
+        mode = getGraphicsModeControl();
+      }
       ((com.ardor3d.scenegraph.Point)mesh).setPointSize(mode.getPointSize());      
       mesh.setMeshData(meshData);
       
