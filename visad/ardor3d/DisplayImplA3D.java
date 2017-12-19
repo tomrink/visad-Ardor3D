@@ -52,6 +52,7 @@ import javax.swing.UIManager;
 import visad.util.AnimationWidget;
 import visad.util.ColorMapWidget;
 import visad.util.ContourWidget;
+import visad.util.SelectRangeWidget;
 
 /**
    DisplayImplJ3D is the VisAD class for displays that use
@@ -493,6 +494,9 @@ public class DisplayImplA3D extends DisplayImpl {
       
       meshData.setIndexMode(IndexMode.Points);
       basicGeometry(vga, meshData, false);
+      mesh = new com.ardor3d.scenegraph.Point();
+      GraphicsModeControl mode = getGraphicsModeControl();
+      ((com.ardor3d.scenegraph.Point)mesh).setPointSize(mode.getPointSize());      
       mesh.setMeshData(meshData);
       
       return mesh;
@@ -660,13 +664,19 @@ public class DisplayImplA3D extends DisplayImpl {
        int width = 500;
        int height = 500;
        
-       JPanel widget = null;
+       Component widget = null;
        
        final JFrame frame = new JFrame();
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
        final DisplayImplA3D display = new DisplayImplA3D("Display", width, height, JOGL_AWT);
        //final visad.java3d.DisplayImplJ3D display = new visad.java3d.DisplayImplJ3D("Display");
+       
+//       GraphicsModeControl modeCtrl = display.getGraphicsModeControl();
+//       modeCtrl.setCurvedSize(2);
+//       modeCtrl.setTextureEnable(false);
+//       modeCtrl.setPointMode(true);
+//       modeCtrl.setPointSize(2);
        
        /* Simple Test 1 */
        FieldImpl dataFld;
@@ -680,7 +690,6 @@ public class DisplayImplA3D extends DisplayImpl {
        display.addMap(xmap);
        display.addMap(ymap);
        display.addMap(cmap);
-       
        widget = new ColorMapWidget(cmap);
        
        /* test 2 */
@@ -702,6 +711,17 @@ public class DisplayImplA3D extends DisplayImpl {
 //       widget = new AnimationWidget(tmap);
 //
 //       
+       /* Simple test 4 */
+//       ScalarMap zmap = new ScalarMap(RealType.Generic, Display.ZAxis);
+//       display.addMap(zmap);
+//       ScalarMap rmap = new ScalarMap(RealType.Generic, Display.SelectRange);
+//       display.addMap(rmap);
+//       widget = new SelectRangeWidget(rmap);
+//       display.addMap(new ScalarMap(RealType.Generic, Display.Green));
+//       display.addMap(new ConstantMap(0.5f, Display.Red));
+//       display.addMap(new ConstantMap(0.5f, Display.Blue));
+//       //display.addMap(new ConstantMap(0.5, Display.Alpha));
+       
          DataReferenceImpl ref = new DataReferenceImpl("vfld");
          ref.setData(dataFld);
          display.addReference(ref);
