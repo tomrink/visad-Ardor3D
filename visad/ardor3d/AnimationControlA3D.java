@@ -261,7 +261,7 @@ public class AnimationControlA3D extends AVControlA3D
       current = animationSet.clipCurrent(current);
       init();
     }
-    displayRenderer.markNeedDraw();
+    //displayRenderer.markNeedDraw();
     changeControl(false);
   }
 

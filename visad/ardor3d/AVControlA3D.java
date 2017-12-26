@@ -43,9 +43,12 @@ public abstract class AVControlA3D extends Control implements AVControl {
   transient Vector switches = new Vector();
 
   private int interval = -1;
+  
+  private DisplayRendererA3D displayRenderer;
 
   public AVControlA3D(DisplayImplA3D d) {
     super(d);
+    displayRenderer = (DisplayRendererA3D) d.getDisplayRenderer();
   }
 
   public void addPair(SwitchNode sw, Set se, DataRenderer re) {
@@ -151,6 +154,7 @@ public abstract class AVControlA3D extends Control implements AVControl {
       else {
         ss.setWhichChild(Switch.CHILD_NONE);
       }
+      displayRenderer.markNeedDraw();
     } // end while (pairs.hasMoreElements())
   }
   
