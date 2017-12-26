@@ -77,6 +77,7 @@ import visad.RendererSourceListener;
 import visad.ScalarMap;
 import visad.ShapeControl;
 import visad.TextControl;
+import visad.ValueControl;
 import visad.VisADException;
 import visad.VisADLineArray;
 import visad.VisADRay;
@@ -1353,9 +1354,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       }
     }
     else if (type.equals(Display.SelectValue)) {
-      System.out.println("ValueControlA3D not yet implemented");
-      return null;
-      //return new ValueControlJ3D(display);
+      return new ValueControlA3D(display);
     }
     else if (type.equals(Display.SelectRange)) {
       return new RangeControl(display);
