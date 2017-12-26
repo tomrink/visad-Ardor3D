@@ -95,9 +95,9 @@ public class ShadowTupleTypeA3D extends ShadowTypeA3D {
   public boolean recurseComponent(int i, Object group, Data data,
              float[] value_array, float[] default_values, DataRenderer renderer)
          throws VisADException, RemoteException {
-    Node new_node = new Node();
-    new_node.attachChild((Node)group);
-    return tupleComponents[i].doTransform(new_node, data, value_array,
+    //Node new_node = new Node();
+    //new_node.attachChild((Node)group);
+    return tupleComponents[i].doTransform(group, data, value_array,
                                           default_values, renderer);
   }
 
