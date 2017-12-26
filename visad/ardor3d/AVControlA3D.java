@@ -218,7 +218,9 @@ public abstract class AVControlA3D extends Control implements AVControl {
     
     void setWhichChild(int idx) {
       if (handler == null) {
-        swit.setSingleVisible(idx);
+        if (swit.getNumberOfChildren() > 0) {
+          swit.setSingleVisible(idx);
+        }
       }
       else {
         handler.setWhichChild(idx);
