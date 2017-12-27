@@ -49,10 +49,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import visad.java3d.DisplayImplJ3D;
 import visad.util.AnimationWidget;
 import visad.util.ColorMapWidget;
 import visad.util.ContourWidget;
 import visad.util.SelectRangeWidget;
+import visad.util.VisADSlider;
 
 /**
    DisplayImplJ3D is the VisAD class for displays that use
@@ -685,18 +687,18 @@ public class DisplayImplA3D extends DisplayImpl {
 //       modeCtrl.setPointSize(2);
        
        /* Simple Test 1 */
-       FieldImpl dataFld;
-       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
-       dataFld = FlatField.makeField(fncType, 2048, false);
-       
-       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
-       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
-       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
-       
-       display.addMap(xmap);
-       display.addMap(ymap);
-       display.addMap(cmap);
-       widget = new ColorMapWidget(cmap);
+//       FieldImpl dataFld;
+//       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
+//       dataFld = FlatField.makeField(fncType, 2048, false);
+//       
+//       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
+//       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
+//       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
+//       
+//       display.addMap(xmap);
+//       display.addMap(ymap);
+//       display.addMap(cmap);
+//       widget = new ColorMapWidget(cmap);
        
        /* test 2 */
 //       FunctionType fldType = new FunctionType(RealType.Time, fncType);
@@ -728,9 +730,9 @@ public class DisplayImplA3D extends DisplayImpl {
 //       display.addMap(new ConstantMap(0.5f, Display.Blue));
 //       //display.addMap(new ConstantMap(0.5, Display.Alpha));
        
-         DataReferenceImpl ref = new DataReferenceImpl("vfld");
-         ref.setData(dataFld);
-         display.addReference(ref);
+//         DataReferenceImpl ref = new DataReferenceImpl("vfld");
+//         ref.setData(dataFld);
+//         display.addReference(ref);
        
  
        /* Simple test 3 */
@@ -768,7 +770,85 @@ public class DisplayImplA3D extends DisplayImpl {
 //       display.addReference(ref_grid3d, new ConstantMap[] {new ConstantMap(0.8, Display.Red),
 //               new ConstantMap(0.2, Display.Green), new ConstantMap(0.8, Display.Blue), new ConstantMap(1.0, Display.Alpha)});
 //       
-//       
+//  
+
+       /* simple test 19 */
+          RealType[] types = {RealType.Latitude, RealType.Longitude};
+          RealTupleType earth_location = new RealTupleType(types);
+          RealType vis_radiance = RealType.getRealType("vis_radiance");
+          RealType ir_radiance = RealType.getRealType("ir_radiance");
+          RealType[] types2 = {vis_radiance, ir_radiance};
+          RealTupleType radiance = new RealTupleType(types2);
+          FunctionType image_tuple = new FunctionType(earth_location, radiance);
+          RealType[] types4 = {ir_radiance, vis_radiance};
+          RealTupleType ecnaidar = new RealTupleType(types4);
+          FunctionType image_bumble = new FunctionType(earth_location, ecnaidar);
+          RealType[] time = {RealType.Time};
+          RealTupleType time_type = new RealTupleType(time);
+          FunctionType time_images = new FunctionType(time_type, image_tuple);
+          FunctionType time_bee = new FunctionType(time_type, image_bumble);
+
+          int size = 64;
+          FlatField imaget1 = FlatField.makeField(image_tuple, size, false);
+          FlatField wasp = FlatField.makeField(image_bumble, size, false);
+
+          int ntimes1 = 4;
+          int ntimes2 = 6;
+          // different time resolutions for test
+          Set time_set =
+            new Linear1DSet(time_type, 0.0, 1.0, ntimes1);
+          Set time_hornet =
+            new Linear1DSet(time_type, 0.0, 1.0, ntimes2);
+
+          FieldImpl image_sequence = new FieldImpl(time_images, time_set);
+          FieldImpl image_stinger = new FieldImpl(time_bee, time_hornet);
+          FlatField temp = imaget1;
+          FlatField tempw = wasp;
+          Real[] reals19 = {new Real(vis_radiance, (float) size / 4.0f),
+                            new Real(ir_radiance, (float) size / 8.0f)};
+          RealTuple val = new RealTuple(reals19);
+          for (int i=0; i<ntimes1; i++) {
+            image_sequence.setSample(i, temp);
+            temp = (FlatField) temp.add(val);
+          }
+          for (int i=0; i<ntimes2; i++) {
+            image_stinger.setSample(i, tempw);
+            tempw = (FlatField) tempw.add(val);
+          }
+          FieldImpl[] images19 = {image_sequence, image_stinger};
+          Tuple big_tuple = new Tuple(images19);
+
+          display.addMap(new ScalarMap(RealType.Latitude, Display.YAxis));
+          display.addMap(new ScalarMap(RealType.Longitude, Display.XAxis));
+          display.addMap(new ScalarMap(vis_radiance, Display.ZAxis));
+          display.addMap(new ScalarMap(ir_radiance, Display.Green));
+          display.addMap(new ConstantMap(0.5, Display.Blue));
+          display.addMap(new ConstantMap(0.5, Display.Red));
+          ScalarMap map1value = new ScalarMap(RealType.Time, Display.SelectValue);
+          display.addMap(map1value);
+          
+          DataReferenceImpl ref_big_tuple;
+          ref_big_tuple = new DataReferenceImpl("ref_big_tuple");
+          ref_big_tuple.setData(big_tuple);
+          display.addReference(ref_big_tuple, null);
+          
+          final ValueControl value1control =
+           (ValueControl) map1value.getControl();
+          DataReferenceImpl value_ref = new DataReferenceImpl("value");
+
+          widget = new VisADSlider("value", 0, 100, 0, 0.01, value_ref, RealType.Generic);
+
+          final DataReference cell_ref = value_ref;
+
+          CellImpl cell = new CellImpl() {
+           public void doAction() throws RemoteException, VisADException {
+            value1control.setValue(((Real) cell_ref.getData()).getValue());
+           }
+          };
+         cell.addReference(cell_ref);
+
+
+       /* Main display window */
        final JComponent outerComp = new JPanel(new BorderLayout());
        JPanel cntrlPanel = new JPanel(new FlowLayout());
        JPanel panel = new JPanel();
