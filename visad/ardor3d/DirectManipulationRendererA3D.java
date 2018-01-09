@@ -33,11 +33,6 @@ import visad.*;
 //import javax.media.j3d.*;
 
 import java.rmi.*;
-import javax.media.j3d.Appearance;
-import javax.media.j3d.BranchGroup;
-import javax.media.j3d.GeometryArray;
-import javax.media.j3d.Group;
-import javax.media.j3d.Shape3D;
 
 
 /**
