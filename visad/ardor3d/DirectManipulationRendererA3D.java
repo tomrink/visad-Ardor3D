@@ -27,6 +27,7 @@ MA 02111-1307, USA
 package visad.ardor3d;
 
 import com.ardor3d.scenegraph.Node;
+import com.ardor3d.scenegraph.Spatial;
 import visad.*;
 
 //import javax.media.j3d.*;
@@ -76,8 +77,8 @@ public class DirectManipulationRendererA3D extends RendererA3D {
   }
 
   public void addPoint(float[] x) throws VisADException {
-    /*
     if (branch == null) return;
+    
     int count = x.length / 3;
     VisADGeometryArray array = null;
     if (count == 1) {
@@ -91,9 +92,11 @@ public class DirectManipulationRendererA3D extends RendererA3D {
     }
     array.coordinates = x;
     array.vertexCount = count;
+    
     DisplayImplA3D display = (DisplayImplA3D) getDisplay();
     if (display == null) return;
-    GeometryArray geometry = display.makeGeometry(array);
+    
+    Spatial geometry = display.makeGeometry(array);
 
     DataDisplayLink[] Links = getLinks();
     if (Links == null || Links.length == 0) {
@@ -113,17 +116,15 @@ public class DirectManipulationRendererA3D extends RendererA3D {
     mode.setPointSize(pointSize, true);
     mode.setLineWidth(lineWidth, true);
     mode.setLineStyle(lineStyle, true);
-    Appearance appearance =
-      ShadowTypeA3D.staticMakeAppearance(mode, null, null, geometry, false);
+    
+//    Appearance appearance =
+//      ShadowTypeA3D.staticMakeAppearance(mode, null, null, geometry, false);
 
-    Shape3D shape = new Shape3D(geometry, appearance);
-    shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-    shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-    BranchGroup group = new BranchGroup();
-    group.setCapability(Group.ALLOW_CHILDREN_READ);
-    group.addChild(shape);
-    branch.addChild(group);
-    */
+
+    Node group = new Node();
+    group.attachChild(geometry);
+    
+    branch.attachChild(group);
   }
 
   /** create a BranchGroup scene graph for Data in links[0] */
