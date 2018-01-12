@@ -147,12 +147,10 @@ public class ProjectionControlA3D extends ProjectionControl {
 
   private Transform init() {
     Transform trans = new Transform();
-    // initialize scale
-    double scale = 0.5;
     if (getDisplayRenderer().getMode2D()){
-       scale = ProjectionControl.SCALE2D;
+       double scale = ProjectionControl.SCALE2D;
+       trans.setScale(scale);
     }
-    trans.setScale(scale);
     return trans;
   }
 
