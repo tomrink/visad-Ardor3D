@@ -26,8 +26,11 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.framework.CanvasRenderer;
 import com.ardor3d.framework.Scene;
 import com.ardor3d.intersection.PickResults;
+import com.ardor3d.intersection.PickingUtil;
+import com.ardor3d.intersection.PrimitivePickResults;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
@@ -206,6 +209,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     {false, false, false, false, false, false};
   
   private ContextCapabilities contextCapabilities;
+  
+  
 
   public DisplayRendererA3D () {
     super();
@@ -1488,6 +1493,11 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       
    @Override
    public PickResults doPick(Ray3 pickRay) {
+        final PickResults pickResults = new PrimitivePickResults();
+        pickResults.setCheckDistance(true);
+        PickingUtil.findPick(getRoot(), pickRay, pickResults);
+        System.out.println(pickResults.getNumber());
+//        processPicks(pickResults);      
       return null;
    }
    
@@ -1497,4 +1507,4 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       }
    } 
 
-}
+ }
