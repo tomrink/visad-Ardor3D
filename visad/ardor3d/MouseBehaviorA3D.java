@@ -26,13 +26,19 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.framework.CanvasRenderer;
+import com.ardor3d.math.Ray3;
+import com.ardor3d.math.Vector2;
+import com.ardor3d.math.Vector3;
+import com.ardor3d.math.type.ReadOnlyVector3;
+import com.ardor3d.renderer.Camera;
 import visad.*;
 
 import java.lang.reflect.*;
 import java.awt.event.*;
 
 import javax.media.j3d.*;
-import javax.vecmath.*;
+//import javax.vecmath.*;
 
 import java.awt.*;
 import java.util.*;
@@ -55,6 +61,7 @@ public class MouseBehaviorA3D implements MouseBehavior {
   DisplayImpl display;
 
   MouseHelper helper = null;
+  private CanvasRenderer canvasRenderer = null;
 
   /**
    * Default Constructor
@@ -107,6 +114,12 @@ public class MouseBehaviorA3D implements MouseBehavior {
   public MouseHelper getMouseHelper() {
     return helper;
   }
+  
+  public void setCanvasRenderer(CanvasRenderer cr) {
+     if (canvasRenderer == null) {
+        canvasRenderer = cr;
+     }
+  }
 
   /**
    * Return the VisAD ray corresponding to the component coordinates.
@@ -117,45 +130,61 @@ public class MouseBehaviorA3D implements MouseBehavior {
    * @see visad.LocalDisplay#getComponent()
    */
   public VisADRay findRay(int screen_x, int screen_y) {
-    // System.out.println("findRay " + screen_x + " " + screen_y);
-    Canvas3D canvas = null;
-    //Canvas3D canvas = display_renderer.getCanvas();
-    Point3d position = new Point3d();
-    canvas.getPixelLocationInImagePlate(screen_x, screen_y, position);
-    Point3d eye_position = new Point3d();
-    canvas.getCenterEyeInImagePlate(eye_position);
-    Transform3D t = new Transform3D();
-    canvas.getImagePlateToVworld(t);
-    t.transform(position);
-    t.transform(eye_position);
-
-    if (display.getGraphicsModeControl().getProjectionPolicy() ==
-        View.PARALLEL_PROJECTION) {
-      eye_position = new Point3d(position.x, position.y,
-                                 position.z + 1.0f);
-    }
-
-    TransformGroup trans = display_renderer.getTrans();
-    Transform3D tt = new Transform3D();
-    trans.getTransform(tt);
-    tt.invert();
-    tt.transform(position);
-    tt.transform(eye_position);
-
-    // new eye_position = 2 * position - old eye_position
-    Vector3d vector = new Vector3d(position.x - eye_position.x,
-                                   position.y - eye_position.y,
-                                   position.z - eye_position.z);
-    vector.normalize();
+     
+    Camera camera = canvasRenderer.getCamera();
+    final Vector2 pos = Vector2.fetchTempInstance().set( screen_x, screen_y);
+    final Ray3 pickRay = new Ray3();
+    camera.getPickRay(pos, false, pickRay);
+    Vector2.releaseTempInstance(pos);
+    ReadOnlyVector3 origin = pickRay.getOrigin();
+    ReadOnlyVector3 direction = pickRay.getDirection();
     VisADRay ray = new VisADRay();
-    ray.position[0] = position.x;
-    ray.position[1] = position.y;
-    ray.position[2] = position.z;
-    ray.vector[0] = vector.x;
-    ray.vector[1] = vector.y;
-    ray.vector[2] = vector.z;
-    // PickRay ray = new PickRay(position, vector);
-    return ray;
+    ray.position[0] = origin.getXf();
+    ray.position[1] = origin.getYf();
+    ray.position[2] = origin.getZf();
+    ray.vector[0] = direction.getXf();
+    ray.vector[1] = direction.getYf();
+    ray.vector[2] = direction.getZf();
+    return ray;    
+    
+//    Canvas3D canvas = null;
+//    //Canvas3D canvas = display_renderer.getCanvas();
+//    Point3d position = new Point3d();
+//    canvas.getPixelLocationInImagePlate(screen_x, screen_y, position);
+//    Point3d eye_position = new Point3d();
+//    canvas.getCenterEyeInImagePlate(eye_position);
+//    Transform3D t = new Transform3D();
+//    canvas.getImagePlateToVworld(t);
+//    t.transform(position);
+//    t.transform(eye_position);
+//
+//    if (display.getGraphicsModeControl().getProjectionPolicy() ==
+//        View.PARALLEL_PROJECTION) {
+//      eye_position = new Point3d(position.x, position.y,
+//                                 position.z + 1.0f);
+//    }
+//
+//    TransformGroup trans = display_renderer.getTrans();
+//    Transform3D tt = new Transform3D();
+//    trans.getTransform(tt);
+//    tt.invert();
+//    tt.transform(position);
+//    tt.transform(eye_position);
+//
+//    // new eye_position = 2 * position - old eye_position
+//    Vector3d vector = new Vector3d(position.x - eye_position.x,
+//                                   position.y - eye_position.y,
+//                                   position.z - eye_position.z);
+//    vector.normalize();
+//    VisADRay ray = new VisADRay();
+//    ray.position[0] = position.x;
+//    ray.position[1] = position.y;
+//    ray.position[2] = position.z;
+//    ray.vector[0] = vector.x;
+//    ray.vector[1] = vector.y;
+//    ray.vector[2] = vector.z;
+//    // PickRay ray = new PickRay(position, vector);
+//    return ray;
   }
 
   /**
@@ -166,48 +195,48 @@ public class MouseBehaviorA3D implements MouseBehavior {
    * @see visad.DisplayRenderer#getCursor()
    */
   public VisADRay cursorRay(double[] cursor) {
-    Canvas3D canvas = null;
-    //Canvas3D canvas = display_renderer.getCanvas();
-    // note position already in Vworld coordinates
-    Point3d position = new Point3d(cursor[0], cursor[1], cursor[2]);
-    Point3d eye_position = new Point3d();
-    canvas.getCenterEyeInImagePlate(eye_position);
-    Transform3D t = new Transform3D();
-    canvas.getImagePlateToVworld(t);
-    t.transform(eye_position);
-
-    TransformGroup trans = display_renderer.getTrans();
-    Transform3D tt = new Transform3D();
-    trans.getTransform(tt);
-    tt.transform(position);
-
-    if (display.getGraphicsModeControl().getProjectionPolicy() ==
-        View.PARALLEL_PROJECTION) {
-      eye_position = new Point3d(position.x, position.y,
-                                 position.z + 1.0f);
-    }
-
-    tt.invert();
-    tt.transform(position);
-    tt.transform(eye_position);
-
-    // new eye_position = 2 * position - old eye_position
-    Vector3d vector = new Vector3d(position.x - eye_position.x,
-                                   position.y - eye_position.y,
-                                   position.z - eye_position.z);
-    vector.normalize();
     VisADRay ray = new VisADRay();
-    ray.position[0] = eye_position.x;
-    ray.position[1] = eye_position.y;
-    ray.position[2] = eye_position.z;
-    ray.vector[0] = vector.x;
-    ray.vector[1] = vector.y;
-    ray.vector[2] = vector.z;
-    // PickRay ray = new PickRay(eye_position, vector);
     return ray;
+//    Canvas3D canvas = null;
+//    //Canvas3D canvas = display_renderer.getCanvas();
+//    // note position already in Vworld coordinates
+//    Point3d position = new Point3d(cursor[0], cursor[1], cursor[2]);
+//    Point3d eye_position = new Point3d();
+//    canvas.getCenterEyeInImagePlate(eye_position);
+//    Transform3D t = new Transform3D();
+//    canvas.getImagePlateToVworld(t);
+//    t.transform(eye_position);
+//
+//    TransformGroup trans = display_renderer.getTrans();
+//    Transform3D tt = new Transform3D();
+//    trans.getTransform(tt);
+//    tt.transform(position);
+//
+//    if (display.getGraphicsModeControl().getProjectionPolicy() ==
+//        View.PARALLEL_PROJECTION) {
+//      eye_position = new Point3d(position.x, position.y,
+//                                 position.z + 1.0f);
+//    }
+//
+//    tt.invert();
+//    tt.transform(position);
+//    tt.transform(eye_position);
+//
+//    // new eye_position = 2 * position - old eye_position
+//    Vector3d vector = new Vector3d(position.x - eye_position.x,
+//                                   position.y - eye_position.y,
+//                                   position.z - eye_position.z);
+//    vector.normalize();
+//    VisADRay ray = new VisADRay();
+//    ray.position[0] = eye_position.x;
+//    ray.position[1] = eye_position.y;
+//    ray.position[2] = eye_position.z;
+//    ray.vector[0] = vector.x;
+//    ray.vector[1] = vector.y;
+//    ray.vector[2] = vector.z;
+//    // PickRay ray = new PickRay(eye_position, vector);
+//    return ray;
   }
-
-  private Method getPixelLocationFromImagePlateMethod = null;
 
   /**
    * Return the screen coordinates corresponding to the VisAD coordinates.
@@ -215,87 +244,52 @@ public class MouseBehaviorA3D implements MouseBehavior {
    * @return  corresponding (x, y) screen coordinates
    */
   public int[] getScreenCoords(double[] position) {
-    if (getPixelLocationFromImagePlateMethod == null) {
-      try {
-        Class canvas3DClass = Class.forName("javax.media.j3d.Canvas3D");
-        Class[] param =
-          {javax.vecmath.Point3d.class, javax.vecmath.Point2d.class};
-        getPixelLocationFromImagePlateMethod =
-          canvas3DClass.getMethod("getPixelLocationFromImagePlate", param);
-        if (getPixelLocationFromImagePlateMethod == null) return null;
-      }
-      catch (Exception e) {
-        return null;
-      }
-    }
-    // get transforms
-    Canvas3D canvas = null;
-    //Canvas3D canvas = display_renderer.getCanvas();
-    Transform3D t = new Transform3D();
-    canvas.getImagePlateToVworld(t);
-    TransformGroup trans = display_renderer.getTrans();
-    Transform3D tt = new Transform3D();
-    trans.getTransform(tt);
-
-    // compute image plate location
-    Point3d pos = new Point3d(position);
-    tt.transform(pos);
-    t.invert();
-    t.transform(pos);
-
-    // get screen coordinates
-    Point2d coords = new Point2d();
-    // CTR: unfortunately, the following method is Java3D 1.2 only
-    // canvas.getPixelLocationFromImagePlate(pos, coords);
-    // return new int[] {(int) coords.x, (int) coords.y};
-    try {
-      getPixelLocationFromImagePlateMethod.invoke(canvas,
-        new Object[] {pos, coords});
-    }
-    catch (Exception e) {
-      return null;
-    }
-    return new int[] {(int) coords.x, (int) coords.y};
+    Camera camera = canvasRenderer.getCamera();
+    Vector3 worldPos = new Vector3(position[0], position[1], position[2]);
+    Vector3 screen = camera.getScreenCoordinates(worldPos);
+    return new int[] {(int) screen.getX(), (int) screen.getY()};
+//    if (getPixelLocationFromImagePlateMethod == null) {
+//      try {
+//        Class canvas3DClass = Class.forName("javax.media.j3d.Canvas3D");
+//        Class[] param =
+//          {javax.vecmath.Point3d.class, javax.vecmath.Point2d.class};
+//        getPixelLocationFromImagePlateMethod =
+//          canvas3DClass.getMethod("getPixelLocationFromImagePlate", param);
+//        if (getPixelLocationFromImagePlateMethod == null) return null;
+//      }
+//      catch (Exception e) {
+//        return null;
+//      }
+//    }
+//    // get transforms
+//    Canvas3D canvas = null;
+//    //Canvas3D canvas = display_renderer.getCanvas();
+//    Transform3D t = new Transform3D();
+//    canvas.getImagePlateToVworld(t);
+//    TransformGroup trans = display_renderer.getTrans();
+//    Transform3D tt = new Transform3D();
+//    trans.getTransform(tt);
+//
+//    // compute image plate location
+//    Point3d pos = new Point3d(position);
+//    tt.transform(pos);
+//    t.invert();
+//    t.transform(pos);
+//
+//    // get screen coordinates
+//    Point2d coords = new Point2d();
+//    // CTR: unfortunately, the following method is Java3D 1.2 only
+//    // canvas.getPixelLocationFromImagePlate(pos, coords);
+//    // return new int[] {(int) coords.x, (int) coords.y};
+//    try {
+//      getPixelLocationFromImagePlateMethod.invoke(canvas,
+//        new Object[] {pos, coords});
+//    }
+//    catch (Exception e) {
+//      return null;
+//    }
+//    return new int[] {(int) coords.x, (int) coords.y};
   }
-
-
-  /**
-   * Return the screen coordinates corresponding to the VisAD coordinates.
-   * @param  position  array of VisAD coordinates
-   * @return  corresponding (x, y) plate coordinates (in meters)
-   */
-  public double[] getPlateCoords(double[] position) {
-    if (getPixelLocationFromImagePlateMethod == null) {
-      try {
-        Class canvas3DClass = Class.forName("javax.media.j3d.Canvas3D");
-        Class[] param =
-          {javax.vecmath.Point3d.class, javax.vecmath.Point2d.class};
-        getPixelLocationFromImagePlateMethod =
-          canvas3DClass.getMethod("getPixelLocationFromImagePlate", param);
-        if (getPixelLocationFromImagePlateMethod == null) return null;
-      }
-      catch (Exception e) {
-        return null;
-      }
-    }
-    // get transforms
-    Canvas3D canvas = null;
-    //Canvas3D canvas = display_renderer.getCanvas();
-    Transform3D t = new Transform3D();
-    canvas.getImagePlateToVworld(t);
-    TransformGroup trans = display_renderer.getTrans();
-    Transform3D tt = new Transform3D();
-    trans.getTransform(tt);
-
-    // compute image plate location
-    Point3d pos = new Point3d(position);
-    tt.transform(pos);
-    t.invert();
-    t.transform(pos);
-
-    return new double[] {pos.x, pos.y};
-  }
-
 
   /**
    * Create a translation matrix.
