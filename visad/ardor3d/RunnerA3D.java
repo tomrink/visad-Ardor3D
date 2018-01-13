@@ -6,10 +6,10 @@ import com.ardor3d.renderer.ContextCapabilities;
 import com.ardor3d.renderer.RenderContext;
 
 public class RunnerA3D implements Runnable {
-   private FrameHandler frameWork;
-   private CanvasRenderer canvasRenderer;
-   private DisplayRendererA3D dspRenderer;
-   private Thread thread;
+   private final FrameHandler frameWork;
+   private final CanvasRenderer canvasRenderer;
+   private final DisplayRendererA3D dspRenderer;
+   private final Thread thread;
    private boolean pause = false;
    private boolean exit = false;
    
