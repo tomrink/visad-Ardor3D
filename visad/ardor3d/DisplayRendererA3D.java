@@ -43,7 +43,6 @@ import com.ardor3d.scenegraph.extension.SwitchNode;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -80,7 +79,6 @@ import visad.RendererSourceListener;
 import visad.ScalarMap;
 import visad.ShapeControl;
 import visad.TextControl;
-import visad.ValueControl;
 import visad.VisADException;
 import visad.VisADLineArray;
 import visad.VisADRay;
@@ -210,8 +208,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   
   private ContextCapabilities contextCapabilities;
   
+  private CanvasRenderer canvasRenderer;
   
-
+  
   public DisplayRendererA3D () {
     super();
   }
@@ -1440,18 +1439,10 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     //trans.addChild(bg); How to do this?
   }
 
-  public void render_trigger() {
-    /* This was here ostensibly for a Java3D hack */
-    return;
-  }
-
   public void setWaitFlag(boolean b) {
     if (not_destroyed == null) return;
     boolean old = getWaitFlag();
     super.setWaitFlag(b);
-    if (b != old) {
-      render_trigger(); // noop, see above. Likely remove.
-    }
   }
 
   public int getTextureWidthMax() {
@@ -1482,7 +1473,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    public boolean renderUnto(Renderer renderer) {
       synchronized (MUTEX) {
          if (trans.isDirty(DirtyType.Transform) || needDraw) {
-            root.updateGeometricState(20, false);
+            root.updateGeometricState(2, false);
             root.draw(renderer);
             needDraw = false;
             return true;
@@ -1493,11 +1484,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       
    @Override
    public PickResults doPick(Ray3 pickRay) {
-        final PickResults pickResults = new PrimitivePickResults();
-        pickResults.setCheckDistance(true);
-        PickingUtil.findPick(getRoot(), pickRay, pickResults);
-        System.out.println(pickResults.getNumber());
-//        processPicks(pickResults);      
+      final PickResults pickResults = new PrimitivePickResults();
+      pickResults.setCheckDistance(true);
+      PickingUtil.findPick(getRoot(), pickRay, pickResults);
       return null;
    }
    
@@ -1506,5 +1495,13 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
          needDraw = true;
       }
    } 
+
+   void setCanvasRenderer(CanvasRenderer canvasRenderer) {
+      this.canvasRenderer = canvasRenderer;
+   }
+   
+   public CanvasRenderer getCanvasRenderer() {
+      return canvasRenderer;
+   }
 
  }
