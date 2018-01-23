@@ -28,7 +28,6 @@ package visad.ardor3d;
 
 import com.ardor3d.framework.CanvasRenderer;
 import com.ardor3d.math.Ray3;
-import com.ardor3d.math.Transform;
 import com.ardor3d.math.Vector2;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.math.type.ReadOnlyTransform;
@@ -37,12 +36,9 @@ import com.ardor3d.renderer.Camera;
 import visad.*;
 
 import java.lang.reflect.*;
-import java.awt.event.*;
 
 import javax.media.j3d.*;
 
-import java.awt.*;
-import java.util.*;
 
 /**
    MouseBehaviorJ3D is the VisAD class for mouse behaviors for Java3D
