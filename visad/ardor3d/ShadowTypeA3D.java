@@ -27,14 +27,14 @@
 package visad.ardor3d;
 
 import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.renderer.state.BlendState;
+import com.ardor3d.math.Transform;
+import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.state.MaterialState;
 import com.ardor3d.scenegraph.Spatial;
 import visad.*;
 
 import javax.media.j3d.*;
 
-import javax.vecmath.*;
 
 import java.util.Vector;
 
@@ -973,94 +973,83 @@ public abstract class ShadowTypeA3D extends ShadowType {
       ProjectionControl p_cntrl, int[] cnt_a, float constant_alpha,
       float[] constant_color) throws VisADException {
 
-      //Make this thread safe
-      synchronized(MUTEX) {
-    int cnt = cnt_a[0];
+    synchronized(MUTEX) {
+       int cnt = cnt_a[0];
 
-    if (cnt == 0) {
-      projListener = new ProjectionControlListener(p_cntrl, control);
+       if (cnt == 0) {
+         projListener = new ProjectionControlListener(p_cntrl, control);
+       }
+
+       int n_labels = arrays.length;
+
+       // add the stretchy line segments if we are not filling
+       if (!control.contourFilled() && arrays != null) {
+         projListener.LT_array[cnt] = new LabelTransform[3][n_labels];
+
+         GraphicsModeControl styledMode = (GraphicsModeControl) mode.clone();
+         styledMode.setLineStyle(control.getDashedStyle(), false);
+
+         for (int ii = 0; ii < n_labels; ii++) {
+           ContourLabelGeometry array = (ContourLabelGeometry) arrays[ii];
+
+           TransformNode segL_trans_group = new TransformNode();
+           TransformNode segR_trans_group = new TransformNode();
+
+           if (control.getAutoSizeLabels()) {
+
+             LabelTransform lbl_trans = new LabelTransform(segL_trans_group, p_cntrl,
+                 new VisADGeometryArray[] { array.expSegLeft, array.segLeftAnchor },
+                 array.segLeftScaleInfo, 1);
+             projListener.LT_array[cnt][1][ii] = lbl_trans;
+
+             lbl_trans = new LabelTransform(segR_trans_group, p_cntrl,
+                 new VisADGeometryArray[] { array.expSegRight, array.segRightAnchor },
+                 array.segRightScaleInfo, 1);
+             projListener.LT_array[cnt][2][ii] = lbl_trans;
+           }
+           ((com.ardor3d.scenegraph.Node) group).attachChild(segL_trans_group);
+           ((com.ardor3d.scenegraph.Node) group).attachChild(segR_trans_group);
+
+           if (array.isStyled) {
+             addToGroup(segL_trans_group, array.expSegLeft, styledMode,
+                        constant_alpha, constant_color);
+             addToGroup(segR_trans_group, array.expSegRight, styledMode,
+                        constant_alpha, constant_color);
+           }
+           else {
+             addToGroup(segL_trans_group, array.expSegLeft, mode,
+                        constant_alpha, constant_color);
+             addToGroup(segR_trans_group, array.expSegRight, mode,
+                        constant_alpha, constant_color);
+           }
+         }
+
+       } else {
+         projListener.LT_array[cnt] = new LabelTransform[1][n_labels];
+       }
+
+       cnt = cnt_a[0];
+
+       for (int ii = 0; ii < n_labels; ii++) {
+         TransformNode lbl_trans_group = new TransformNode();
+
+         ContourLabelGeometry array = (ContourLabelGeometry) arrays[ii];
+
+         if (control.getAutoSizeLabels()) {
+           LabelTransform lbl_trans = new LabelTransform(lbl_trans_group, p_cntrl,
+               new VisADGeometryArray[] { array.label, array.labelAnchor }, null, 0);
+           projListener.LT_array[cnt][0][ii] = lbl_trans;
+         }
+
+         ((com.ardor3d.scenegraph.Node) group).attachChild(lbl_trans_group);
+
+         addToGroup(lbl_trans_group, array.label, mode, constant_alpha,
+             constant_color);
+       }
+       cnt++;
+       projListener.cnt = cnt;
+       cnt_a[0] = cnt;
     }
-
-    int n_labels = arrays.length;
-
-    // add the stretchy line segments if we are not filling
-    if (!control.contourFilled() && arrays != null) {
-      projListener.LT_array[cnt] = new LabelTransform[3][n_labels];
-
-      GraphicsModeControl styledMode = (GraphicsModeControl) mode.clone();
-      styledMode.setLineStyle(control.getDashedStyle(), false);
-
-      for (int ii = 0; ii < n_labels; ii++) {
-        ContourLabelGeometry array = (ContourLabelGeometry) arrays[ii];
-
-        TransformGroup segL_trans_group = new TransformGroup();
-        TransformGroup segR_trans_group = new TransformGroup();
-
-        segL_trans_group.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        segL_trans_group.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        segL_trans_group.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
-        segR_trans_group.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        segR_trans_group.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        segR_trans_group.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
-
-        if (control.getAutoSizeLabels()) {
-
-          LabelTransform lbl_trans = new LabelTransform(segL_trans_group, p_cntrl,
-              new VisADGeometryArray[] { array.expSegLeft, array.segLeftAnchor },
-              array.segLeftScaleInfo, 1);
-          projListener.LT_array[cnt][1][ii] = lbl_trans;
-
-          lbl_trans = new LabelTransform(segR_trans_group, p_cntrl,
-              new VisADGeometryArray[] { array.expSegRight, array.segRightAnchor },
-              array.segRightScaleInfo, 1);
-          projListener.LT_array[cnt][2][ii] = lbl_trans;
-        }
-        ((Group) group).addChild(segL_trans_group);
-        ((Group) group).addChild(segR_trans_group);
-
-        if (array.isStyled) {
-          addToGroup(segL_trans_group, array.expSegLeft, styledMode,
-                     constant_alpha, constant_color);
-          addToGroup(segR_trans_group, array.expSegRight, styledMode,
-                     constant_alpha, constant_color);
-        }
-        else {
-          addToGroup(segL_trans_group, array.expSegLeft, mode,
-                     constant_alpha, constant_color);
-          addToGroup(segR_trans_group, array.expSegRight, mode,
-                     constant_alpha, constant_color);
-        }
-      }
-
-    } else {
-      projListener.LT_array[cnt] = new LabelTransform[1][n_labels];
-    }
-
-    cnt = cnt_a[0];
-
-    for (int ii = 0; ii < n_labels; ii++) {
-      TransformGroup lbl_trans_group = new TransformGroup();
-      lbl_trans_group.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-      lbl_trans_group.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-      lbl_trans_group.setCapability(TransformGroup.ALLOW_CHILDREN_READ);
-
-      ContourLabelGeometry array = (ContourLabelGeometry) arrays[ii];
-
-      if (control.getAutoSizeLabels()) {
-        LabelTransform lbl_trans = new LabelTransform(lbl_trans_group, p_cntrl,
-            new VisADGeometryArray[] { array.label, array.labelAnchor }, null, 0);
-        projListener.LT_array[cnt][0][ii] = lbl_trans;
-      }
-
-      ((Group) group).addChild(lbl_trans_group);
-
-      addToGroup(lbl_trans_group, array.label, mode, constant_alpha,
-          constant_color);
-    }
-    cnt++;
-    projListener.cnt = cnt;
-    cnt_a[0] = cnt;
-                               }
   }
 
 
@@ -1458,10 +1447,10 @@ class ProjectionControlListener implements ControlListener {
 class LabelTransform {
 
   /**  */
-  TransformGroup trans;
+  TransformNode trans;
 
   /**  */
-  Transform3D t3d;
+  Transform t3d;
 
   /**  */
   ProjectionControl proj;
@@ -1511,7 +1500,7 @@ class LabelTransform {
    * @param f_array
    * @param flag
    */
-  LabelTransform(TransformGroup trans, ProjectionControl proj,
+  LabelTransform(TransformNode trans, ProjectionControl proj,
       VisADGeometryArray[] label_array, float[] f_array, int flag) {
     this.trans = trans;
     this.proj = proj;
@@ -1520,7 +1509,7 @@ class LabelTransform {
     this.flag = flag;
     this.f_array = f_array;
 
-    t3d = new Transform3D();
+    t3d = new Transform();
     matrix = proj.getMatrix();
     rot_a = new double[3];
     trans_a = new double[3];
@@ -1541,7 +1530,7 @@ class LabelTransform {
    * @param scale_a
    */
   public void controlChanged(double first_scale, double[] scale_a) {
-    trans.getTransform(t3d);
+    //t3d = trans.getTransform();
 
     double factor = 0;
     float f_scale = 0;
@@ -1557,13 +1546,14 @@ class LabelTransform {
       f_scale = (float) ((scale_a[0] - k) / scale_a[0]);
     }
 
-    Vector3f trans_vec = new Vector3f(f_scale * anchr_vertex[0], f_scale
-        * anchr_vertex[1], f_scale * anchr_vertex[2]);
+    Vector3 trans_vec = new Vector3(f_scale*anchr_vertex[0], f_scale*anchr_vertex[1], f_scale*anchr_vertex[2]);
 
     //  These can't all be zero: non-affine transform
-    if (!(factor == 0.0 && (trans_vec.x == 0.0 && trans_vec.y == 0.0 && trans_vec.z == 0.0))) {
-      t3d.set((float) factor, trans_vec);
-      trans.setTransform(t3d);
+    if (!(factor == 0.0 && (trans_vec.getX() == 0.0 && trans_vec.getY() == 0.0 && trans_vec.getZ() == 0.0))) {
+      //t3d.set((float) factor, trans_vec);
+      //trans.setTransform(t3d);
+      trans.setScale(factor);
+      trans.setTranslation(trans_vec.getX(), trans_vec.getY(), trans_vec.getZ());
     }
   }
 }
