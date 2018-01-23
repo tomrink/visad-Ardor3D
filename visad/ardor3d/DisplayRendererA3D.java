@@ -36,13 +36,13 @@ import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
 import com.ardor3d.renderer.ContextCapabilities;
 import com.ardor3d.renderer.Renderer;
+import com.ardor3d.renderer.state.ClipState;
+import com.ardor3d.renderer.state.RenderState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.event.DirtyType;
 import com.ardor3d.scenegraph.extension.SwitchNode;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -53,7 +53,6 @@ import javax.media.j3d.Group;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.View;
 import javax.vecmath.Color3f;
-import javax.vecmath.Vector4d;
 
 import visad.AxisScale;
 import visad.ColorAlphaControl;
@@ -199,12 +198,10 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   private final Object MUTEX = new Object();
 
   /** ModelClip stuff, done by reflection */
-  private Method modelClipSetEnable = null;
-  private Method modelClipSetPlane = null;
-  private Method modelClipAddScope = null;
-  private Object modelClip = null;
   private boolean[] modelClipEnables =
     {false, false, false, false, false, false};
+  
+  private final ClipState rootClipState;
   
   private ContextCapabilities contextCapabilities;
   
@@ -213,6 +210,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   
   public DisplayRendererA3D () {
     super();
+      this.rootClipState = (ClipState) RenderState.createState(RenderState.StateType.Clip);
   }
 
   // WLH 17 Dec 2001
@@ -425,11 +423,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
      return trans;
   }
 
-  public TransformGroup getTrans() {
-    //return trans;
-    return null;
-  }
-
   public Node getCursorOnBranch() {
     return cursor_on;
   }
@@ -542,58 +535,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     scale_switch.attachChild(scale_on);
     scale_switch.setSingleVisible(0); // initially off
 
-    // WLH 23 Oct 2001
-    /*
-    try {
-      Class modelClipClass = Class.forName("javax.media.j3d.ModelClip");
-      Class[] param = new Class[] {};
-      Constructor modelClipConstructor = modelClipClass.getConstructor(param);
-      param = new Class[] {int.class, boolean.class};
-      modelClipSetEnable = modelClipClass.getMethod("setEnable", param);
-      param = new Class[] {int.class, javax.vecmath.Vector4d.class};
-      modelClipSetPlane = modelClipClass.getMethod("setPlane", param);
-      param = new Class[] {javax.media.j3d.Group.class};
-      modelClipAddScope = modelClipClass.getMethod("addScope", param);
-      param = new Class[] {int.class};
-      Method modelClipSetCapability =
-        modelClipClass.getMethod("setCapability", param);
-      param = new Class[] {javax.media.j3d.Bounds.class};
-      Method modelClipSetInfluencingBounds =
-        modelClipClass.getMethod("setInfluencingBounds", param);
-      modelClip = modelClipConstructor.newInstance(new Object[] {});
-      int ALLOW_PLANE_WRITE =
-        modelClipClass.getField("ALLOW_PLANE_WRITE").getInt(modelClip);
-      modelClipSetCapability.invoke(modelClip,
-                         new Object[] {new Integer(ALLOW_PLANE_WRITE)});
-      int ALLOW_ENABLE_WRITE =
-        modelClipClass.getField("ALLOW_ENABLE_WRITE").getInt(modelClip);
-      modelClipSetCapability.invoke(modelClip,
-                         new Object[] {new Integer(ALLOW_ENABLE_WRITE)});
-      Boolean f = new Boolean(false);
-      for (int i=0; i<6; i++) {
-        modelClipSetEnable.invoke(modelClip, new Object[] {new Integer(i), f});
-      }
-      BoundingSphere bound3 =
-        new BoundingSphere(new Point3d(0.0,0.0,0.0),2000000.0);
-      modelClipSetInfluencingBounds.invoke(modelClip, new Object[] {bound3});
-      background.setApplicationBounds(bound2);
-      modelClipAddScope.invoke(modelClip, new Object[] {non_direct});
-      setSceneGraphObjectName(((Node) modelClip), "ModelClip");
-      trans.addChild((Node) modelClip);
-    }
-    catch (ClassNotFoundException e) {
-    }
-    catch (NoSuchMethodException e) {
-    }
-    catch (InstantiationException e) {
-    }
-    catch (IllegalAccessException e) {
-    }
-    catch (InvocationTargetException e) {
-    }
-    catch (NoSuchFieldException e) {
-    }
-    */
+    root.setRenderState(rootClipState);
 
     return root;
   }  
@@ -635,62 +577,19 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     if (plane < 0 || 5 < plane) {
       throw new DisplayException("plane must be in 0,...,5 range " + plane);
     }
-    if (modelClip == null ||
-        modelClipSetEnable == null ||
-        modelClipSetPlane == null) {
-      throw new DisplayException("model clipping not supported in this " +
-                                 "version of Java3D");
-    }
-    Vector4d vect = new Vector4d((double) a, (double) b, (double) c, (double) d);
-    try {
-      Object[] params = {new Integer(plane), new Boolean(enable)};
-      modelClipSetEnable.invoke(modelClip, params);
-      params = new Object[] {new Integer(plane), vect};
-      modelClipSetPlane.invoke(modelClip, params);
-      modelClipEnables[plane] = enable;
-    }
-    catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-    catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+    
+    rootClipState.setClipPlaneEquation(plane, a, b, c, d);
+    rootClipState.setEnabled(enable);
   }
 
   private void clipOff() {
     if (not_destroyed == null) return;
-    try {
-      for (int i=0; i<6; i++) {
-        if (modelClipEnables[i]) {
-          Object[] params = {new Integer(i), new Boolean(false)};
-          modelClipSetEnable.invoke(modelClip, params);
-        }
-      }
-    }
-    catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-    catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+
   }
 
   private void clipOn() {
     if (not_destroyed == null) return;
-    try {
-      for (int i=0; i<6; i++) {
-        if (modelClipEnables[i]) {
-          Object[] params = {new Integer(i), new Boolean(true)};
-          modelClipSetEnable.invoke(modelClip, params);
-        }
-      }
-    }
-    catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
-    catch (InvocationTargetException e) {
-      e.printStackTrace();
-    }
+
   }
 
   /**
@@ -797,17 +696,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     float d_x = (float) ray.vector[0];
     float d_y = (float) ray.vector[1];
     float d_z = (float) ray.vector[2];
-/*
-    Point3d origin = new Point3d();
-    Vector3d direction = new Vector3d();
-    ray.get(origin, direction);
-    float o_x = (float) origin.x;
-    float o_y = (float) origin.y;
-    float o_z = (float) origin.z;
-    float d_x = (float) direction.x;
-    float d_y = (float) direction.y;
-    float d_z = (float) direction.z;
-*/
+    
     if (first) {
       line_x = d_x;
       line_y = d_y;
@@ -1130,28 +1019,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
         axis_vector.addElement(axisScale);
 
         clearScale(axisScale);
-	/*  Replaced by clearScale()  2001-08-08  DRM
-        // eliminate any non-screen-based scale for this AxisScale
-        int axis = axisScale.getAxis();
-        int axis_ordinal = axisScale.getAxisOrdinal();
-        int dim = getMode2D() ? 2 : 3;
-        synchronized (scale_on) {
-          int n = scale_on.numChildren();
-          int m = dim * axis_ordinal + axis;
-          if (m >= n) {
-            for (int i=n; i<=m; i++) {
-              BranchGroup empty = new BranchGroup();
-              empty.setCapability(BranchGroup.ALLOW_DETACH);
-              empty.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-              scale_on.addChild(empty);
-            }
-          }
-          BranchGroup empty = new BranchGroup();
-          empty.setCapability(BranchGroup.ALLOW_DETACH);
-          empty.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-          scale_on.setChild(empty, m);
-        }
-	*/
       }
     }
     else {
