@@ -51,8 +51,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import visad.java3d.DirectManipulationRendererJ3D;
-import visad.util.ContourWidget;
 
 /**
    DisplayImplJ3D is the VisAD class for displays that use

@@ -30,8 +30,6 @@ import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import visad.*;
 
-//import javax.media.j3d.*;
-
 import java.rmi.*;
 
 
