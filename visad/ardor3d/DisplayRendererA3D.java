@@ -34,25 +34,20 @@ import com.ardor3d.intersection.PrimitivePickResults;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
+import com.ardor3d.math.type.ReadOnlyColorRGBA;
 import com.ardor3d.renderer.ContextCapabilities;
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.renderer.state.ClipState;
 import com.ardor3d.renderer.state.RenderState;
+import com.ardor3d.scenegraph.Mesh;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.event.DirtyType;
 import com.ardor3d.scenegraph.extension.SwitchNode;
+
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Vector;
-
-import javax.media.j3d.Background;
-import javax.media.j3d.BranchGroup;
-import javax.media.j3d.ColoringAttributes;
-import javax.media.j3d.Group;
-import javax.media.j3d.TransformGroup;
-import javax.media.j3d.View;
-import javax.vecmath.Color3f;
 
 import visad.AxisScale;
 import visad.ColorAlphaControl;
@@ -82,7 +77,6 @@ import visad.VisADException;
 import visad.VisADLineArray;
 import visad.VisADRay;
 import visad.VisADTriangleArray;
-import visad.util.Util;
 
 /**
  * <CODE>DisplayRendererJ3D</CODE> is the VisAD abstract super-class for
@@ -122,62 +116,55 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   private OrderedNode screen_locked = null;
   private TransformNode locked_trans = null;
 
-  /** View associated with this VirtualUniverse */
-  private View view;
-  private Object canvas;
-
-  /** root BranchGroup of scene graph under Locale */
-  //private BranchGroup root = null;
+  /** root Node of scene graph for this display */
   private com.ardor3d.scenegraph.Node root = null;
-  /** single TransformGroup between root and BranchGroups for all
-   *  Data depictions */
+  
+  /** single Node for a common model Transfrom between root and Nodes holding
+   * all Data depiction sub-graphs */
   private TransformNode trans = null;
-  /** BranchGroup between trans and all direct manipulation
-   *  Data depictions */
-  // WLH 13 March 2000
-  // private BranchGroup direct = null;
-
-  // WLH 10 March 2000
+  
   private OrderedNode non_direct = null;
 
-  /** TransformGroup for ViewPlatform */
-  private Object vpTrans = null;
 
-  /** MouseBehaviorJ3D */
+  /** MouseBehaviorA3D */
   private MouseBehaviorA3D mouse = null;
 
-  /** KeyboardBehaviorJ3D */
+  /** KeyboardBehaviorA3D */
   private KeyboardBehaviorA3D keyboard = null;
 
-  /** color of box and cursor */
-  private ColoringAttributes box_color = null;
-  private ColoringAttributes cursor_color = null;
-
   /** background attached to root */
-  private Background background = null;
+  private Object background = null;
 
   /** TransformGroup between trans and cursor */
   private TransformNode cursor_trans = null;
+  
   /** single Switch between cursor_trans and cursor */
   private SwitchNode cursor_switch = null;
+  
   /** children of cursor_switch */
   private Node cursor_on = null, cursor_off = null;
+  
   /** on / off state of cursor */
   private boolean cursorOn = false;
+  
   /** on / off state of direct manipulation location display */
   private boolean directOn = false;
 
   /** single Switch between trans and box */
   private SwitchNode box_switch = null;
+  
   /** children of box_switch */
   private Node box_on = null, box_off = null;
+  
   /** on / off state of box */
   private boolean boxOn = false;
 
   /** single Switch between trans and scales */
   private SwitchNode scale_switch = null;
+  
   /** children of scale_switch */
   private Node scale_on = null, scale_off = null;
+  
   /** Vector of screen based AxisScales */
   private Vector axis_vector = new Vector();
 
@@ -188,8 +175,10 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   /** cursor location */
   private float cursorX, cursorY, cursorZ;
+  
   /** normalized direction perpendicular to current cursor plane */
   private float line_x, line_y, line_z;
+  
   /** start value for cursor */
   private float point_x, point_y, point_z;
   
@@ -206,6 +195,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   private ContextCapabilities contextCapabilities;
   
   private CanvasRenderer canvasRenderer;
+  
+  ReadOnlyColorRGBA boxColor = ColorRGBA.WHITE;
+  ReadOnlyColorRGBA cursorColor = ColorRGBA.WHITE;
   
   
   public DisplayRendererA3D () {
@@ -233,13 +225,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     locked_trans = null;
 
     trans = null;
-    vpTrans = null;
     non_direct = null;
-    view = null;
-    canvas = null;
     mouse = null;
-    box_color = null;
-    cursor_color = null;
     background = null;
     cursor_trans = null;
     cursor_switch = null;
@@ -268,18 +255,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     boxOn = getRendererControl().getBoxOn();
   }
 
-
-  public TransformGroup getViewTrans() {
-    return (TransformGroup) vpTrans;
-  }
-
-  /**
-   * Get the canvas for this renderer
-   * @return  <CODE></CODE> that this renderer uses.
-   */
-  public Object getCanvas() {
-    return canvas;
-  }
 
   /**
    * Capture the display rendition as an image.
@@ -324,38 +299,16 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void initControl(RendererControl ctl)
   {
     if (not_destroyed == null) return;
-    Color3f c3f = new Color3f();
-
-    // initialize box colors
-    if (box_color != null) {
-      box_color.getColor(c3f);
-      try {
-        ctl.setBoxColor(c3f.x, c3f.y, c3f.z);
-      } catch (Throwable t) {
-        // ignore any initialization problems
-      }
+    
+    try {
+      ctl.setBoxColor(boxColor.getRed(), boxColor.getGreen(), boxColor.getBlue());
+      ctl.setCursorColor(cursorColor.getRed(), cursorColor.getGreen(), cursorColor.getBlue());
+      // TODO background
     }
-
-    // initialize cursor colors
-    if (cursor_color != null) {
-      cursor_color.getColor(c3f);
-      try {
-        ctl.setCursorColor(c3f.x, c3f.y, c3f.z);
-      } catch (Throwable t) {
-        // ignore any initialization problems
-      }
+    catch (Throwable t) {
+       t.printStackTrace();
     }
-
-    // initialize background colors
-    if (background != null) {
-      background.getColor(c3f);
-      try {
-        ctl.setBackgroundColor(c3f.x, c3f.y, c3f.z);
-      } catch (Throwable t) {
-        // ignore any initialization problems
-      }
-    }
-
+    
     // initialize box visibility
     try {
       ctl.setBoxOn(boxOn);
@@ -372,43 +325,37 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void controlChanged(ControlEvent evt)
   {
     if (not_destroyed == null) return;
-    RendererControl ctl = (RendererControl )evt.getControl();
+    RendererControl ctl = (RendererControl)evt.getControl();
 
-    float[] ct;
-    Color3f c3f = new Color3f();
-
-    // update box colors
-    if (box_color != null) {
-      ct = ctl.getBoxColor();
-      box_color.getColor(c3f);
-      if (!Util.isApproximatelyEqual(ct[0], c3f.x) ||
-          !Util.isApproximatelyEqual(ct[1], c3f.y) ||
-          !Util.isApproximatelyEqual(ct[2], c3f.z))
-      {
-        box_color.setColor(ct[0], ct[1], ct[2]);
-      }
+    // update box color
+    float[] ct = ctl.getBoxColor();
+    ReadOnlyColorRGBA color = new ColorRGBA(ct[0], ct[1], ct[2], 1f);
+    Mesh box = (Mesh) box_on.getChild(0);
+     if (!box.getDefaultColor().equals(color)) {
+      boxColor = color;
+      box.setDefaultColor(color);
+    }   
+    
+    // update cursor color
+    Mesh cursor = (Mesh) cursor_on.getChild(0);
+    ct = ctl.getCursorColor();
+    color = new ColorRGBA(ct[0], ct[1], ct[2], 1f);
+    if (!cursor.getDefaultColor().equals(color)) {
+      cursorColor = color;
+      cursor.setDefaultColor(color);
     }
-
-    // update cursor colors
-    if (cursor_color != null) {
-      ct = ctl.getCursorColor();
-      cursor_color.getColor(c3f);
-      if (!Util.isApproximatelyEqual(ct[0], c3f.x) ||
-          !Util.isApproximatelyEqual(ct[1], c3f.y) ||
-          !Util.isApproximatelyEqual(ct[2], c3f.z))
-      {
-        cursor_color.setColor(ct[0], ct[1], ct[2]);
-      }
-    }
-
+    
+    
     // update background colors
-    ct = ctl.getBackgroundColor();
-    background.getColor(c3f);
-    if (!Util.isApproximatelyEqual(ct[0], c3f.x) ||
-        !Util.isApproximatelyEqual(ct[1], c3f.y) ||
-        !Util.isApproximatelyEqual(ct[2], c3f.z))
-    {
-      background.setColor(ct[0], ct[1], ct[2]);
+    ct = ctl.getBackgroundColor(); // TODO
+    if (background != null) {
+//    background.getColor(c3f);
+//    if (!Util.isApproximatelyEqual(ct[0], c3f.x) ||
+//        !Util.isApproximatelyEqual(ct[1], c3f.y) ||
+//        !Util.isApproximatelyEqual(ct[2], c3f.z))
+//    {
+//      background.setColor(ct[0], ct[1], ct[2]);
+//    }
     }
 
     // update box visibility
@@ -462,19 +409,17 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   public abstract Node createSceneGraph();
 
-  public Node createBasicSceneGraph(MouseBehaviorA3D m, ColoringAttributes bc, ColoringAttributes cc) {
+  public Node createBasicSceneGraph(MouseBehaviorA3D m) {
     if (root != null) return root;
     if (not_destroyed == null) return null;
 
     mouse = m;
-    //vpTrans = vpt;
-    box_color = bc;
-    cursor_color = cc;
 
     // Create the root of the branch graph
     root = new Node();
     setSceneGraphObjectName(root, "Root");
-    // create the TransformGroup that is the parent of Data object Group objects
+    
+    // create the TransformNode that is the parent of Data object Group objects
     setTransform(null);
     root.attachChild(trans);
 
@@ -1300,9 +1245,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void addKeyboardBehavior(KeyboardBehaviorA3D behavior)
   {
     if (not_destroyed == null) return;
-    BranchGroup bg = new BranchGroup();
-    bg.setCapability(Group.ALLOW_CHILDREN_READ);
-    bg.addChild(behavior);
+
     //trans.addChild(bg); How to do this?
   }
 
@@ -1360,7 +1303,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    public void markNeedDraw() {
       synchronized (MUTEX) {
          needDraw = true;
-      }
+      } 
    } 
 
    void setCanvasRenderer(CanvasRenderer canvasRenderer) {

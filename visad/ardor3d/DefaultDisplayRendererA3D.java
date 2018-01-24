@@ -34,16 +34,15 @@ import com.ardor3d.renderer.queue.RenderBucketType;
 import com.ardor3d.renderer.state.BlendState;
 import com.ardor3d.renderer.state.LightState;
 import com.ardor3d.renderer.state.MaterialState;
+import com.ardor3d.renderer.state.RenderState;
+import com.ardor3d.renderer.state.WireframeState;
 import com.ardor3d.renderer.state.ZBufferState;
 import com.ardor3d.scenegraph.Mesh;
 import com.ardor3d.scenegraph.MeshData;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.geom.BufferUtils;
-import java.lang.reflect.Constructor;
 
-import javax.media.j3d.ColoringAttributes;
-import javax.media.j3d.LineArray;
-import javax.media.j3d.LineAttributes;
+import java.lang.reflect.Constructor;
 
 import visad.VisADError;
 
@@ -56,12 +55,11 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
   private Object not_destroyed = new Object();
 
   /** color of box and cursor */
-  private ColoringAttributes box_color = null;
-  private ColoringAttributes cursor_color = null;
+  
 
-  /** line of box and cursor */
-  private LineAttributes box_line = null;
-  private LineAttributes cursor_line = null;
+  /** for box cursor line settings */  
+  private WireframeState boxWfState = null;
+  private WireframeState cursorWfState = null;
 
   private Class mouseBehaviorA3DClass = null;
 
@@ -108,8 +106,6 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
 
   public void destroy() {
     not_destroyed = null;
-    box_color = null;
-    cursor_color = null;
     mouse = null; 
     super.destroy();
   }
@@ -132,20 +128,20 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
     mouse = new MouseBehaviorA3D(this);
 
     getDisplay().setMouseBehavior(mouse);
-    box_color = new ColoringAttributes();
-    cursor_color = new ColoringAttributes();
-    root = createBasicSceneGraph(mouse, box_color, cursor_color);
+    root = createBasicSceneGraph(mouse);
     TransformNode trans = getTransformNode();
 
     /* create box containing data depictions */
     Mesh box = new Mesh();
+    boxWfState = (WireframeState) RenderState.createState(RenderState.StateType.Wireframe);
+    box.setRenderState(boxWfState);
     MeshData meshData = new MeshData();
     meshData.setIndexMode(IndexMode.Lines);
        
     meshData.setVertexBuffer(BufferUtils.createFloatBuffer(box_verts));
        
     box.setMeshData(meshData);
-    box.setDefaultColor(ColorRGBA.CYAN);
+    box.setDefaultColor(boxColor);
        
     MaterialState material = new MaterialState();
     material.setColorMaterial(MaterialState.ColorMaterial.Emissive);
@@ -155,17 +151,13 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
     box_on.attachChild(box);
 
 
-    LineArray cursor_geometry = new LineArray(6, LineArray.COORDINATES);
-    cursor_geometry.setCoordinates(0, cursor_verts);
-    
-    
     Mesh cursor = new Mesh();
     meshData = new MeshData();
     meshData.setIndexMode(IndexMode.Lines);
     meshData.setVertexBuffer(BufferUtils.createFloatBuffer(cursor_verts));
     
     cursor.setMeshData(meshData);
-    cursor.setDefaultColor(ColorRGBA.CYAN);
+    cursor.setDefaultColor(cursorColor);
     material = new MaterialState();
     material.setColorMaterial(MaterialState.ColorMaterial.Emissive);
     cursor.setRenderState(material);    
@@ -252,8 +244,10 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
 
   // WLH 2 Dec 2002 in response to qomo2.txt
   public void setLineWidth(float width) {
-    box_line.setLineWidth(width);
-    cursor_line.setLineWidth(width);
+    boxWfState.setLineWidth(width);
+    cursorWfState.setLineWidth(width);
+    
+    markNeedDraw();
   }
 
   private static final float[] box_verts = {
