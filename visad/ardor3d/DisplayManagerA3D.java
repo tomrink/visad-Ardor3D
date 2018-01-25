@@ -56,8 +56,6 @@ public class DisplayManagerA3D implements Updater {
     private AwtMouseManager mouseManager;
     private PhysicalLayer pl;
 
-    private MouseControlA3D mouseControl;
-    
     public boolean frameHandlerInitialized = false;
     
     private RunnerA3D myRunner;
