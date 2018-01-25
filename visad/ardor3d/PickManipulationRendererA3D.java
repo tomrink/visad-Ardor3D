@@ -303,7 +303,7 @@ System.out.println("checkClose: distance = " + distance);
 
     // construct Java3D display and mappings
     DisplayImpl display = new DisplayImplA3D("display", 500, 500, DisplayImplA3D.JOGL_AWT);
-    display.disableAction();
+    //display.disableAction();
     DisplayRenderer dr = display.getDisplayRenderer();
     dr.setPickThreshhold(0.2f); // allow sloppy picking
 
@@ -436,7 +436,7 @@ System.out.println("checkClose: distance = " + distance);
       }
     };
     cellset.addReference(setref);
-    display.enableAction();
+    //display.enableAction();
 
     // create JFrame (i.e., a window) for display and slider
     JFrame frame = new JFrame("test PickManipulationRendererA3D");
