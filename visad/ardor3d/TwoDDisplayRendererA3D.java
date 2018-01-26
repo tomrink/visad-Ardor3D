@@ -59,9 +59,9 @@ public class TwoDDisplayRendererA3D extends DisplayRendererA3D {
    * @param mbj3dClass - sub Class of MouseBehaviorJ3D
    */
   
-  public TwoDDisplayRendererA3D (Class mbj3dClass) {
+  public TwoDDisplayRendererA3D (Class mba3dClass) {
     super();
-    mouseBehaviorA3DClass = mbj3dClass;
+    mouseBehaviorA3DClass = mba3dClass;
   }
   
   public boolean getMode2D() {
