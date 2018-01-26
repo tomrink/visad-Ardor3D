@@ -21,6 +21,8 @@ import com.ardor3d.scenegraph.MeshData;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.geom.BufferUtils;
 import java.lang.reflect.Constructor;
+import visad.Display;
+import visad.DisplayRealType;
 import visad.VisADError;
 
 /**
@@ -61,6 +63,16 @@ public class TwoDDisplayRendererA3D extends DisplayRendererA3D {
     super();
     mouseBehaviorA3DClass = mbj3dClass;
   }
+  
+  public boolean getMode2D() {
+    return true;
+  }
+
+  public boolean legalDisplayScalar(DisplayRealType type) {
+    if (Display.ZAxis.equals(type) ||
+        Display.Latitude.equals(type)) return false;
+    else return super.legalDisplayScalar(type);
+  }  
   
   public Node createSceneGraph() {
     if (not_destroyed == null) return null;
