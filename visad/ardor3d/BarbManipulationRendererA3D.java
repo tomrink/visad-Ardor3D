@@ -1019,7 +1019,8 @@ System.out.println("barb50 " + x1 + " " + y1 + "" + x2 + " " + y2 +
   static final int N = 5;
 
   /** test BarbManipulationRendererJ3D */
-  public static void main(String args[])
+  //public static void main(String args[])
+  public static void createAndShowGUI(String[] args)
          throws VisADException, RemoteException {
 
 System.out.println("BMR.main()");
@@ -1055,6 +1056,17 @@ System.out.println("BMR.main()");
     // how wind records are displayed
     DisplayImpl display =
       new DisplayImplA3D("display1", new TwoDDisplayRendererA3D());
+    display.disableAction();
+    
+    MouseHelper helper = display.getDisplayRenderer().getMouseBehavior().getMouseHelper();
+    helper.setFunctionMap(new int[][][]
+      {{{MouseHelper.DIRECT, MouseHelper.DIRECT},
+        {MouseHelper.DIRECT, MouseHelper.DIRECT}},
+       {{MouseHelper.ROTATE, MouseHelper.NONE},
+        {MouseHelper.NONE, MouseHelper.NONE}},
+       {{MouseHelper.TRANSLATE, MouseHelper.ZOOM},
+        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
+    
     ScalarMap lonmap = new ScalarMap(lon, Display.XAxis);
     display.addMap(lonmap);
     ScalarMap latmap = new ScalarMap(lat, Display.YAxis);
@@ -1134,6 +1146,7 @@ System.out.println("BMR.main()");
         k++;
       }
     }
+    display.enableAction();
 
     // instead of linking the wind record "DataReferenceImpl refs" to
     // the WindGetterJ3Ds, you can have some user interface event (e.g.,
@@ -1160,6 +1173,22 @@ System.out.println("BMR.main()");
     frame.setSize(500, 500);
     frame.setVisible(true);
   }
+  
+      public static void main(String[] args) throws VisADException, RemoteException {
+         SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //Turn off metal's use of bold fonts
+                UIManager.put("swing.boldMetal", Boolean.FALSE);
+                try {
+                   createAndShowGUI(new String[] {});
+                }
+                catch (Exception e) {
+                   e.printStackTrace();
+                }
+            }
+        });            
+   }
 }
 
 class WindGetterJ3D extends CellImpl {

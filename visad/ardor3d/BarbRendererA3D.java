@@ -109,7 +109,8 @@ public class BarbRendererA3D extends DefaultRendererA3D
       run 'java visad.bom.BarbRendererJ3D middle_latitude x'
           to test with polar winds
       adjust middle_latitude for south or north barbs */
-  public static void main(String args[])
+  //public static void main(String args[])
+  public static void createAndShowGUI(String[] args)
          throws VisADException, RemoteException {
     double mid_lat = -10.0;
     if (args.length > 0) {
@@ -228,6 +229,22 @@ public class BarbRendererA3D extends DefaultRendererA3D
     frame.setSize(500, 500);
     frame.setVisible(true);
   }
+  
+        public static void main(String[] args) throws VisADException, RemoteException {
+         SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //Turn off metal's use of bold fonts
+                UIManager.put("swing.boldMetal", Boolean.FALSE);
+                try {
+                   createAndShowGUI(new String[] {});
+                }
+                catch (Exception e) {
+                   e.printStackTrace();
+                }
+            }
+        });            
+   }
 
 }
 
