@@ -55,8 +55,7 @@ import visad.VisADException;
  *  @author Troy Sandblom   NCAR/RAP May, 2000
  *  @author Don Murray (adapted to VisAD with input from Curtis)
  */
-public class KeyboardBehaviorA3D extends Behavior 
-  implements KeyboardBehavior 
+public class KeyboardBehaviorA3D implements KeyboardBehavior 
 {
 
   private ProjectionControl proj;
@@ -143,16 +142,6 @@ public class KeyboardBehaviorA3D extends Behavior
     proj = displayRenderer.getDisplay().getProjectionControl();
     mouseBehavior = displayRenderer.getMouseBehavior();
     
-    WakeupCriterion[] wakeupCriteria = {
-      new WakeupOnAWTEvent(KeyEvent.KEY_PRESSED),
-      new WakeupOnAWTEvent(KeyEvent.KEY_RELEASED),
-    };
-    wakeupCondition = new WakeupOr(wakeupCriteria);
-
-    Bounds bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0),
-                                       2000000.0);
-    this.setSchedulingBounds(bounds);
-
     // WLH 19 Feb 2001
     MAX_FUNCTIONS = 13;
     functionKeys = new int[MAX_FUNCTIONS];
@@ -191,54 +180,10 @@ public class KeyboardBehaviorA3D extends Behavior
     proj = displayRenderer.getDisplay().getProjectionControl();
     mouseBehavior = displayRenderer.getMouseBehavior();
 
-    WakeupCriterion[] wakeupCriteria = {
-      new WakeupOnAWTEvent(KeyEvent.KEY_PRESSED),
-      new WakeupOnAWTEvent(KeyEvent.KEY_RELEASED),
-    };
-    wakeupCondition = new WakeupOr(wakeupCriteria);
-
-    Bounds bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0),
-                                       2000000.0);
-    this.setSchedulingBounds(bounds);
 
     MAX_FUNCTIONS = num_functions;
     functionKeys = new int[MAX_FUNCTIONS];
     functionMods = new int[MAX_FUNCTIONS];
-  }
-
-  /**
-   * Initialize this behavior. NOTE: Applications should not call 
-   * this method. It is called by the Java 3D behavior scheduler.
-   */
-  public void initialize() {
-    wakeupOn(wakeupCondition);
-  }
-
-  /**
-   * Process a stimulus meant for this behavior.  This method is
-   * invoked when a key is pressed. NOTE: Applications should not 
-   * call this method. It is called by the Java 3D behavior scheduler.
-   * @param criteria  an enumeration of triggered wakeup criteria
-   */
-  public void processStimulus(Enumeration criteria) {
-    WakeupOnAWTEvent event;
-    WakeupCriterion genericEvent;
-    AWTEvent[] events;
-
-    while (criteria.hasMoreElements()) {
-      genericEvent = (WakeupCriterion) criteria.nextElement();
-      if (genericEvent instanceof WakeupOnAWTEvent) {
-        event = (WakeupOnAWTEvent) genericEvent;
-        events = event.getAWTEvent();
-
-        //  Process each event
-        for (int i = 0; i < events.length; i++) {
-          if (events[i] instanceof KeyEvent)
-            processKeyEvent((KeyEvent)events[i]);
-        }
-      }
-      wakeupOn(wakeupCondition);
-    }
   }
 
   /**
