@@ -365,7 +365,7 @@ public class ImageRendererA3D extends DefaultRendererA3D {
   
   private boolean setSetOnReUseFrames = true;
 
-  private VisADImageNode imagesNode = null;
+  private VisADImageNodeA3D imagesNode = null;
 
   private boolean lastByRef = false;
 
@@ -504,11 +504,11 @@ public class ImageRendererA3D extends DefaultRendererA3D {
     return suggestedBufImgType;
   }
 
-  public void setImageNode(VisADImageNode node) {
+  public void setImageNode(VisADImageNodeA3D node) {
     this.imagesNode = node;
   }
 
-  public VisADImageNode getImageNode() {
+  public VisADImageNodeA3D getImageNode() {
     return this.imagesNode;
   }
   
