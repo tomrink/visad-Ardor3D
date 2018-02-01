@@ -17,6 +17,7 @@ import com.ardor3d.input.awt.AwtFocusWrapper;
 import com.ardor3d.input.awt.AwtKeyboardWrapper;
 import com.ardor3d.input.awt.AwtMouseManager;
 import com.ardor3d.input.awt.AwtMouseWrapper;
+import com.ardor3d.input.logical.AnyKeyCondition;
 import com.ardor3d.input.logical.DummyControllerWrapper;
 import com.ardor3d.input.logical.InputTrigger;
 import com.ardor3d.input.logical.LogicalLayer;
@@ -32,11 +33,13 @@ import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.jogamp.newt.event.InputEvent;
+//import com.jogamp.newt.event.InputEvent;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import javax.swing.SwingUtilities;
 
@@ -109,12 +112,18 @@ public class DisplayManagerA3D implements Updater {
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 if (size != null && !canvas.getSize().equals(size)) {
-                   canvasRenderer.getCamera().resize(canvas.getWidth(), canvas.getHeight());
+                   Camera camera = canvasRenderer.getCamera();
+                   int w = canvas.getWidth();
+                   int h = canvas.getHeight();
+                   double r = (double)w / (double) h;
+                   if (camera != null) {
+                      camera.resize(w, h);
+                      camera.setFrustumPerspective(camera.getFovY(), r, camera.getFrustumNear(), camera.getFrustumFar());
+                   }
                    markNeedDraw();
                 }
             }
         });
-        
         
         
         // handle mouse event conversion to MouseHelper here
@@ -227,6 +236,14 @@ public class DisplayManagerA3D implements Updater {
         // Best only if component of canvas has focus? So many events otherwise.
         //logicalLayer.registerTrigger(new InputTrigger(new MouseMovedCondition(), mouseMovedAction));
         
+        final TriggerAction keyPressedAction = new TriggerAction() {
+            @Override
+            public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
+                final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
+                forwardToKeyboardBehavior(KeyEvent.KEY_PRESSED, keyboard);
+            }           
+        };
+        logicalLayer.registerTrigger(new InputTrigger(new AnyKeyCondition(), keyPressedAction));
         
         
         frameWork.addUpdater(this);
@@ -249,6 +266,20 @@ public class DisplayManagerA3D implements Updater {
        
        MouseEvent me = new MouseEvent(canvas, id, 0, mod, mState.getX(), (size.height-mState.getY()), 0, false);
        dspRenderer.getMouseBehavior().getMouseHelper().processEvent(me);
+    }
+    
+    private void forwardToKeyboardBehavior(int id, KeyboardState kbState) {
+       int mod = 0;
+       
+       if (kbState.isDown(Key.LSHIFT) || kbState.isDown(Key.RSHIFT)) {
+          mod |= InputEvent.SHIFT_MASK;
+       }       
+       if (kbState.isDown(Key.LCONTROL) || kbState.isDown(Key.RCONTROL)) {
+          mod |= InputEvent.CTRL_MASK;
+       }
+       
+       //KeyEvent ke = new KeyEvent(canvas, id, 0, mod, ,);
+       //dspRenderer.getKeyboardBehavior().processKeyEvent(ke);
     }
     
     public Component getCanvas() {
