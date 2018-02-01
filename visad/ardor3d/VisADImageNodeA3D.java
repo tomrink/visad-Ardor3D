@@ -1,7 +1,6 @@
 package visad.ardor3d;
-import visad.*;
-import javax.media.j3d.BranchGroup;
-import javax.media.j3d.Switch;
+import com.ardor3d.scenegraph.Node;
+import com.ardor3d.scenegraph.extension.SwitchNode;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -11,8 +10,8 @@ public class VisADImageNodeA3D {
    VisADImageTileA3D[] images;
    public ArrayList<VisADImageTileA3D> imageTiles = new ArrayList<VisADImageTileA3D>(); 
    public int numChildren = 0;
-   public BranchGroup branch;
-   Switch swit;
+   public Node branch;
+   SwitchNode swit;
    public int current_index = 0;
 
    public int numImages;
@@ -22,7 +21,7 @@ public class VisADImageNodeA3D {
    public VisADImageNodeA3D() {
    }
 
-   public VisADImageNodeA3D(BranchGroup branch, Switch swit) {
+   public VisADImageNodeA3D(Node branch, SwitchNode swit) {
      this.branch = branch;
      this.swit = swit;
    }
@@ -57,19 +56,19 @@ public class VisADImageNodeA3D {
    public void initialize() {
    }
 
-   public void setBranch(BranchGroup branch) {
+   public void setBranch(Node branch) {
      this.branch = branch;
    }
 
-   public void setSwitch(Switch swit) {
+   public void setSwitch(SwitchNode swit) {
      this.swit = swit;
    }
 
-   public Switch getSwitch() {
+   public SwitchNode getSwitch() {
      return swit;
    }
 
-   public BranchGroup getBranch() {
+   public Node getBranch() {
      return branch;
    }
 }
