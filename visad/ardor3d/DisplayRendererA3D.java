@@ -419,6 +419,18 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     root = new Node();
     setSceneGraphObjectName(root, "Root");
     
+    locked_trans = new TransformNode();
+    screen_locked = new OrderedNode();
+    locked_trans.attachChild(screen_locked);
+    Node node = new Node();
+    node.attachChild(locked_trans);
+    root.attachChild(node);
+    
+    setSceneGraphObjectName(locked_trans, "LockedTrans");
+    setSceneGraphObjectName(screen_locked, "ScreenLocked");
+    setSceneGraphObjectName(node, "LockedGroup");
+    
+    
     // create the TransformNode that is the parent of Data object Group objects
     setTransform(null);
     root.attachChild(trans);
@@ -1113,17 +1125,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     }
     if (t != null) {
       trans.setTransform(t);
-      if (locked_trans == null && root != null) {
-        locked_trans = new TransformNode();
-        setSceneGraphObjectName(locked_trans, "LockedTrans");
-        screen_locked = new OrderedNode();
-        setSceneGraphObjectName(screen_locked, "ScreenLocked");
-        locked_trans.attachChild(screen_locked);
-        Node node = new Node();
-        setSceneGraphObjectName(node, "LockedGroup");
-        node.attachChild(locked_trans);
-        root.attachChild(node);
-      }
     }
   }  
 
@@ -1278,7 +1279,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void setCapabilities(ContextCapabilities obj) {
      this.contextCapabilities = obj;
   }
-  
+
    //@Override
    public boolean renderUnto(Renderer renderer) {
       synchronized (MUTEX) {
@@ -1291,6 +1292,11 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       }
       return false;      
    }
+   
+//   public boolean renderUnto(Renderer renderer) {
+//      root.onDraw(renderer);
+//      return true;
+//   }
       
    @Override
    public PickResults doPick(Ray3 pickRay) {
@@ -1303,9 +1309,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    public void markNeedDraw() {
       synchronized (MUTEX) {
          needDraw = true;
-      } 
-   } 
-
+      }
+   }
+      
    void setCanvasRenderer(CanvasRenderer canvasRenderer) {
       this.canvasRenderer = canvasRenderer;
    }
