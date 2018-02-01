@@ -3,6 +3,8 @@ import com.ardor3d.image.Image;
 import com.ardor3d.image.Texture2D;
 import visad.data.CachedBufferedByteImage;
 import com.ardor3d.renderer.Renderer;
+import com.ardor3d.renderer.state.TextureState;
+import com.ardor3d.util.TextureManager;
 
 public class VisADImageTileA3D {
 
@@ -17,6 +19,7 @@ public class VisADImageTileA3D {
    public int width;
    public int yStart;
    public int xStart;
+   private TextureState ts;
 
 
    public VisADImageTileA3D(Renderer renderer, int numImages, int height, int yStart, int width, int xStart) {
@@ -49,7 +52,10 @@ public class VisADImageTileA3D {
    public void setTexture(Texture2D texture) {
       this.texture = texture;
    }
-
+   
+   public void setTexture(TextureState ts) {
+      this.ts = ts;
+   }
 
    private int lookAheadIndexBaseIndex = 0;
 
@@ -65,6 +71,31 @@ public class VisADImageTileA3D {
        if(image == null) {
            //      System.err.println ("Animate image is null for index:" + idx);
        } else {
+          
+          if (renderer != null) {
+             try {
+                renderer.updateTexture2DSubImage(texture, 0, 0, width, height, image.getData(0), 0, 0, width);
+                
+                
+//    com.ardor3d.image.Texture.MinificationFilter minFilter;
+//    com.ardor3d.image.Texture.ApplyMode applyMode = com.ardor3d.image.Texture.ApplyMode.Replace;
+//    if (false) {
+//       minFilter = com.ardor3d.image.Texture.MinificationFilter.BilinearNoMipMaps;
+//    }
+//    else {
+//       minFilter = com.ardor3d.image.Texture.MinificationFilter.NearestNeighborNoMipMaps;
+//    }
+//        
+//    com.ardor3d.image.Texture2D texture = (com.ardor3d.image.Texture2D) TextureManager.loadFromImage(image, minFilter);
+//    texture.setMagnificationFilter(com.ardor3d.image.Texture.MagnificationFilter.NearestNeighbor);
+//    texture.setApply(applyMode);
+//    ts.setTexture(texture);
+                
+             }
+             catch (Exception e) {
+                e.printStackTrace();
+             }
+          }
           
            //Do the lookahead
 //           if(image instanceof CachedBufferedByteImage) {
