@@ -30,6 +30,8 @@ package visad.ardor3d;
 import com.ardor3d.scenegraph.Node;
 import java.rmi.RemoteException;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 
 // VisAD
@@ -93,10 +95,12 @@ public class ScreenLockedRendererA3D extends DefaultRendererA3D
    * you would expect, but the text is locked to its original
    * position on the screen.
    */
-  public static final void main(String [] args)
+  //public static final void main(String [] args)
+  public static void createAndShowGUI(String[] args)
     throws VisADException, RemoteException
   {
-    final DisplayImplA3D display = new DisplayImplA3D("display");
+    final DisplayImplA3D display = new DisplayImplA3D("display", 500, 500, DisplayImplA3D.JOGL_AWT);
+    //display.disableAction();
     final DisplayRendererA3D renderer = 
       (DisplayRendererA3D) display.getDisplayRenderer();
     renderer.setBoxOn(false);
@@ -172,6 +176,8 @@ public class ScreenLockedRendererA3D extends DefaultRendererA3D
       new ConstantMap(0.0, Display.Green),
       new ConstantMap(0.0, Display.Blue),
       new ConstantMap(-1.0, Display.ZAxis)});
+    
+    //display.enableAction();
 
     // Display the frame.
     final JFrame frame = new JFrame("ScreenLockedRendererJ3D");
@@ -179,6 +185,22 @@ public class ScreenLockedRendererA3D extends DefaultRendererA3D
     frame.setSize(400, 400);
     frame.setVisible(true);
   }
+  
+    public static void main(String[] args) throws VisADException, RemoteException {
+         SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //Turn off metal's use of bold fonts
+                UIManager.put("swing.boldMetal", Boolean.FALSE);
+                try {
+                   createAndShowGUI(new String[] {});
+                }
+                catch (Exception e) {
+                   e.printStackTrace();
+                }
+            }
+        });            
+   }
 
 } // class ScreenLockedRendererA3D
 
