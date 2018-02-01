@@ -674,7 +674,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
        minFilter = com.ardor3d.image.Texture.MinificationFilter.NearestNeighborNoMipMaps;
     }
         
-    com.ardor3d.image.Texture texture = TextureManager.loadFromImage(aImage, minFilter);
+    com.ardor3d.image.Texture2D texture = (com.ardor3d.image.Texture2D) TextureManager.loadFromImage(aImage, minFilter);
     texture.setMagnificationFilter(com.ardor3d.image.Texture.MagnificationFilter.NearestNeighbor);
     texture.setApply(applyMode);
     ts.setTexture(texture);
@@ -699,8 +699,8 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
     
     ((Node)group).attachChildAt(branch, 0);
     
-    if (tile != null) { // something may need to be done here!
-       
+    if (tile != null) {
+       tile.setTexture(texture);
     }
      
   }
