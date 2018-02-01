@@ -26,10 +26,10 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.image.ImageDataFormat;
 import com.ardor3d.scenegraph.Node;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
@@ -70,10 +70,7 @@ import visad.ShadowFunctionOrSetType;
 import visad.VisADError;
 import visad.VisADException;
 import visad.data.netcdf.Plain;
-import visad.java3d.DefaultRendererJ3D;
 import visad.java3d.DisplayImplJ3D;
-import visad.java3d.ShadowTypeJ3D;
-import visad.java3d.VisADImageNode;
 import visad.util.Delay;
 
 /**
@@ -90,7 +87,7 @@ import visad.util.Delay;
 public class ImageRendererA3D extends DefaultRendererA3D {
 
   // FOR DEVELOPMENT PURPOSES //////////////////////////////////
-  private static final int DEF_IMG_TYPE;
+  private static final ImageDataFormat DEF_IMG_TYPE;
 
   //GEOMETRY/COLORBYTE REUSE LOGIC VARIABLES (STARTS HERE)
   private int last_curve_size = -1;
@@ -105,10 +102,12 @@ public class ImageRendererA3D extends DefaultRendererA3D {
   static {
     String val = System.getProperty("visad.java3d.8bit", "false");
     if (Boolean.parseBoolean(val)) {
-      DEF_IMG_TYPE = BufferedImage.TYPE_BYTE_GRAY;
+      // leave for reference: DEF_IMG_TYPE = BufferedImage.TYPE_BYTE_GRAY;
+      DEF_IMG_TYPE = ImageDataFormat.Intensity;
       System.err.println("WARN: 8bit enabled via system property");
     } else {
-      DEF_IMG_TYPE = BufferedImage.TYPE_4BYTE_ABGR;
+      //leave for reference: DEF_IMG_TYPE = BufferedImage.TYPE_4BYTE_ABGR;
+      DEF_IMG_TYPE = ImageDataFormat.BGRA;
     }
   }
   //////////////////////////////////////////////////////////////
@@ -361,7 +360,7 @@ public class ImageRendererA3D extends DefaultRendererA3D {
   //    sampling.<P>
   private boolean reUseFrames = false;
 
-  private int suggestedBufImgType = DEF_IMG_TYPE;
+  private ImageDataFormat suggestedBufImgType = DEF_IMG_TYPE;
   
   private boolean setSetOnReUseFrames = true;
 
@@ -483,24 +482,25 @@ public class ImageRendererA3D extends DefaultRendererA3D {
    * 
    * <b>Experimental</b>: This may changed or removed in future releases.
    */
-  public void suggestBufImageType(int imageType) {
-    switch (imageType) {
-    case BufferedImage.TYPE_3BYTE_BGR:
-    case BufferedImage.TYPE_4BYTE_ABGR:
-    case BufferedImage.TYPE_BYTE_GRAY:
-//    case BufferedImage.TYPE_USHORT_GRAY:
-      break;
-    default:
-      throw new IllegalArgumentException("unsupported image type");
-    }
-    this.suggestedBufImgType = imageType;
+    public void suggestBufImageType(ImageDataFormat fmt) {
+       switch (fmt) {
+           case RGB:
+           case RGBA:
+           case BGR:
+           case BGRA:
+           case Intensity:
+              break;
+       default:
+         throw new IllegalArgumentException("unsupported image type");
+       }
+    this.suggestedBufImgType = fmt;
   }
   
   /**
    * Get the image type. 
    * @return The buffered image type used to render the image.
    */
-  int getSuggestedBufImageType() {
+  ImageDataFormat getSuggestedBufImageType() {
     return suggestedBufImgType;
   }
 
