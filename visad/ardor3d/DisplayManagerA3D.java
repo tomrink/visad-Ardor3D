@@ -335,16 +335,20 @@ public class DisplayManagerA3D implements Updater {
        myRunner = null;
     }
     
-
-
     @Override
     public void update(ReadOnlyTimer rot) {
        logicalLayer.checkTriggers(rot.getTimePerFrame());
-       
-        /* this resets transform dirty flag so need to do after isDirty above
-        root.updateGeometricState(rot.getTimePerFrame(), false);
-        */
-    }
+       root.updateGeometricState(rot.getTimePerFrame(), false);
+    }    
+
+//    @Override
+//    public void update(ReadOnlyTimer rot) {
+//       logicalLayer.checkTriggers(rot.getTimePerFrame());
+//       
+//        /* this resets transform dirty flag so need to do after isDirty above
+//        root.updateGeometricState(rot.getTimePerFrame(), false);
+//        */
+//    }
     
     public void markNeedDraw() {
        dspRenderer.markNeedDraw();

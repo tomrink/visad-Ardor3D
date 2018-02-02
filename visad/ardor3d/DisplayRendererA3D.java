@@ -1268,23 +1268,24 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
      this.contextCapabilities = obj;
   }
 
-   //@Override
-   public boolean renderUnto(Renderer renderer) {
-      synchronized (MUTEX) {
-         if (trans.isDirty(DirtyType.Transform) || needDraw) {
-            root.updateGeometricState(2, false);
-            root.draw(renderer);
-            needDraw = false;
-            return true;
-         }
-      }
-      return false;      
-   }
-   
+//   @Override
 //   public boolean renderUnto(Renderer renderer) {
-//      root.onDraw(renderer);
-//      return true;
+//      synchronized (MUTEX) {
+//         if (trans.isDirty(DirtyType.Transform) || needDraw) {
+//            root.updateGeometricState(2, false);
+//            root.draw(renderer);
+//            needDraw = false;
+//            return true;
+//         }
+//      }
+//      return false;      
 //   }
+   
+   @Override
+   public boolean renderUnto(Renderer renderer) {
+      root.onDraw(renderer);
+      return true;
+   }
       
    @Override
    public PickResults doPick(Ray3 pickRay) {
