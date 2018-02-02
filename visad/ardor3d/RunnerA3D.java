@@ -6,7 +6,7 @@ import com.ardor3d.renderer.ContextCapabilities;
 import com.ardor3d.renderer.RenderContext;
 
 public class RunnerA3D implements Runnable {
-   private static final long FrameUpdateIntervalMillis = 4;
+   private static final long FrameUpdateIntervalMillis = 20;
    
    private final FrameHandler frameWork;
    private final CanvasRenderer canvasRenderer;
