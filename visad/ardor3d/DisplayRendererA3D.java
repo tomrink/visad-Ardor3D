@@ -1238,18 +1238,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void setLineWidth(float width) {
   }
 
-  /**
-   * Add a <CODE>KeyboardBehavior</CODE> for keyboard control of rotation,
-   * translation and zoom.  
-   * @param  behavior  keyboard behavior to add
-   */
-  public void addKeyboardBehavior(KeyboardBehaviorA3D behavior)
-  {
-    if (not_destroyed == null) return;
-
-    //trans.addChild(bg); How to do this?
-  }
-
   public void setWaitFlag(boolean b) {
     if (not_destroyed == null) return;
     boolean old = getWaitFlag();
