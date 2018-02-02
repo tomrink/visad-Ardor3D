@@ -30,11 +30,9 @@ import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Transform;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.state.MaterialState;
+import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import visad.*;
-
-import javax.media.j3d.*;
-
 
 import java.util.Vector;
 
@@ -421,12 +419,12 @@ public abstract class ShadowTypeA3D extends ShadowType {
    * @return appearance object constructed from geometry array
    */
   
-  public Appearance makeAppearance(GraphicsModeControl mode,
-      TransparencyAttributes constant_alpha, ColoringAttributes constant_color,
-      GeometryArray geometry, boolean no_material) {
-    return ShadowTypeA3D.staticMakeCachedAppearance(mode, constant_alpha,
-        constant_color, geometry, no_material, false);
-  }
+//  public Appearance makeAppearance(GraphicsModeControl mode,
+//      TransparencyAttributes constant_alpha, ColoringAttributes constant_color,
+//      GeometryArray geometry, boolean no_material) {
+//    return ShadowTypeA3D.staticMakeCachedAppearance(mode, constant_alpha,
+//        constant_color, geometry, no_material, false);
+//  }
 
   /**
    * Make an Appearance that may be cached or not, depending on the okToCache
@@ -448,12 +446,12 @@ public abstract class ShadowTypeA3D extends ShadowType {
    * @return appearance object constructed from geometry array
    */
   
-  private Appearance makeCachedAppearance(GraphicsModeControl mode,
-      TransparencyAttributes constant_alpha, ColoringAttributes constant_color,
-      GeometryArray geometry, boolean no_material, boolean okToCache) {
-    return ShadowTypeA3D.staticMakeCachedAppearance(mode, constant_alpha,
-        constant_color, geometry, no_material, okToCache);
-  }
+//  private Appearance makeCachedAppearance(GraphicsModeControl mode,
+//      TransparencyAttributes constant_alpha, ColoringAttributes constant_color,
+//      GeometryArray geometry, boolean no_material, boolean okToCache) {
+//    return ShadowTypeA3D.staticMakeCachedAppearance(mode, constant_alpha,
+//        constant_color, geometry, no_material, okToCache);
+//  }
 
   /**
    * A utility method to add the given geometry into the given group with the
@@ -470,41 +468,42 @@ public abstract class ShadowTypeA3D extends ShadowType {
    * @param appearance
    *          appearance
    */
-  private void addToShape(Group group, GeometryArray geometry,
-      Appearance appearance) {
-    Shape3D shape = null;
-    if (mergeShapes) {
-      int cnt = group.numChildren();
-      for (int i = 0; i < cnt; i++) {
-        Node node = group.getChild(i);
-        if (!(node instanceof Shape3D))
-          continue;
-        Shape3D s = (Shape3D) node;
-        // Make sure the geometries are the same
-        int subcnt = s.numGeometries();
-        if (subcnt > 0) {
-          if (!(s.getGeometry(0).getClass().equals(geometry.getClass()))) {
-            continue;
-          }
-        }
-        // Make sure the appearance is the same
-        if (s.getAppearance().equals(appearance)) {
-          shape = s;
-          break;
-        }
-      }
-    }
-
-    if (shape == null) {
-      shape = new Shape3D(geometry, appearance);
-      shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      group.addChild(shape);
-      shape3DCnt++;
-    } else {
-      shape.addGeometry(geometry);
-    }
-  }
+// Keep for reference 
+//  private void addToShape(Group group, GeometryArray geometry,
+//      Appearance appearance) {
+//    Shape3D shape = null;
+//    if (mergeShapes) {
+//      int cnt = group.numChildren();
+//      for (int i = 0; i < cnt; i++) {
+//        Node node = group.getChild(i);
+//        if (!(node instanceof Shape3D))
+//          continue;
+//        Shape3D s = (Shape3D) node;
+//        // Make sure the geometries are the same
+//        int subcnt = s.numGeometries();
+//        if (subcnt > 0) {
+//          if (!(s.getGeometry(0).getClass().equals(geometry.getClass()))) {
+//            continue;
+//          }
+//        }
+//        // Make sure the appearance is the same
+//        if (s.getAppearance().equals(appearance)) {
+//          shape = s;
+//          break;
+//        }
+//      }
+//    }
+//
+//    if (shape == null) {
+//      shape = new Shape3D(geometry, appearance);
+//      shape.setCapability(Shape3D.ALLOW_GEOMETRY_READ);
+//      shape.setCapability(Shape3D.ALLOW_APPEARANCE_READ);
+//      group.addChild(shape);
+//      shape3DCnt++;
+//    } else {
+//      shape.addGeometry(geometry);
+//    }
+//  }
 
   /**
    * A utility method to create a ColoringAttribute with the given colors If the
@@ -522,25 +521,25 @@ public abstract class ShadowTypeA3D extends ShadowType {
    *
    * @return the ColoringAttributes
    */
-  private ColoringAttributes getColoringAttributes(float red, float green,
-      float blue) {
-    ColoringAttributes ca = null;
-    String key = null;
-    if (cacheAppearances) {
-      key = red + "," + green + "," + blue;
-      ca = (ColoringAttributes) coloringAttributesCache.get(key);
-    }
-    if (ca == null) {
-      ca = new ColoringAttributes(red, green, blue,
-          ColoringAttributes.SHADE_GOURAUD);
-      ca.setCapability(ColoringAttributes.ALLOW_COLOR_READ);
-      ca.setCapability(ColoringAttributes.ALLOW_SHADE_MODEL_READ);
-      if (cacheAppearances) {
-        coloringAttributesCache.put(key, ca);
-      }
-    }
-    return ca;
-  }
+//  private ColoringAttributes getColoringAttributes(float red, float green,
+//      float blue) {
+//    ColoringAttributes ca = null;
+//    String key = null;
+//    if (cacheAppearances) {
+//      key = red + "," + green + "," + blue;
+//      ca = (ColoringAttributes) coloringAttributesCache.get(key);
+//    }
+//    if (ca == null) {
+//      ca = new ColoringAttributes(red, green, blue,
+//          ColoringAttributes.SHADE_GOURAUD);
+//      ca.setCapability(ColoringAttributes.ALLOW_COLOR_READ);
+//      ca.setCapability(ColoringAttributes.ALLOW_SHADE_MODEL_READ);
+//      if (cacheAppearances) {
+//        coloringAttributesCache.put(key, ca);
+//      }
+//    }
+//    return ca;
+//  }
 
   /**
    * A utility method to create a TransparencyAttributes with the given mode and
@@ -557,23 +556,23 @@ public abstract class ShadowTypeA3D extends ShadowType {
    * @return cached or new TransparencyAttributes object
    */
   
-  private TransparencyAttributes getTransparencyAttributes(int mode, float value) {
-    String key = null;
-    TransparencyAttributes ta = null;
-    if (cacheAppearances) {
-      key = mode + "_" + value;
-      ta = (TransparencyAttributes) transparencyAttributesCache.get(key);
-    }
-    if (ta == null) {
-      ta = new TransparencyAttributes(mode, value);
-      ta.setCapability(TransparencyAttributes.ALLOW_MODE_READ);
-      ta.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
-      if (cacheAppearances) {
-        transparencyAttributesCache.put(key, ta);
-      }
-    }
-    return ta;
-  }
+//  private TransparencyAttributes getTransparencyAttributes(int mode, float value) {
+//    String key = null;
+//    TransparencyAttributes ta = null;
+//    if (cacheAppearances) {
+//      key = mode + "_" + value;
+//      ta = (TransparencyAttributes) transparencyAttributesCache.get(key);
+//    }
+//    if (ta == null) {
+//      ta = new TransparencyAttributes(mode, value);
+//      ta.setCapability(TransparencyAttributes.ALLOW_MODE_READ);
+//      ta.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
+//      if (cacheAppearances) {
+//        transparencyAttributesCache.put(key, ta);
+//      }
+//    }
+//    return ta;
+//  }
 
   /**
    * Construct an Appearance object from a GeometryArray
@@ -592,13 +591,13 @@ public abstract class ShadowTypeA3D extends ShadowType {
    *
    * @return The new appearance
    */
-  public static Appearance staticMakeAppearance(GraphicsModeControl mode,
-      TransparencyAttributes constant_alpha, ColoringAttributes constant_color,
-      GeometryArray geometry, boolean no_material) {
-
-    return staticMakeCachedAppearance(mode, constant_alpha, constant_color,
-        geometry, no_material, false);
-  }
+//  public static Appearance staticMakeAppearance(GraphicsModeControl mode,
+//      TransparencyAttributes constant_alpha, ColoringAttributes constant_color,
+//      GeometryArray geometry, boolean no_material) {
+//
+//    return staticMakeCachedAppearance(mode, constant_alpha, constant_color,
+//        geometry, no_material, false);
+//  }
 
   /**
    * Construct an Appearance object from a GeometryArray
@@ -620,137 +619,137 @@ public abstract class ShadowTypeA3D extends ShadowType {
    *
    * @return The new appearance or, if available a previously cached one
    */
-  private static Appearance staticMakeCachedAppearance(
-      GraphicsModeControl mode, TransparencyAttributes constant_alpha,
-      ColoringAttributes constant_color, GeometryArray geometry,
-      boolean no_material, boolean okToCache) {
-
-    boolean doMaterial = false;
-    if (!(geometry instanceof LineArray || geometry instanceof PointArray
-        || geometry instanceof IndexedLineArray
-        || geometry instanceof IndexedPointArray
-        || geometry instanceof IndexedLineStripArray || geometry instanceof LineStripArray)) {
-      if (!no_material) {
-        doMaterial = true;
-      }
-    }
-
-    Object cacheKey = null;
-    Appearance appearance = null;
-
-    if (mode.getCacheAppearances() && okToCache) {
-	cacheKey = mode.getSaveString() + "_" + (constant_alpha==null?"null" :(constant_alpha.getTransparency()+"_" + constant_alpha.getTransparencyMode()))  + "_"
-          + constant_color + "_" + new Boolean(doMaterial);
-      appearance = (Appearance) appearanceCache.get(cacheKey);
-      if (appearance != null) {
-        return appearance;
-      }
-    }
-    appearanceCnt++;
-    appearance = new Appearance();
-    appearance.setCapability(Appearance.ALLOW_COLORING_ATTRIBUTES_READ);
-    appearance.setCapability(Appearance.ALLOW_LINE_ATTRIBUTES_READ);
-    appearance.setCapability(Appearance.ALLOW_MATERIAL_READ);
-    appearance.setCapability(Appearance.ALLOW_POINT_ATTRIBUTES_READ);
-    appearance.setCapability(Appearance.ALLOW_POLYGON_ATTRIBUTES_READ);
-    appearance.setCapability(Appearance.ALLOW_RENDERING_ATTRIBUTES_READ);
-    appearance.setCapability(Appearance.ALLOW_TEXGEN_READ);
-    appearance.setCapability(Appearance.ALLOW_TEXTURE_ATTRIBUTES_READ);
-    appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-    /* TDR (2013-10-16): Can possibly cause problems on ATI graphics
-    appearance.setCapability(Appearance.ALLOW_RENDERING_ATTRIBUTES_WRITE);
-    */
-    // appearance.setCapability(Appearance.ALLOW_TEXTURE_UNIT_STATE_READ);
-    appearance.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_READ);
-
-    LineAttributes line = new LineAttributes();
-    line.setCapability(LineAttributes.ALLOW_ANTIALIASING_READ);
-    line.setCapability(LineAttributes.ALLOW_PATTERN_READ);
-    line.setCapability(LineAttributes.ALLOW_WIDTH_READ);
-    line.setLineWidth(mode.getLineWidth());
-    int pattern = GraphicsModeControlA3D.LINE_PATTERN[mode.getLineStyle()];
-    line.setLinePattern(pattern);
-    appearance.setLineAttributes(line);
-
-    PointAttributes point = new PointAttributes();
-    point.setCapability(PointAttributes.ALLOW_ANTIALIASING_READ);
-    point.setCapability(PointAttributes.ALLOW_SIZE_READ);
-    point.setPointSize(mode.getPointSize());
-    appearance.setPointAttributes(point);
-
-    PolygonAttributes polygon = new PolygonAttributes();
-    polygon.setCapability(PolygonAttributes.ALLOW_CULL_FACE_READ);
-    polygon.setCapability(PolygonAttributes.ALLOW_MODE_READ);
-    polygon.setCapability(PolygonAttributes.ALLOW_NORMAL_FLIP_READ);
-    polygon.setCapability(PolygonAttributes.ALLOW_OFFSET_READ);
-    polygon.setCullFace(PolygonAttributes.CULL_NONE);
-    polygon.setPolygonMode(mode.getPolygonMode());
-
-    try {
-      float polygonOffset = mode.getPolygonOffset();
-      if (polygonOffset == polygonOffset)
-        polygon.setPolygonOffset(polygonOffset);
-    } catch (Exception e) {
-    }
-
-    // - TDR, use reflection since setPolygonOffsetFactor is not available in
-    // earlier versions of Java3D.
-
-    try {
-      java.lang.reflect.Method method = polygon.getClass().getMethod(
-          "setPolygonOffsetFactor", new Class[] { float.class });
-      float polygonOffsetFactor = mode.getPolygonOffsetFactor();
-      if (polygonOffsetFactor == polygonOffsetFactor) {
-        method.invoke(polygon, new Object[] {polygonOffsetFactor});
-      }
-    } catch (Exception e) {
-    }
-
-    appearance.setPolygonAttributes(polygon);
-
-    RenderingAttributes rendering = new RenderingAttributes();
-    rendering.setCapability(RenderingAttributes.ALLOW_ALPHA_TEST_FUNCTION_READ);
-    rendering.setCapability(RenderingAttributes.ALLOW_ALPHA_TEST_VALUE_READ);
-    rendering.setCapability(RenderingAttributes.ALLOW_DEPTH_ENABLE_READ);
-    /* TDR (2013-10-16): Can possibly cause problems on ATI graphics
-    rendering.setCapability (RenderingAttributes.ALLOW_VISIBLE_WRITE);
-    */
-
-    //rendering.setCapability(RenderingAttributes.ALLOW_IGNORE_VERTEX_COLORS_READ
-    // );
-    // rendering.setCapability(RenderingAttributes.ALLOW_RASTER_OP_READ);
-    // rendering.setCapability(RenderingAttributes.ALLOW_VISIBLE_READ);
-    rendering.setDepthBufferEnable(((GraphicsModeControlA3D)mode).getDepthBufferEnable());
-    appearance.setRenderingAttributes(rendering);
-
-    if (constant_color != null) {
-      // constant_color.setCapability(ColoringAttributes.ALLOW_COLOR_READ);
-      //constant_color.setCapability(ColoringAttributes.ALLOW_SHADE_MODEL_READ);
-      appearance.setColoringAttributes(constant_color);
-    }
-    // only do Material if geometry is 2-D (not 0-D points or 1-D lines)
-    if (doMaterial) {
-      Material material = new Material();
-      material.setCapability(Material.ALLOW_COMPONENT_READ);
-      material.setSpecularColor(0.0f, 0.0f, 0.0f);
-
-      // no lighting in 2-D mode
-      if (!mode.getMode2D())
-        material.setLightingEnable(true);
-      appearance.setMaterial(material);
-    }
-    if (constant_alpha != null) {
-      // constant_alpha.setCapability(TransparencyAttributes.
-      // ALLOW_BLEND_FUNCTION_READ);
-      // constant_alpha.setCapability(TransparencyAttributes.ALLOW_MODE_READ);
-      // constant_alpha.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
-      appearance.setTransparencyAttributes(constant_alpha);
-    }
-    if (cacheKey != null) {
-      appearanceCache.put((Object) cacheKey, appearance);
-    }
-    return appearance;
-  }
+//  private static Appearance staticMakeCachedAppearance(
+//      GraphicsModeControl mode, TransparencyAttributes constant_alpha,
+//      ColoringAttributes constant_color, GeometryArray geometry,
+//      boolean no_material, boolean okToCache) {
+//
+//    boolean doMaterial = false;
+//    if (!(geometry instanceof LineArray || geometry instanceof PointArray
+//        || geometry instanceof IndexedLineArray
+//        || geometry instanceof IndexedPointArray
+//        || geometry instanceof IndexedLineStripArray || geometry instanceof LineStripArray)) {
+//      if (!no_material) {
+//        doMaterial = true;
+//      }
+//    }
+//
+//    Object cacheKey = null;
+//    Appearance appearance = null;
+//
+//    if (mode.getCacheAppearances() && okToCache) {
+//	cacheKey = mode.getSaveString() + "_" + (constant_alpha==null?"null" :(constant_alpha.getTransparency()+"_" + constant_alpha.getTransparencyMode()))  + "_"
+//          + constant_color + "_" + new Boolean(doMaterial);
+//      appearance = (Appearance) appearanceCache.get(cacheKey);
+//      if (appearance != null) {
+//        return appearance;
+//      }
+//    }
+//    appearanceCnt++;
+//    appearance = new Appearance();
+//    appearance.setCapability(Appearance.ALLOW_COLORING_ATTRIBUTES_READ);
+//    appearance.setCapability(Appearance.ALLOW_LINE_ATTRIBUTES_READ);
+//    appearance.setCapability(Appearance.ALLOW_MATERIAL_READ);
+//    appearance.setCapability(Appearance.ALLOW_POINT_ATTRIBUTES_READ);
+//    appearance.setCapability(Appearance.ALLOW_POLYGON_ATTRIBUTES_READ);
+//    appearance.setCapability(Appearance.ALLOW_RENDERING_ATTRIBUTES_READ);
+//    appearance.setCapability(Appearance.ALLOW_TEXGEN_READ);
+//    appearance.setCapability(Appearance.ALLOW_TEXTURE_ATTRIBUTES_READ);
+//    appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
+//    /* TDR (2013-10-16): Can possibly cause problems on ATI graphics
+//    appearance.setCapability(Appearance.ALLOW_RENDERING_ATTRIBUTES_WRITE);
+//    */
+//    // appearance.setCapability(Appearance.ALLOW_TEXTURE_UNIT_STATE_READ);
+//    appearance.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_READ);
+//
+//    LineAttributes line = new LineAttributes();
+//    line.setCapability(LineAttributes.ALLOW_ANTIALIASING_READ);
+//    line.setCapability(LineAttributes.ALLOW_PATTERN_READ);
+//    line.setCapability(LineAttributes.ALLOW_WIDTH_READ);
+//    line.setLineWidth(mode.getLineWidth());
+//    int pattern = GraphicsModeControlA3D.LINE_PATTERN[mode.getLineStyle()];
+//    line.setLinePattern(pattern);
+//    appearance.setLineAttributes(line);
+//
+//    PointAttributes point = new PointAttributes();
+//    point.setCapability(PointAttributes.ALLOW_ANTIALIASING_READ);
+//    point.setCapability(PointAttributes.ALLOW_SIZE_READ);
+//    point.setPointSize(mode.getPointSize());
+//    appearance.setPointAttributes(point);
+//
+//    PolygonAttributes polygon = new PolygonAttributes();
+//    polygon.setCapability(PolygonAttributes.ALLOW_CULL_FACE_READ);
+//    polygon.setCapability(PolygonAttributes.ALLOW_MODE_READ);
+//    polygon.setCapability(PolygonAttributes.ALLOW_NORMAL_FLIP_READ);
+//    polygon.setCapability(PolygonAttributes.ALLOW_OFFSET_READ);
+//    polygon.setCullFace(PolygonAttributes.CULL_NONE);
+//    polygon.setPolygonMode(mode.getPolygonMode());
+//
+//    try {
+//      float polygonOffset = mode.getPolygonOffset();
+//      if (polygonOffset == polygonOffset)
+//        polygon.setPolygonOffset(polygonOffset);
+//    } catch (Exception e) {
+//    }
+//
+//    // - TDR, use reflection since setPolygonOffsetFactor is not available in
+//    // earlier versions of Java3D.
+//
+//    try {
+//      java.lang.reflect.Method method = polygon.getClass().getMethod(
+//          "setPolygonOffsetFactor", new Class[] { float.class });
+//      float polygonOffsetFactor = mode.getPolygonOffsetFactor();
+//      if (polygonOffsetFactor == polygonOffsetFactor) {
+//        method.invoke(polygon, new Object[] {polygonOffsetFactor});
+//      }
+//    } catch (Exception e) {
+//    }
+//
+//    appearance.setPolygonAttributes(polygon);
+//
+//    RenderingAttributes rendering = new RenderingAttributes();
+//    rendering.setCapability(RenderingAttributes.ALLOW_ALPHA_TEST_FUNCTION_READ);
+//    rendering.setCapability(RenderingAttributes.ALLOW_ALPHA_TEST_VALUE_READ);
+//    rendering.setCapability(RenderingAttributes.ALLOW_DEPTH_ENABLE_READ);
+//    /* TDR (2013-10-16): Can possibly cause problems on ATI graphics
+//    rendering.setCapability (RenderingAttributes.ALLOW_VISIBLE_WRITE);
+//    */
+//
+//    //rendering.setCapability(RenderingAttributes.ALLOW_IGNORE_VERTEX_COLORS_READ
+//    // );
+//    // rendering.setCapability(RenderingAttributes.ALLOW_RASTER_OP_READ);
+//    // rendering.setCapability(RenderingAttributes.ALLOW_VISIBLE_READ);
+//    rendering.setDepthBufferEnable(((GraphicsModeControlA3D)mode).getDepthBufferEnable());
+//    appearance.setRenderingAttributes(rendering);
+//
+//    if (constant_color != null) {
+//      // constant_color.setCapability(ColoringAttributes.ALLOW_COLOR_READ);
+//      //constant_color.setCapability(ColoringAttributes.ALLOW_SHADE_MODEL_READ);
+//      appearance.setColoringAttributes(constant_color);
+//    }
+//    // only do Material if geometry is 2-D (not 0-D points or 1-D lines)
+//    if (doMaterial) {
+//      Material material = new Material();
+//      material.setCapability(Material.ALLOW_COMPONENT_READ);
+//      material.setSpecularColor(0.0f, 0.0f, 0.0f);
+//
+//      // no lighting in 2-D mode
+//      if (!mode.getMode2D())
+//        material.setLightingEnable(true);
+//      appearance.setMaterial(material);
+//    }
+//    if (constant_alpha != null) {
+//      // constant_alpha.setCapability(TransparencyAttributes.
+//      // ALLOW_BLEND_FUNCTION_READ);
+//      // constant_alpha.setCapability(TransparencyAttributes.ALLOW_MODE_READ);
+//      // constant_alpha.setCapability(TransparencyAttributes.ALLOW_VALUE_READ);
+//      appearance.setTransparencyAttributes(constant_alpha);
+//    }
+//    if (cacheKey != null) {
+//      appearanceCache.put((Object) cacheKey, appearance);
+//    }
+//    return appearance;
+//  }
 
   /**
    * collect and transform Shape DisplayRealType values from display_values;
@@ -1232,22 +1231,20 @@ public abstract class ShadowTypeA3D extends ShadowType {
    *   and whose only child can be detached. Acts also as an id since its parent
    *   may have multiple children. 
    */
-  public BranchGroup addToDetachableGroup(Object group, VisADGeometryArray array,
+  public Node addToDetachableGroup(Object group, VisADGeometryArray array,
       GraphicsModeControl mode, float constant_alpha, float[] constant_color) throws VisADException {
      
-    BranchGroup branch = (BranchGroup) makeBranch();
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
+    Node branch = (Node) makeBranch();
 
     /* For example, this branch is detached from 'branch' during auto resizing. 
      * New resized trcrArray is then added back to 'branch' 
      */
-    BranchGroup trcrBranch = (BranchGroup) makeBranch();
+    Node trcrBranch = (Node) makeBranch();
 
     addToGroup(trcrBranch, array, mode, constant_alpha, constant_color);
-    branch.addChild(trcrBranch);
+    branch.attachChild(trcrBranch);
     
-    ((BranchGroup)group).addChild(branch);
+    ((Node)group).attachChild(branch);
     
     return branch;     
   }
