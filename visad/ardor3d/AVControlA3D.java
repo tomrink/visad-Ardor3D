@@ -29,8 +29,6 @@ package visad.ardor3d;
 import com.ardor3d.scenegraph.extension.SwitchNode;
 import visad.*;
 
-import javax.media.j3d.*;
-
 import java.util.Vector;
 import java.util.Enumeration;
 
@@ -152,7 +150,7 @@ public abstract class AVControlA3D extends Control implements AVControl {
         ss.setWhichChild(indices[0]);
       }
       else {
-        ss.setWhichChild(Switch.CHILD_NONE);
+        ss.setWhichChild(VisADSwitch.NONE_VISIBLE);
       }
       displayRenderer.markNeedDraw();
     } // end while (pairs.hasMoreElements())
@@ -223,7 +221,12 @@ public abstract class AVControlA3D extends Control implements AVControl {
     void setWhichChild(int idx) {
       if (handler == null) {
         if (swit.getNumberOfChildren() > 0) {
-          swit.setSingleVisible(idx);
+          if (VisADSwitch.NONE_VISIBLE == idx) {
+            swit.setAllNonVisible();
+          }
+          else {
+            swit.setSingleVisible(idx);
+          }
         }
       }
       else {
