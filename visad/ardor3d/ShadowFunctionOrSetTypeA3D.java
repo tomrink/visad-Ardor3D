@@ -1348,7 +1348,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
 
       if (trcrEnabled) {
         Object group = switB.getChild(i);
-        BranchGroup trcrBG = addToDetachableGroup(group, trcrArray, mode, info.constant_alpha, info.constant_color);
+        Node trcrBG = addToDetachableGroup(group, trcrArray, mode, info.constant_alpha, info.constant_color);
         if (listener != null && trcrArray != null) {
           listener.add(trcrBG, trcrArray, achrArrays, mode, info.constant_alpha, info.constant_color);
         }

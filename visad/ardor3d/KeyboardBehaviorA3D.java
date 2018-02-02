@@ -26,20 +26,10 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
-import java.awt.AWTEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
-import java.util.Enumeration;
-
-import javax.media.j3d.Behavior;
-import javax.media.j3d.BoundingSphere;
-import javax.media.j3d.Bounds;
-import javax.media.j3d.WakeupCondition;
-import javax.media.j3d.WakeupCriterion;
-import javax.media.j3d.WakeupOnAWTEvent;
-import javax.media.j3d.WakeupOr;
-import javax.vecmath.Point3d;
+//import javax.media.j3d.WakeupCondition;
 
 import visad.DisplayEvent;
 import visad.DisplayImpl;
@@ -95,10 +85,6 @@ public class KeyboardBehaviorA3D implements KeyboardBehavior
   private int[] functionKeys = null;
   private int[] functionMods = null;
  
-  /**
-   *  Condition that causes this Behavior to wake up.
-   */
-  protected WakeupCondition wakeupCondition = null;
     
   /**
    * Construct a new keyboard behavior for the DisplayRenderer.  You

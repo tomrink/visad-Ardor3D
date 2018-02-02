@@ -26,10 +26,7 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
-import com.ardor3d.scenegraph.Node;
 import visad.*;
-
-//import javax.media.j3d.*;
 
 import java.util.*;
 import java.rmi.*;

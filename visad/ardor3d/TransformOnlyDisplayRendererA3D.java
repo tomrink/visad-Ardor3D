@@ -26,11 +26,12 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.scenegraph.Node;
 import visad.*;
 
 import java.awt.image.BufferedImage;
 
-import javax.media.j3d.*;
+//import javax.media.j3d.*;
 
 /**
  * <CODE>TransformOnlyDisplayRendererJ3D</CODE> is the VisAD class for the
@@ -81,10 +82,10 @@ public class TransformOnlyDisplayRendererA3D extends DisplayRendererA3D {
   public void setDirectOn(boolean on) {
   }
 
-  public void addSceneGraphComponent(Group group) {
+  public void addSceneGraphComponent(Node group) {
   }
 
-  public void addDirectManipulationSceneGraphComponent(Group group,
+  public void addDirectManipulationSceneGraphComponent(Node group,
                          DirectManipulationRendererA3D renderer) {
   }
 
@@ -128,7 +129,7 @@ public class TransformOnlyDisplayRendererA3D extends DisplayRendererA3D {
   public void clearScales() {
   }
 
-  public void setTransform3D(Transform3D t) {
+  public void setTransform3D(Object t) {
   }
 
   public void setBoxAspect(double[] aspect) {

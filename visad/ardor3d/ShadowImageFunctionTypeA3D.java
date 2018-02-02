@@ -30,12 +30,9 @@ import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.extension.SwitchNode;
 import visad.*;
-//import visad.java3d.*;
 import visad.data.mcidas.BaseMapAdapter;
 import visad.data.mcidas.AreaAdapter;
 import visad.data.gif.GIFForm;
-
-//import javax.media.j3d.*;
 
 import java.util.Arrays;
 import java.util.Enumeration;
