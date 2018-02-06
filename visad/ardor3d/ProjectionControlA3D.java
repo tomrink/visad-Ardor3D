@@ -42,13 +42,9 @@ import java.util.Enumeration;
 import java.lang.reflect.*;
 
 /**
-   ProjectionControlJ3D is the VisAD class for controlling the Projection
-   from 3-D to 2-D.  It manipulates a TransformGroup node in the
+   ProjectionControlA3D is the VisAD class for controlling the Projection
+   from 3-D to 2-D.  It manipulates a top level node in the
    scene graph.<P>
-*/
-/* WLH 17 June 98
-public class ProjectionControlJ3D extends Control
-       implements ProjectionControl {
 */
 public class ProjectionControlA3D extends ProjectionControl {
 
