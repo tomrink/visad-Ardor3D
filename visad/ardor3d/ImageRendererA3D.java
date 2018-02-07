@@ -559,12 +559,12 @@ public class ImageRendererA3D extends DefaultRendererA3D {
     DataDisplayLink link = Links[0];
     ShadowTypeA3D type = (ShadowTypeA3D) link.getShadow();
     boolean doByRef = false;
-    if (isByRefUsable(link, type) && ShadowType.byReference) {
-      doByRef = true;
-      type = new ShadowImageByRefFunctionTypeA3D(link.getData().getType(), link, null, 
-                     ((ShadowFunctionOrSetType)type.getAdaptedShadowType()).getInheritedValues(),
-                          (ShadowFunctionOrSetType)type.getAdaptedShadowType(), type.getLevelOfDifficulty());
-    }
+//    if (isByRefUsable(link, type) && ShadowType.byReference) {
+//      doByRef = true;
+//      type = new ShadowImageByRefFunctionTypeA3D(link.getData().getType(), link, null, 
+//                     ((ShadowFunctionOrSetType)type.getAdaptedShadowType()).getInheritedValues(),
+//                          (ShadowFunctionOrSetType)type.getAdaptedShadowType(), type.getLevelOfDifficulty());
+//    }
 
     Node branch = null;
     if ((lastByRef && doByRef) || (!lastByRef && !doByRef)) { 
