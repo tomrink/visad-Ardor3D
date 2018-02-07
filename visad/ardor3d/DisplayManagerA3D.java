@@ -324,6 +324,10 @@ public class DisplayManagerA3D implements Updater {
     public void start() {
        if (myRunner == null) {
           myRunner = new RunnerA3D(frameWork, canvasRenderer, dspRenderer, this);
+          myRunner.start();
+//          TestInitializer testInit = new TestInitializer(this, myRunner);
+//          Thread thread = new Thread(testInit);
+//          thread.start();
        }
        markNeedDraw();
     }
@@ -425,4 +429,25 @@ class DisplayManagerInitializer implements Runnable {
       DisplayManagerA3D getTheDisplay() {
          return display;
       }
+}
+
+class TestInitializer implements Runnable {
+   
+      private DisplayManagerA3D dspManager;
+      private RunnerA3D runner;
+      
+      
+      TestInitializer(DisplayManagerA3D dspManager, RunnerA3D runner) {
+         this.dspManager = dspManager;
+         this.runner = runner;
+      }
+
+      @Override
+      public void run() {
+         while (((JoglAwtCanvas)dspManager.getCanvas()).getDelegatedDrawable() == null) {
+         }
+         runner.start();
+      }
+      
+
 }
