@@ -22,8 +22,6 @@ public class RunnerA3D implements Runnable {
       this.canvasRenderer = canvasRenderer;
       this.dspRenderer = dspRenderer;
       this.updater = updater;
-      thread = new Thread(this);
-      thread.start();
    }
    
    public void run() {
