@@ -1124,10 +1124,13 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       setSceneGraphObjectName(trans, "Trans");
     }
     if (t != null) {
+      /* experiment
+      needDraw = true;
+      */
       trans.setTransform(t);
     }
-  }  
-
+  }
+  
 
   /**
    * Factory for constructing a subclass of <CODE>Control</CODE>
@@ -1284,6 +1287,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    @Override
    public boolean renderUnto(Renderer renderer) {
       root.onDraw(renderer);
+      /* experiment
+      needDraw = false;
+      */
       return true;
    }
       
@@ -1296,9 +1302,11 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    }
    
    public void markNeedDraw() {
-      synchronized (MUTEX) {
-         needDraw = true;
-      }
+      needDraw = true;
+   }
+   
+   public boolean getNeedDraw() {
+      return needDraw;
    }
       
    void setCanvasRenderer(CanvasRenderer canvasRenderer) {
