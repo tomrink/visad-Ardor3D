@@ -152,6 +152,8 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
 
 
     Mesh cursor = new Mesh();
+    cursorWfState = (WireframeState) RenderState.createState(RenderState.StateType.Wireframe);
+    cursor.setRenderState(cursorWfState);
     meshData = new MeshData();
     meshData.setIndexMode(IndexMode.Lines);
     meshData.setVertexBuffer(BufferUtils.createFloatBuffer(cursor_verts));
