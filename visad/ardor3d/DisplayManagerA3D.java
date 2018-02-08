@@ -33,6 +33,7 @@ import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.jogamp.opengl.awt.GLCanvas;
 //import com.jogamp.newt.event.InputEvent;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -324,10 +325,10 @@ public class DisplayManagerA3D implements Updater {
     public void start() {
        if (myRunner == null) {
           myRunner = new RunnerA3D(frameWork, canvasRenderer, dspRenderer, this);
-          myRunner.start();
-//          TestInitializer testInit = new TestInitializer(this, myRunner);
-//          Thread thread = new Thread(testInit);
-//          thread.start();
+          //myRunner.start();
+          TestInitializer testInit = new TestInitializer(this, myRunner);
+          Thread thread = new Thread(testInit);
+          thread.start();
        }
        markNeedDraw();
     }
@@ -444,7 +445,7 @@ class TestInitializer implements Runnable {
 
       @Override
       public void run() {
-         while (((JoglAwtCanvas)dspManager.getCanvas()).getDelegatedDrawable() == null) {
+         while (((GLCanvas)dspManager.getCanvas()).getGraphicsConfiguration() == null) {
          }
          runner.start();
       }
