@@ -34,6 +34,7 @@ import com.ardor3d.util.Timer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.awt.GLJPanel;
 //import com.jogamp.newt.event.InputEvent;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -445,7 +446,8 @@ class TestInitializer implements Runnable {
 
       @Override
       public void run() {
-         while (((GLCanvas)dspManager.getCanvas()).getGraphicsConfiguration() == null) {
+         while (((JoglAwtCanvas)dspManager.getCanvas()).getDelegatedDrawable() == null) {
+         //while (((JoglSwingCanvas)dspManager.getCanvas()).getDelegatedDrawable() == null) {
          }
          runner.start();
       }
