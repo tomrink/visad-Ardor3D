@@ -1056,7 +1056,7 @@ System.out.println("BMR.main()");
     // how wind records are displayed
     DisplayImpl display =
       new DisplayImplA3D("display1", new TwoDDisplayRendererA3D());
-    display.disableAction();
+    //display.disableAction();
     
     MouseHelper helper = display.getDisplayRenderer().getMouseBehavior().getMouseHelper();
     helper.setFunctionMap(new int[][][]
@@ -1146,7 +1146,7 @@ System.out.println("BMR.main()");
         k++;
       }
     }
-    display.enableAction();
+    //display.enableAction();
 
     // instead of linking the wind record "DataReferenceImpl refs" to
     // the WindGetterJ3Ds, you can have some user interface event (e.g.,
