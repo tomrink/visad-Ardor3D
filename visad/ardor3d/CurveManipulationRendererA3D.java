@@ -826,7 +826,7 @@ public class CurveManipulationRendererA3D extends DirectManipulationRendererA3D 
     else {
       display = new DisplayImplA3D("display1", 500, 500, JOGL_AWT);
     }
-    display.disableAction();
+    //display.disableAction();
     if (args.length == 0 || args[0].equals("z")) {
       display.addMap(new ScalarMap(x, Display.XAxis));
       display.addMap(new ScalarMap(y, Display.YAxis));
@@ -899,7 +899,7 @@ public class CurveManipulationRendererA3D extends DirectManipulationRendererA3D 
       new CurveManipulationRendererA3D(0, 0, only_one);
     display.addReferences(cmr, ref);
     
-    display.enableAction();
+    //display.enableAction();
 
     // create JFrame (i.e., a window) for display and slider
     JFrame frame = new JFrame("test CurveManipulationRendererJ3D");
