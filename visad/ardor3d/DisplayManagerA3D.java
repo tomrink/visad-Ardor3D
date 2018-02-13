@@ -7,6 +7,7 @@ import com.ardor3d.framework.FrameHandler;
 import com.ardor3d.framework.Updater;
 import com.ardor3d.framework.jogl.JoglCanvasRenderer;
 import com.ardor3d.framework.jogl.awt.JoglAwtCanvas;
+import com.ardor3d.framework.jogl.awt.JoglNewtAwtCanvas;
 import com.ardor3d.framework.jogl.awt.JoglSwingCanvas;
 import com.ardor3d.input.Key;
 import com.ardor3d.input.KeyboardState;
@@ -28,6 +29,8 @@ import com.ardor3d.input.logical.TriggerConditions;
 import com.ardor3d.input.logical.TwoInputStates;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.Camera;
+import com.ardor3d.renderer.ContextCapabilities;
+import com.ardor3d.renderer.RenderContext;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
@@ -35,6 +38,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 //import com.jogamp.newt.event.InputEvent;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -45,6 +49,12 @@ import javax.swing.SwingUtilities;
 
 
 public class DisplayManagerA3D implements Updater {
+   
+    //These will be handled in a better way
+    private static final Timer timer = new Timer();
+    private static final FrameHandler frameWork = new FrameHandler(timer);
+    private static final RunnerA3D myRunner = new RunnerA3D(frameWork);
+    private static final LogicalLayer logicalLayer = new LogicalLayer();
 
     private final Node root;
     private final Node transform;
@@ -52,16 +62,12 @@ public class DisplayManagerA3D implements Updater {
     private Component canvas;
     private final CanvasRenderer canvasRenderer;
     
-    private final Timer timer = new Timer();
-    private final FrameHandler frameWork = new FrameHandler(timer);
-    private final LogicalLayer logicalLayer = new LogicalLayer();
-    private volatile boolean exit = false;
-    private AwtMouseManager mouseManager;
-    private PhysicalLayer pl;
+    //private final Timer timer = new Timer();
+    //private final FrameHandler frameWork = new FrameHandler(timer);
+    //private final LogicalLayer logicalLayer = new LogicalLayer();
+    //private RunnerA3D myRunner;
 
     public boolean frameHandlerInitialized = false;
-    
-    private RunnerA3D myRunner;
     
     public boolean needDraw = false;
     
@@ -70,10 +76,10 @@ public class DisplayManagerA3D implements Updater {
     private int canvasType = DisplayImplA3D.JOGL_AWT;
     
     public DisplayManagerA3D(Dimension size, DisplayRendererA3D dspRenderer) {
-       this(size, dspRenderer, DisplayImplA3D.JOGL_AWT);
+       this(null, size, dspRenderer, DisplayImplA3D.JOGL_AWT);
     }
     
-    public DisplayManagerA3D(Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
+    public DisplayManagerA3D(Container container, Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
         
@@ -82,6 +88,8 @@ public class DisplayManagerA3D implements Updater {
         
         root = dspRenderer.getRoot();
         transform = dspRenderer.getTransformNode();
+        
+        frameWork.addUpdater(this);
  
         canvasRenderer = new JoglCanvasRenderer(dspRenderer);
         
@@ -99,12 +107,13 @@ public class DisplayManagerA3D implements Updater {
         dspRenderer.setCanvasRenderer(canvasRenderer);
         ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
         
-        
+
         final DisplaySettings settings = new DisplaySettings(size.width, size.height, 24, 0, 0, 16, 0, 0, false, false);        
         
         canvas = createCanvas(settings, canvasType);
         
         addCanvas(canvas);
+        container.add(canvas);
         
         canvas.addComponentListener(new ComponentAdapter() {
             Dimension size = canvas.getSize();
@@ -246,8 +255,7 @@ public class DisplayManagerA3D implements Updater {
         logicalLayer.registerTrigger(new InputTrigger(new AnyKeyCondition(), keyPressedAction));
         
         
-        frameWork.addUpdater(this);
-        start();
+        myRunner.start();
     }
     
     private void forwardToMouseHelper(int id, int button, MouseState mState, KeyboardState kbState) {
@@ -305,8 +313,8 @@ public class DisplayManagerA3D implements Updater {
     }
     
     public void addCanvas(Component canvas) {
-        mouseManager = new AwtMouseManager(canvas);
-        pl = new PhysicalLayer(new AwtKeyboardWrapper(canvas),
+        AwtMouseManager mouseManager = new AwtMouseManager(canvas);
+        PhysicalLayer pl = new PhysicalLayer(new AwtKeyboardWrapper(canvas),
                 new AwtMouseWrapper(canvas, mouseManager),
                 DummyControllerWrapper.INSTANCE,
                 new AwtFocusWrapper(canvas));
@@ -321,18 +329,18 @@ public class DisplayManagerA3D implements Updater {
        return canvasRenderer;
     }
     
-    public void start() {
-       if (myRunner == null) {
-          myRunner = new RunnerA3D(frameWork, canvasRenderer, dspRenderer, this);
-          myRunner.start();
-       }
-       markNeedDraw();
-    }
-    
-    public void stop() {
-       myRunner.exit();
-       myRunner = null;
-    }
+//    public void start() {
+//       if (myRunner == null) {
+//          myRunner = new RunnerA3D(frameWork, canvasRenderer, dspRenderer, this);
+//          myRunner.start();
+//       }
+//       markNeedDraw();
+//    }
+//    
+//    public void stop() {
+//       myRunner.exit();
+//       myRunner = null;
+//    }
     
     @Override
     public void update(ReadOnlyTimer rot) {
@@ -361,27 +369,6 @@ public class DisplayManagerA3D implements Updater {
         frameHandlerInitialized = true;
     }
     
-    
-    public static DisplayManagerA3D createDisplayManager(Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
-       DisplayManagerA3D display = null;
-       DisplayManagerInitializer dspInitializer = new DisplayManagerInitializer(size, dspRenderer, canvasType);
-       
-       if (!SwingUtilities.isEventDispatchThread()) {
-          try {
-             SwingUtilities.invokeAndWait(dspInitializer);
-             display = dspInitializer.getTheDisplay();
-          }
-          catch (Exception e) {
-             e.printStackTrace();
-          }
-       }
-       else {
-          display = new DisplayManagerA3D(size, dspRenderer, canvasType);
-       }
-       
-       return display;
-    }  
-    
     public Component getComponent() {
        return canvas;
     } 
@@ -405,25 +392,21 @@ public class DisplayManagerA3D implements Updater {
 
 class DisplayManagerInitializer implements Runnable {
    
-      private DisplayManagerA3D display;
-      
-      private final Dimension size;
-      private final DisplayRendererA3D dspRenderer;
-      private final int canvasType;
-      
-      
-      DisplayManagerInitializer(Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
-         this.size = size;
-         this.dspRenderer = dspRenderer;
-         this.canvasType = canvasType;
-      }
+   private CanvasRenderer canvasRenderer;
+   private DisplayRendererA3D dspRenderer;
+   
+   DisplayManagerInitializer(CanvasRenderer canvasRenderer, DisplayRendererA3D dspRenderer) {
+      this.canvasRenderer = canvasRenderer;
+      this.dspRenderer = dspRenderer;   
+   }
 
-      @Override
-      public void run() {
-         display = new DisplayManagerA3D(size, dspRenderer, canvasType);
+   @Override
+   public void run() {
+      RenderContext renderContext = canvasRenderer.getRenderContext();
+      while (renderContext == null) {
+         renderContext = canvasRenderer.getRenderContext();
       }
+      dspRenderer.setCapabilities(renderContext.getCapabilities());
+   }
       
-      DisplayManagerA3D getTheDisplay() {
-         return display;
-      }
 }
