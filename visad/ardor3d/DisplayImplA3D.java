@@ -51,6 +51,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import visad.util.ColorMapWidget;
 
 /**
    DisplayImplJ3D is the VisAD class for displays that use
@@ -164,6 +165,67 @@ public class DisplayImplA3D extends DisplayImpl {
   private ProjectionControlA3D projection = null;
   private GraphicsModeControlA3D mode = null;
   private int apiValue = UNKNOWN;
+  
+  public DisplayImplA3D(String name, Window window, Component comp, int api) 
+         throws VisADException, RemoteException {
+     this(name, null, window, comp, comp.getWidth(), comp.getHeight(), api);
+  }
+  
+  public DisplayImplA3D(String name, Window window, Component comp, int width, int height, int api) 
+         throws VisADException, RemoteException {
+     this(name, null, window, comp, width, height, api);
+  }
+  
+  public DisplayImplA3D(String name, DisplayRendererA3D renderer, Window window, Component comp, int width, int height, int api) 
+         throws VisADException, RemoteException {
+     super(name, renderer);
+     
+     if (!window.isShowing()) {
+        throw new VisADException("Containing window must exist on screen. For example JFrame.setVisible(true)");
+     }
+     
+     initialize(window, comp, width, height, api);
+  }
+  
+  private void initialize(Window window, Component comp, int width, int height, int api) 
+          throws VisADException, RemoteException {
+     
+    // a ProjectionControl always exists
+    projection = new ProjectionControlA3D(this);
+    addControl(projection);
+
+    if (api == JOGL_AWT || api == JOGL_SWING) {
+       if (width < 0 || height < 0) {
+          throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
+       }
+       DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
+       dspRenderer.createSceneGraph();
+       DisplayManagerA3D manager = new DisplayManagerA3D((Container)comp, new Dimension(width, height), dspRenderer, api);
+       Component component = manager.getCanvas();
+       setComponent(component);
+       apiValue = api;
+    }
+    else if (api == TRANSFORM_ONLY) {
+      if (!(getDisplayRenderer() instanceof TransformOnlyDisplayRendererA3D)) {
+        throw new DisplayException("must be TransformOnlyDisplayRendererA3D " +
+                                   "for api = TRANSFORM_ONLY");
+      }
+      setComponent(null);
+      apiValue = api;
+    }
+    else if (api == OFFSCREEN) {
+      DisplayRendererA3D renderer = (DisplayRendererA3D) getDisplayRenderer();
+      setComponent(null);
+      apiValue = api;
+    }
+    else {
+      throw new DisplayException("DisplayImplA3D: bad graphics API " + api);
+    }
+    
+    // a GraphicsModeControl always exists
+    mode = new GraphicsModeControlA3D(this);
+    addControl(mode);
+  }
 
   /** construct a DisplayImpl for Java3D with the
       default DisplayRenderer, in a JFC JPanel */
@@ -358,9 +420,9 @@ public class DisplayImplA3D extends DisplayImpl {
        }
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
        dspRenderer.createSceneGraph();
-       DisplayManagerA3D manager = DisplayManagerA3D.createDisplayManager(new Dimension(width, height), dspRenderer, api);
-       Component component = manager.getCanvas();
-       setComponent(component);
+       //DisplayManagerA3D manager = DisplayManagerA3D.createDisplayManager(new Dimension(width, height), dspRenderer, api);
+       //Component component = manager.getCanvas();
+       //setComponent(component);
        apiValue = api;
     }
     else if (api == TRANSFORM_ONLY) {
@@ -695,9 +757,14 @@ public class DisplayImplA3D extends DisplayImpl {
        Component widget = null;
        
        final JFrame frame = new JFrame();
+       frame.setSize(width, height);
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       frame.setVisible(true);
 
-       final DisplayImplA3D display = new DisplayImplA3D("Display", width, height, JOGL_AWT);
+       final DisplayImplA3D display = new DisplayImplA3D("Display", frame, frame.getContentPane(), JOGL_AWT);
+       //display.disableAction();
+       //frame.pack();
+       
        //final visad.java3d.DisplayImplJ3D display = new visad.java3d.DisplayImplJ3D("Display");
        
 //       GraphicsModeControl modeCtrl = display.getGraphicsModeControl();
@@ -707,18 +774,18 @@ public class DisplayImplA3D extends DisplayImpl {
 //       modeCtrl.setPointSize(2);
        
        /* Simple Test 1 */
-//       FieldImpl dataFld;
-//       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
-//       dataFld = FlatField.makeField(fncType, 2048, false);
-//       
-//       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
-//       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
-//       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
-//       
-//       display.addMap(xmap);
-//       display.addMap(ymap);
-//       display.addMap(cmap);
-//       widget = new ColorMapWidget(cmap);
+       FieldImpl dataFld;
+       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
+       dataFld = FlatField.makeField(fncType, 2048, false);
+       
+       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
+       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
+       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
+       
+       display.addMap(xmap);
+       display.addMap(ymap);
+       display.addMap(cmap);
+       //widget = new ColorMapWidget(cmap);
        
        /* test 2 */
 //       FunctionType fldType = new FunctionType(RealType.Time, fncType);
@@ -750,9 +817,10 @@ public class DisplayImplA3D extends DisplayImpl {
 //       display.addMap(new ConstantMap(0.5f, Display.Blue));
 //       //display.addMap(new ConstantMap(0.5, Display.Alpha));
        
-//         DataReferenceImpl ref = new DataReferenceImpl("vfld");
-//         ref.setData(dataFld);
-//         display.addReference(ref);
+         DataReferenceImpl ref = new DataReferenceImpl("vfld");
+         ref.setData(dataFld);
+         display.addReference(ref);
+         //display.enableAction();
        
  
        /* Simple test 3 */
@@ -937,75 +1005,75 @@ public class DisplayImplA3D extends DisplayImpl {
 //         cell.addReference(cell_ref);
 
 
-    final RealType ir_radiance =
-      RealType.getRealType("ir_radiance", CommonUnit.degree);
-    Unit cycles = CommonUnit.dimensionless.divide(CommonUnit.second);
-    Unit hz = cycles.clone("Hz");
-    final RealType count = RealType.getRealType("count", hz);
-    FunctionType ir_histogram = new FunctionType(ir_radiance, count);
-    final RealType vis_radiance = RealType.getRealType("vis_radiance");
-
-    int size = 64;
-    FlatField histogram1 = FlatField.makeField(ir_histogram, size, false);
-    Real direct = new Real(ir_radiance, 2.0);
-    Real[] reals3 = {new Real(count, 1.0), new Real(ir_radiance, 2.0),
-                     new Real(vis_radiance, 1.0)};
-    RealTuple direct_tuple = new RealTuple(reals3);
-
-    //dpys[0].addMap(new ScalarMap(vis_radiance, Display.ZAxis));
-    ScalarMap irmap = new ScalarMap(ir_radiance, Display.XAxis);
-    //dpys[0].addMap(irmap);
-    irmap.setOverrideUnit(CommonUnit.radian);
-    //dpys[0].addMap(new ScalarMap(count, Display.YAxis));
-    //dpys[0].addMap(new ScalarMap(count, Display.Green));
-
-    //GraphicsModeControl mode = dpys[0].getGraphicsModeControl();
-    //mode.setPointSize(5.0f);
-    //mode.setPointMode(false);
-    //mode.setScaleEnable(true);
-
-    DataReferenceImpl ref_direct = new DataReferenceImpl("ref_direct");
-    ref_direct.setData(direct);
-    DataReference[] refs1 = {ref_direct};
-    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs1, null);
-
-    DataReferenceImpl ref_direct_tuple =
-      new DataReferenceImpl("ref_direct_tuple");
-    ref_direct_tuple.setData(direct_tuple);
-    DataReference[] refs2 = {ref_direct_tuple};
-    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs2, null);
-
-    DataReferenceImpl ref_histogram1 = new DataReferenceImpl("ref_histogram1");
-    ref_histogram1.setData(histogram1);
-    DataReference[] refs3 = {ref_histogram1};
-    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs3, null);
-
-    display.addMap(new ScalarMap(vis_radiance, Display.ZAxis));
-    display.addMap(new ScalarMap(ir_radiance, Display.XAxis));
-    display.addMap(new ScalarMap(count, Display.YAxis));
-    display.addMap(new ScalarMap(count, Display.Green));
-    //final DisplayRenderer dr0 = dpys[0].getDisplayRenderer();
-    final DisplayRenderer dr1 = display.getDisplayRenderer();
-    //dr0.setCursorStringOn(true);
-    //dr1.setCursorStringOn(false);
-
-    GraphicsModeControl mode = display.getGraphicsModeControl();
-    mode.setPointSize(8.0f);
-    mode.setPointMode(false);
-    mode.setScaleEnable(true);
-
-    display.addReferences(new DirectManipulationRendererA3D(), refs1, null);
-    display.addReferences(new DirectManipulationRendererA3D(), refs2, null);
-    display.addReferences(new DirectManipulationRendererA3D(), refs3, new ConstantMap[][] {{new ConstantMap(2f, Display.LineWidth)}});
-
-    MouseHelper helper = dr1.getMouseBehavior().getMouseHelper();
-    helper.setFunctionMap(new int[][][]
-      {{{MouseHelper.DIRECT, MouseHelper.DIRECT},
-        {MouseHelper.DIRECT, MouseHelper.DIRECT}},
-       {{MouseHelper.ROTATE, MouseHelper.NONE},
-        {MouseHelper.NONE, MouseHelper.NONE}},
-       {{MouseHelper.TRANSLATE, MouseHelper.ZOOM},
-        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
+//    final RealType ir_radiance =
+//      RealType.getRealType("ir_radiance", CommonUnit.degree);
+//    Unit cycles = CommonUnit.dimensionless.divide(CommonUnit.second);
+//    Unit hz = cycles.clone("Hz");
+//    final RealType count = RealType.getRealType("count", hz);
+//    FunctionType ir_histogram = new FunctionType(ir_radiance, count);
+//    final RealType vis_radiance = RealType.getRealType("vis_radiance");
+//
+//    int size = 64;
+//    FlatField histogram1 = FlatField.makeField(ir_histogram, size, false);
+//    Real direct = new Real(ir_radiance, 2.0);
+//    Real[] reals3 = {new Real(count, 1.0), new Real(ir_radiance, 2.0),
+//                     new Real(vis_radiance, 1.0)};
+//    RealTuple direct_tuple = new RealTuple(reals3);
+//
+//    //dpys[0].addMap(new ScalarMap(vis_radiance, Display.ZAxis));
+//    ScalarMap irmap = new ScalarMap(ir_radiance, Display.XAxis);
+//    //dpys[0].addMap(irmap);
+//    irmap.setOverrideUnit(CommonUnit.radian);
+//    //dpys[0].addMap(new ScalarMap(count, Display.YAxis));
+//    //dpys[0].addMap(new ScalarMap(count, Display.Green));
+//
+//    //GraphicsModeControl mode = dpys[0].getGraphicsModeControl();
+//    //mode.setPointSize(5.0f);
+//    //mode.setPointMode(false);
+//    //mode.setScaleEnable(true);
+//
+//    DataReferenceImpl ref_direct = new DataReferenceImpl("ref_direct");
+//    ref_direct.setData(direct);
+//    DataReference[] refs1 = {ref_direct};
+//    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs1, null);
+//
+//    DataReferenceImpl ref_direct_tuple =
+//      new DataReferenceImpl("ref_direct_tuple");
+//    ref_direct_tuple.setData(direct_tuple);
+//    DataReference[] refs2 = {ref_direct_tuple};
+//    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs2, null);
+//
+//    DataReferenceImpl ref_histogram1 = new DataReferenceImpl("ref_histogram1");
+//    ref_histogram1.setData(histogram1);
+//    DataReference[] refs3 = {ref_histogram1};
+//    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs3, null);
+//
+//    display.addMap(new ScalarMap(vis_radiance, Display.ZAxis));
+//    display.addMap(new ScalarMap(ir_radiance, Display.XAxis));
+//    display.addMap(new ScalarMap(count, Display.YAxis));
+//    display.addMap(new ScalarMap(count, Display.Green));
+//    //final DisplayRenderer dr0 = dpys[0].getDisplayRenderer();
+//    final DisplayRenderer dr1 = display.getDisplayRenderer();
+//    //dr0.setCursorStringOn(true);
+//    //dr1.setCursorStringOn(false);
+//
+//    GraphicsModeControl mode = display.getGraphicsModeControl();
+//    mode.setPointSize(8.0f);
+//    mode.setPointMode(false);
+//    mode.setScaleEnable(true);
+//
+//    display.addReferences(new DirectManipulationRendererA3D(), refs1, null);
+//    display.addReferences(new DirectManipulationRendererA3D(), refs2, null);
+//    display.addReferences(new DirectManipulationRendererA3D(), refs3, new ConstantMap[][] {{new ConstantMap(2f, Display.LineWidth)}});
+//
+//    MouseHelper helper = dr1.getMouseBehavior().getMouseHelper();
+//    helper.setFunctionMap(new int[][][]
+//      {{{MouseHelper.DIRECT, MouseHelper.DIRECT},
+//        {MouseHelper.DIRECT, MouseHelper.DIRECT}},
+//       {{MouseHelper.ROTATE, MouseHelper.NONE},
+//        {MouseHelper.NONE, MouseHelper.NONE}},
+//       {{MouseHelper.TRANSLATE, MouseHelper.ZOOM},
+//        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
 
 
 
@@ -1013,16 +1081,13 @@ public class DisplayImplA3D extends DisplayImpl {
 
 
        /* Main display window */
-       final JComponent outerComp = new JPanel(new BorderLayout());
-       JPanel cntrlPanel = new JPanel(new FlowLayout());
-       JPanel panel = new JPanel();
-       final Component comp = display.getComponent();
-       outerComp.add(comp, BorderLayout.CENTER);
-       outerComp.add(cntrlPanel, BorderLayout.SOUTH);
-       frame.getContentPane().add(outerComp);  
-       //Display the window.
-       frame.pack();
-       frame.setVisible(true);
+//       final JComponent outerComp = new JPanel(new BorderLayout());
+//       JPanel cntrlPanel = new JPanel(new FlowLayout());
+//       JPanel panel = new JPanel();
+//       final Component comp = display.getComponent();
+//       outerComp.add(comp, BorderLayout.CENTER);
+//       outerComp.add(cntrlPanel, BorderLayout.SOUTH);
+//       frame.getContentPane().add(outerComp);  
        
       /* If we have a control widget */
        if (widget != null) {
@@ -1123,19 +1188,28 @@ public static void fillField(FlatField image, double step, double half)
   }
    
    public static void main(String[] args) throws VisADException, RemoteException {
-         SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                try {
-                   createAndShowGUI();
-                }
-                catch (Exception e) {
-                   e.printStackTrace();
-                }
-            }
-        });            
+      createAndShowGUI();
+//      try {
+//         java.lang.Thread.sleep(5000);
+//      }
+//      catch (Exception e) {
+//         
+//      }
+//      createAndShowGUI();
+//      createAndShowGUI();
+//         SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Turn off metal's use of bold fonts
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                try {
+//                   createAndShowGUI();
+//                }
+//                catch (Exception e) {
+//                   e.printStackTrace();
+//                }
+//            }
+//        });            
       
    }
   
