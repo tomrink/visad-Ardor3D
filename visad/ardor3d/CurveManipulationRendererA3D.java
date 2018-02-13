@@ -810,6 +810,21 @@ public class CurveManipulationRendererA3D extends DirectManipulationRendererA3D 
   /** test CurveManipulationRendererJ3D */
   public static void createAndShowGUI(String[] args)
          throws VisADException, RemoteException {
+     
+    JFrame frame = new JFrame("test CurveManipulationRendererJ3D");
+    frame.setSize(500, 500);
+    frame.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {System.exit(0);}
+    });
+
+    // create JPanel in JFrame
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
+    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+    frame.getContentPane().add(panel);
+    frame.setVisible(true);
+
     RealType x = RealType.getRealType("x");
     RealType y = RealType.getRealType("y");
     RealTupleType xy = new RealTupleType(x, y);
@@ -821,10 +836,10 @@ public class CurveManipulationRendererA3D extends DirectManipulationRendererA3D 
     DisplayImpl display = null;
     if (args.length == 0) {
       //display = new DisplayImplA3D("display1", new TwoDDisplayRendererA3D());
-      display = new DisplayImplA3D("display1", 500, 500, JOGL_AWT);
+      display = new DisplayImplA3D("display1", frame, panel, JOGL_AWT);
     }
     else {
-      display = new DisplayImplA3D("display1", 500, 500, JOGL_AWT);
+      display = new DisplayImplA3D("display1", frame, panel, JOGL_AWT);
     }
     //display.disableAction();
     if (args.length == 0 || args[0].equals("z")) {
@@ -886,7 +901,8 @@ public class CurveManipulationRendererA3D extends DirectManipulationRendererA3D 
     }
 
     // construct invisible starter set
-    Gridded2DSet set1 = (args.length > 0 && args[0].equals("radius")) ?
+    //Gridded2DSet set1 = (args.length > 0 && args[0].equals("radius")) ?
+    Gridded2DSet set1 = (true) ?
       new Gridded2DSet(xy, new float[][] {{0.0f}, {0.0f}}, 1) :
       new Gridded2DSet(xy, new float[][] {{-1000.0f}, {-1000.0f}}, 1);
     Gridded2DSet[] sets = {set1};
@@ -900,22 +916,6 @@ public class CurveManipulationRendererA3D extends DirectManipulationRendererA3D 
     display.addReferences(cmr, ref);
     
     //display.enableAction();
-
-    // create JFrame (i.e., a window) for display and slider
-    JFrame frame = new JFrame("test CurveManipulationRendererJ3D");
-    frame.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {System.exit(0);}
-    });
-
-    // create JPanel in JFrame
-    JPanel panel = new JPanel();
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
-    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-    frame.getContentPane().add(panel);
-
-    // add display to JPanel
-    panel.add(display.getComponent());
 
     JPanel button_panel = new JPanel();
     button_panel.setLayout(new BoxLayout(button_panel, BoxLayout.X_AXIS));
@@ -939,27 +939,26 @@ public class CurveManipulationRendererA3D extends DirectManipulationRendererA3D 
     lines.setActionCommand("lines");
     button_panel.add(lines);
     panel.add(button_panel);
-
-    // set size of JFrame and make it visible
-    frame.setSize(500, 500);
+    
     frame.pack();
-    frame.setVisible(true);
+
   }
   
   public static void main(String[] args) throws VisADException, RemoteException {
-         SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                try {
-                   createAndShowGUI(new String[] {});
-                }
-                catch (Exception e) {
-                   e.printStackTrace();
-                }
-            }
-        });            
+     createAndShowGUI(new String[] {});
+//         SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Turn off metal's use of bold fonts
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                try {
+//                   createAndShowGUI(new String[] {});
+//                }
+//                catch (Exception e) {
+//                   e.printStackTrace();
+//                }
+//            }
+//        });            
    }
      
 }
