@@ -36,6 +36,7 @@ import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
 import com.ardor3d.math.type.ReadOnlyColorRGBA;
 import com.ardor3d.renderer.ContextCapabilities;
+import com.ardor3d.renderer.RenderContext;
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.renderer.state.ClipState;
 import com.ardor3d.renderer.state.RenderState;
@@ -1249,22 +1250,24 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   public int getTextureWidthMax() {
     // TODO: fix this. Need to make sure we have this when we need it
-    while (contextCapabilities == null) {
-       try {
-          java.lang.Thread.sleep(5);
-       } catch (InterruptedException e) {}
-    }
-    return contextCapabilities.getMaxTextureSize();
+//    while (contextCapabilities == null) {
+//       try {
+//          java.lang.Thread.sleep(5);
+//       } catch (InterruptedException e) {}
+//    }
+//    return contextCapabilities.getMaxTextureSize();
+      return 8192;
   }
 
   public int getTextureHeightMax() {
     // same as above
-    while (contextCapabilities == null) {
-       try {
-          java.lang.Thread.sleep(5);
-       } catch (InterruptedException e) {}
-    }
-    return contextCapabilities.getMaxTextureSize();
+//    while (contextCapabilities == null) {
+//       try {
+//          java.lang.Thread.sleep(5);
+//       } catch (InterruptedException e) {}
+//    }
+//    return contextCapabilities.getMaxTextureSize();
+      return 8192;
   }
   
   public void setCapabilities(ContextCapabilities obj) {
