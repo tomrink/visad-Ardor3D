@@ -951,11 +951,12 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
           old_nodes[j] = null;
         }
       }
-//      // make sure group is live
-//      Not really needed in Ardor3D
-//      if (group instanceof Node) {
-//        ((ImageRendererA3D) renderer).setBranchEarly((Node) group);
-//      }
+      
+      // make sure group is live
+      if (group instanceof Node) {
+        ((ImageRendererA3D) renderer).setBranchEarly((Node) group);
+      }
+      
       // change animation sampling, but don't trigger re-transform
       if (((ImageRendererA3D) renderer).getReUseFrames() &&
           ((ImageRendererA3D) renderer).getSetSetOnReUseFrames()) {
@@ -967,13 +968,6 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
 
       // render new frames
       for (int i=0; i<len; i++) {
-/*
-// this is to test setBranchEarly()
-if (i == (len / 2)) {
-  System.out.println("doTransform delay");
-  new Delay(5000);
-}
-*/
         if (!mark[i]) {
           // not necessary, but perhaps if this is modified
           // int[] lat_lon_indices = renderer.getLatLonIndices();
