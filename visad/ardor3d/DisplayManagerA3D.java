@@ -7,7 +7,6 @@ import com.ardor3d.framework.FrameHandler;
 import com.ardor3d.framework.Updater;
 import com.ardor3d.framework.jogl.JoglCanvasRenderer;
 import com.ardor3d.framework.jogl.awt.JoglAwtCanvas;
-import com.ardor3d.framework.jogl.awt.JoglNewtAwtCanvas;
 import com.ardor3d.framework.jogl.awt.JoglSwingCanvas;
 import com.ardor3d.input.Key;
 import com.ardor3d.input.KeyboardState;
@@ -29,14 +28,11 @@ import com.ardor3d.input.logical.TriggerConditions;
 import com.ardor3d.input.logical.TwoInputStates;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.Camera;
-import com.ardor3d.renderer.ContextCapabilities;
-import com.ardor3d.renderer.RenderContext;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-//import com.jogamp.newt.event.InputEvent;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -45,27 +41,20 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import javax.swing.SwingUtilities;
 
 
 public class DisplayManagerA3D implements Updater {
    
-    //These will be handled in a better way
-    private static final Timer timer = new Timer();
-    private static final FrameHandler frameWork = new FrameHandler(timer);
-    private static final RunnerA3D myRunner = new RunnerA3D(frameWork);
-    private static final LogicalLayer logicalLayer = new LogicalLayer();
-
     private final Node root;
     private final Node transform;
     
     private Component canvas;
     private final CanvasRenderer canvasRenderer;
     
-    //private final Timer timer = new Timer();
-    //private final FrameHandler frameWork = new FrameHandler(timer);
-    //private final LogicalLayer logicalLayer = new LogicalLayer();
-    //private RunnerA3D myRunner;
+    private Timer timer = null;
+    private FrameHandler frameWork = null;
+    private LogicalLayer logicalLayer = null;
+    private RunnerA3D myRunner = null;
 
     public boolean frameHandlerInitialized = false;
     
@@ -82,6 +71,11 @@ public class DisplayManagerA3D implements Updater {
     public DisplayManagerA3D(Container container, Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
+        
+        timer = Initialize.getTimer();
+        frameWork = Initialize.getFrameHandler(timer);
+        myRunner = Initialize.getRunner(frameWork);
+        logicalLayer = Initialize.getLogicalLayer();
         
         this.dspRenderer = dspRenderer;
         this.canvasType = canvasType;
@@ -134,8 +128,14 @@ public class DisplayManagerA3D implements Updater {
             }
         });
         
+        registerInputTriggers();
         
-        // handle mouse event conversion to MouseHelper here
+        myRunner.start();
+    }
+    
+    protected void registerInputTriggers() {
+       
+       // handle mouse event conversion to MouseHelper here. See forwardToMouse/KeyboardBehavior
         
         final TriggerAction leftPressedAction = new TriggerAction() {
             @Override
@@ -253,9 +253,6 @@ public class DisplayManagerA3D implements Updater {
             }           
         };
         logicalLayer.registerTrigger(new InputTrigger(new AnyKeyCondition(), keyPressedAction));
-        
-        
-        myRunner.start();
     }
     
     private void forwardToMouseHelper(Canvas c, int id, int button, MouseState mState, KeyboardState kbState) {
@@ -393,6 +390,42 @@ public class DisplayManagerA3D implements Updater {
     }
 }
 
+class Initialize {
+   private static Timer timer = null;
+   private static FrameHandler frameHandler = null;
+   private static RunnerA3D runner = null;
+   private static LogicalLayer logicalLayer = null;
+   
+   public static Timer getTimer() {
+      if (timer == null) {
+         timer = new Timer();
+      }
+      return timer;
+   }
+   
+   public static FrameHandler getFrameHandler(Timer timer) {
+      if (frameHandler == null) {
+         frameHandler = new FrameHandler(timer);
+      }
+      return frameHandler;
+   }
+   
+   public static RunnerA3D getRunner(FrameHandler frameHandler) {
+      if (runner == null) {
+         runner = new RunnerA3D(frameHandler);
+      }
+      return runner;
+   }
+   
+   public static LogicalLayer getLogicalLayer() {
+      if (logicalLayer == null) {
+         logicalLayer = new LogicalLayer();
+      }
+      return logicalLayer;
+   }
+}
+
+/*
 class DisplayManagerInitializer implements Runnable {
    
    private CanvasRenderer canvasRenderer;
@@ -413,3 +446,4 @@ class DisplayManagerInitializer implements Runnable {
    }
       
 }
+*/
