@@ -51,6 +51,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import visad.util.AnimationWidget;
 import visad.util.ColorMapWidget;
 
 /**
@@ -793,23 +794,23 @@ public class DisplayImplA3D extends DisplayImpl {
        //widget = new ColorMapWidget(cmap);
        
        /* test 2 */
-//       FunctionType fldType = new FunctionType(RealType.Time, fncType);
-//       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
-//       dataFld = new FieldImpl(fldType, outerDom);
-//       int len = outerDom.getLength();
-//       for (int k=0; k<len; k++) {
-//          FlatField vFld = FlatField.makeField(fncType, 2048, false);
-//          fillField(vFld, 1, k*(2048/len));
-//          dataFld.setSample(k, vFld);
-//       }
-//       
-//       ScalarMap tmap = new ScalarMap(RealType.Time, Display.Animation);
-//       
-//       display.addMap(tmap);
-//       AnimationControl acntrl = (AnimationControl) tmap.getControl();
-//       acntrl.setOn(true);
-//       widget = new AnimationWidget(tmap);
-//
+       FunctionType fldType = new FunctionType(RealType.Time, fncType);
+       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
+       dataFld = new FieldImpl(fldType, outerDom);
+       int len = outerDom.getLength();
+       for (int k=0; k<len; k++) {
+          FlatField vFld = FlatField.makeField(fncType, 2048, false);
+          fillField(vFld, 1, k*(2048/len));
+          dataFld.setSample(k, vFld);
+       }
+       
+       ScalarMap tmap = new ScalarMap(RealType.Time, Display.Animation);
+       
+       display.addMap(tmap);
+       AnimationControl acntrl = (AnimationControl) tmap.getControl();
+       acntrl.setOn(true);
+       widget = new AnimationWidget(tmap);
+
 //       
        /* Simple test 4 */
 //       ScalarMap zmap = new ScalarMap(RealType.Generic, Display.ZAxis);

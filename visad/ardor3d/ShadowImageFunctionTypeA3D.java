@@ -890,8 +890,8 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
             old_mark = new boolean[old_len];
             for (int i=0; i<old_len; i++) {
               old_mark[i] = false;
-              if (old_nodes[i] instanceof VisADBranchGroupA3D && reuse) {
-                old_times[i] = ((VisADBranchGroupA3D) old_nodes[i]).getTime();
+              if (old_nodes[i] instanceof VisADNodeA3D && reuse) {
+                old_times[i] = ((VisADNodeA3D) old_nodes[i]).getTime();
               }
               else {
                 old_times[i] = Double.NaN;
@@ -926,13 +926,13 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
 
       // insert old frames into new scene graph, and make
       // new (blank) VisADBranchGroups for rendering new frames
-      VisADBranchGroupA3D[] nodes = new VisADBranchGroupA3D[len];
+      VisADNodeA3D[] nodes = new VisADNodeA3D[len];
       boolean[] mark = new boolean[len];
       for (int i=0; i<len; i++) {
         for (int j=0; j<old_len; j++) {
           if (!old_mark[j] && Math.abs(times[i] - old_times[j]) < delta) {
             old_mark[j] = true;
-            nodes[i] = (VisADBranchGroupA3D) old_nodes[j];
+            nodes[i] = (VisADNodeA3D) old_nodes[j];
             break;
           }
         }
@@ -941,7 +941,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
         }
         else {
           mark[i] = false;
-          nodes[i] = new VisADBranchGroupA3D(times[i]);
+          nodes[i] = new VisADNodeA3D(times[i]);
         }
         addToSwitch(swit, nodes[i]);
       }

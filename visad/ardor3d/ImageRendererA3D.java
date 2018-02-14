@@ -533,14 +533,14 @@ public class ImageRendererA3D extends DefaultRendererA3D {
   }
 
   // logic to allow ShadowImageFunctionTypeJ3D to 'mark' missing frames
-  private VisADBranchGroupA3D vbranch = null;
+  private VisADNodeA3D vbranch = null;
 
   public void clearScene() {
     vbranch = null;
     super.clearScene();
   }
 
-  void setVisADBranch(VisADBranchGroupA3D branch) {
+  void setVisADBranch(VisADNodeA3D branch) {
     vbranch = branch;
   }
 

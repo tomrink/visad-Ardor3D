@@ -28,10 +28,10 @@ package visad.ardor3d;
 
 import com.ardor3d.scenegraph.Node;
 
-public class VisADBranchGroupA3D extends Node {
+public class VisADNodeA3D extends Node {
   private double time;
 
-  public VisADBranchGroupA3D(double t) {
+  public VisADNodeA3D(double t) {
     super();
     time = t;
   }
