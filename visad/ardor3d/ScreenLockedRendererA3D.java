@@ -99,7 +99,13 @@ public class ScreenLockedRendererA3D extends DefaultRendererA3D
   public static void createAndShowGUI(String[] args)
     throws VisADException, RemoteException
   {
-    final DisplayImplA3D display = new DisplayImplA3D("display", 500, 500, DisplayImplA3D.JOGL_AWT);
+     
+    // Display the frame.
+    final JFrame frame = new JFrame("ScreenLockedRendererJ3D");
+    frame.setSize(400, 400);
+    frame.setVisible(true);
+    
+    final DisplayImplA3D display = new DisplayImplA3D("display", frame, frame.getContentPane(), DisplayImplA3D.JOGL_AWT);
     //display.disableAction();
     final DisplayRendererA3D renderer = 
       (DisplayRendererA3D) display.getDisplayRenderer();
@@ -179,27 +185,23 @@ public class ScreenLockedRendererA3D extends DefaultRendererA3D
     
     //display.enableAction();
 
-    // Display the frame.
-    final JFrame frame = new JFrame("ScreenLockedRendererJ3D");
-    frame.getContentPane().add(display.getComponent());
-    frame.setSize(400, 400);
-    frame.setVisible(true);
   }
   
     public static void main(String[] args) throws VisADException, RemoteException {
-         SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                try {
-                   createAndShowGUI(new String[] {});
-                }
-                catch (Exception e) {
-                   e.printStackTrace();
-                }
-            }
-        });            
+         createAndShowGUI(args);
+//         SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Turn off metal's use of bold fonts
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                try {
+//                   createAndShowGUI(new String[] {});
+//                }
+//                catch (Exception e) {
+//                   e.printStackTrace();
+//                }
+//            }
+//        });            
    }
 
 } // class ScreenLockedRendererA3D

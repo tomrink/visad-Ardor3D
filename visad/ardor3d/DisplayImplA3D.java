@@ -171,6 +171,11 @@ public class DisplayImplA3D extends DisplayImpl {
      this(name, null, window, comp, comp.getWidth(), comp.getHeight(), api);
   }
   
+  public DisplayImplA3D(String name, DisplayRendererA3D dspRenderer, Window window, Component comp, int api) 
+         throws VisADException, RemoteException {
+     this(name, dspRenderer, window, comp, comp.getWidth(), comp.getHeight(), api);
+  }  
+  
   public DisplayImplA3D(String name, Window window, Component comp, int width, int height, int api) 
          throws VisADException, RemoteException {
      this(name, null, window, comp, width, height, api);
@@ -767,11 +772,11 @@ public class DisplayImplA3D extends DisplayImpl {
        
        //final visad.java3d.DisplayImplJ3D display = new visad.java3d.DisplayImplJ3D("Display");
        
-//       GraphicsModeControl modeCtrl = display.getGraphicsModeControl();
-//       modeCtrl.setCurvedSize(2);
-//       modeCtrl.setTextureEnable(false);
-//       modeCtrl.setPointMode(true);
-//       modeCtrl.setPointSize(2);
+       GraphicsModeControl modeCtrl = display.getGraphicsModeControl();
+       modeCtrl.setCurvedSize(2);
+       modeCtrl.setTextureEnable(false);
+       modeCtrl.setPointMode(true);
+       modeCtrl.setPointSize(2);
        
        /* Simple Test 1 */
        FieldImpl dataFld;

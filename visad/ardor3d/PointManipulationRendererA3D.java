@@ -394,7 +394,24 @@ public class PointManipulationRendererA3D extends DirectManipulationRendererA3D 
   //public static void main(String args[])
   //       throws VisADException, RemoteException {
   public static void createAndShowGUI(String args[])
-         throws VisADException, RemoteException {     
+         throws VisADException, RemoteException {
+     
+         // create JFrame (i.e., a window) for display and slider
+    JFrame frame = new JFrame("test PointManipulationRendererJ3D");
+    frame.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {System.exit(0);}
+    });
+
+    // create JPanel in JFrame
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
+    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+    frame.getContentPane().add(panel);
+    // set size of JFrame and make it visible
+    frame.setSize(500, 500);
+    frame.setVisible(true);
+    
     RealType x = RealType.getRealType("x");
     RealType y = RealType.getRealType("y");
     RealTupleType xy = new RealTupleType(x, y);
@@ -402,8 +419,7 @@ public class PointManipulationRendererA3D extends DirectManipulationRendererA3D 
     RealType c = RealType.getRealType("c");
     FunctionType ft = new FunctionType(xy, c);
 
-    // construct Java3D display and mappings
-    DisplayImpl display = new DisplayImplA3D("display1", 500, 500, DisplayImplA3D.JOGL_AWT);
+    DisplayImpl display = new DisplayImplA3D("display1", frame, panel, DisplayImplA3D.JOGL_AWT);
     //display.disableAction();
     if (args.length == 0 || args[0].equals("z")) {
       display.addMap(new ScalarMap(x, Display.XAxis));
@@ -468,42 +484,23 @@ public class PointManipulationRendererA3D extends DirectManipulationRendererA3D 
     cell.addReference(ref);
     
     //display.enableAction();
-
-    // create JFrame (i.e., a window) for display and slider
-    JFrame frame = new JFrame("test PointManipulationRendererJ3D");
-    frame.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {System.exit(0);}
-    });
-
-    // create JPanel in JFrame
-    JPanel panel = new JPanel();
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
-    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-    frame.getContentPane().add(panel);
-
-    // add display to JPanel
-    panel.add(display.getComponent());
-
-    // set size of JFrame and make it visible
-    frame.setSize(500, 500);
-    frame.setVisible(true);
   }
   
       public static void main(String[] args) throws VisADException, RemoteException {
-         SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                try {
-                   createAndShowGUI(new String[] {});
-                }
-                catch (Exception e) {
-                   e.printStackTrace();
-                }
-            }
-        });            
+         createAndShowGUI(args);
+//         SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Turn off metal's use of bold fonts
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                try {
+//                   createAndShowGUI(new String[] {});
+//                }
+//                catch (Exception e) {
+//                   e.printStackTrace();
+//                }
+//            }
+//        });            
    }
 }
 

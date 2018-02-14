@@ -112,6 +112,24 @@ public class BarbRendererA3D extends DefaultRendererA3D
   //public static void main(String args[])
   public static void createAndShowGUI(String[] args)
          throws VisADException, RemoteException {
+     
+    // create JFrame (i.e., a window) for display and slider
+    JFrame frame = new JFrame("test BarbRendererJ3D");
+    frame.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {System.exit(0);}
+    });
+
+    // create JPanel in JFrame
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
+    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+    frame.getContentPane().add(panel);
+    // set size of JFrame and make it visible
+    frame.setSize(500, 500);
+    frame.setVisible(true);
+    
+    
     double mid_lat = -10.0;
     if (args.length > 0) {
       try {
@@ -147,7 +165,7 @@ public class BarbRendererA3D extends DefaultRendererA3D
     }
     FunctionType flow_field = new FunctionType(index, range);
 
-    DisplayImpl display = new DisplayImplA3D("display1");
+    DisplayImpl display = new DisplayImplA3D("display1", frame, panel, DisplayImplA3D.JOGL_AWT);
     ScalarMap xmap = new ScalarMap(lon, Display.XAxis);
     display.addMap(xmap);
     ScalarMap ymap = new ScalarMap(lat, Display.YAxis);
@@ -208,42 +226,23 @@ public class BarbRendererA3D extends DefaultRendererA3D
     BarbRendererA3D renderer = new BarbRendererA3D();
     renderer.setKnotsConvert(true);
     display.addReferences(renderer, ref);
-
-    // create JFrame (i.e., a window) for display and slider
-    JFrame frame = new JFrame("test BarbRendererJ3D");
-    frame.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {System.exit(0);}
-    });
-
-    // create JPanel in JFrame
-    JPanel panel = new JPanel();
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
-    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-    frame.getContentPane().add(panel);
-
-    // add display to JPanel
-    panel.add(display.getComponent());
-
-    // set size of JFrame and make it visible
-    frame.setSize(500, 500);
-    frame.setVisible(true);
   }
   
         public static void main(String[] args) throws VisADException, RemoteException {
-         SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                try {
-                   createAndShowGUI(new String[] {});
-                }
-                catch (Exception e) {
-                   e.printStackTrace();
-                }
-            }
-        });            
+         createAndShowGUI(args);
+//         SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Turn off metal's use of bold fonts
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                try {
+//                   createAndShowGUI(new String[] {});
+//                }
+//                catch (Exception e) {
+//                   e.printStackTrace();
+//                }
+//            }
+//        });            
    }
 
 }

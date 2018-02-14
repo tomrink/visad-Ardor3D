@@ -1025,6 +1025,22 @@ System.out.println("barb50 " + x1 + " " + y1 + "" + x2 + " " + y2 +
 
 System.out.println("BMR.main()");
 
+    // create JFrame (i.e., a window) for display and slider
+    JFrame frame = new JFrame("test BarbManipulationRendererJ3D");
+    frame.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {System.exit(0);}
+    });
+
+    // create JPanel in JFrame
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
+    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
+    frame.getContentPane().add(panel);
+    // set size of JFrame and make it visible
+    frame.setSize(500, 500);
+    frame.setVisible(true);
+
     // construct RealTypes for wind record components
     RealType lat = RealType.Latitude;
     RealType lon = RealType.Longitude;
@@ -1054,8 +1070,8 @@ System.out.println("BMR.main()");
 
     // construct Java3D display and mappings that govern
     // how wind records are displayed
-    DisplayImpl display =
-      new DisplayImplA3D("display1", new TwoDDisplayRendererA3D());
+    DisplayImpl display = new DisplayImplA3D("display1", new TwoDDisplayRendererA3D(), frame, panel, DisplayImplA3D.JOGL_AWT);
+    //DisplayImpl display = new DisplayImplA3D("display1", frame, panel, DisplayImplA3D.JOGL_AWT);
     //display.disableAction();
     
     MouseHelper helper = display.getDisplayRenderer().getMouseBehavior().getMouseHelper();
@@ -1153,41 +1169,23 @@ System.out.println("BMR.main()");
     // the user clicks on "DONE") trigger code that does a getData() on
     // all the refs and stores the records in a file.
 
-    // create JFrame (i.e., a window) for display and slider
-    JFrame frame = new JFrame("test BarbManipulationRendererJ3D");
-    frame.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {System.exit(0);}
-    });
-
-    // create JPanel in JFrame
-    JPanel panel = new JPanel();
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    panel.setAlignmentY(JPanel.TOP_ALIGNMENT);
-    panel.setAlignmentX(JPanel.LEFT_ALIGNMENT);
-    frame.getContentPane().add(panel);
-
-    // add display to JPanel
-    panel.add(display.getComponent());
-
-    // set size of JFrame and make it visible
-    frame.setSize(500, 500);
-    frame.setVisible(true);
   }
   
       public static void main(String[] args) throws VisADException, RemoteException {
-         SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                try {
-                   createAndShowGUI(new String[] {});
-                }
-                catch (Exception e) {
-                   e.printStackTrace();
-                }
-            }
-        });            
+         createAndShowGUI(args);
+//         SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                //Turn off metal's use of bold fonts
+//                UIManager.put("swing.boldMetal", Boolean.FALSE);
+//                try {
+//                   createAndShowGUI(new String[] {});
+//                }
+//                catch (Exception e) {
+//                   e.printStackTrace();
+//                }
+//            }
+//        });            
    }
 }
 
