@@ -1,5 +1,5 @@
 //
-// ShadowAnimationFunctionTypeJ3D.java
+// ShadowAnimationFunctionTypeA3D.java
 //
 
 /*

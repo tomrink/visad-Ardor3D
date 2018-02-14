@@ -1,5 +1,5 @@
 //
-// VisADBranchGroup.java
+// VisADNodeA3D.java
 //
 
 /*

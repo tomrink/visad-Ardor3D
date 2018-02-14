@@ -1,5 +1,5 @@
 //
-// AnimationRendererJ3D.java
+// AnimationRendererA3D.java
 //
 
 /*
