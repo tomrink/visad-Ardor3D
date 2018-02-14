@@ -143,7 +143,7 @@ public class DisplayManagerA3D implements Updater {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
             }
         };
         logicalLayer.registerTrigger(new InputTrigger(new MouseButtonPressedCondition(MouseButton.LEFT), leftPressedAction));
@@ -153,7 +153,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);                
+                forwardToMouseHelper(source, MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);                
             }
         };        
         logicalLayer.registerTrigger(new InputTrigger(new MouseButtonPressedCondition(MouseButton.MIDDLE), cntrPressedAction));
@@ -163,7 +163,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
 
             }
         };        
@@ -174,7 +174,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
 
             }
         };
@@ -185,7 +185,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);
             }
         };        
         logicalLayer.registerTrigger(new InputTrigger(new MouseButtonReleasedCondition(MouseButton.MIDDLE), cntrReleasedAction));
@@ -195,7 +195,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
             }
         };        
         logicalLayer.registerTrigger(new InputTrigger(new MouseButtonReleasedCondition(MouseButton.RIGHT), rightReleasedAction));        
@@ -209,7 +209,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
             }
         };
         logicalLayer.registerTrigger(new InputTrigger(leftDownMouseMoved, leftDraggedAction));
@@ -219,7 +219,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);
             }
         };        
         logicalLayer.registerTrigger(new InputTrigger(cntrDownMouseMoved, cntrDraggedAction));
@@ -229,7 +229,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
             }
         };        
         logicalLayer.registerTrigger(new InputTrigger(rghtDownMouseMoved, rightDraggedAction));
@@ -239,7 +239,7 @@ public class DisplayManagerA3D implements Updater {
             public void perform(final Canvas source, final TwoInputStates inputStates, final double tpf) {
                 final MouseState mouse = inputStates.getCurrent().getMouseState();
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
-                forwardToMouseHelper(MouseEvent.MOUSE_MOVED, 0, mouse, keyboard);
+                forwardToMouseHelper(source, MouseEvent.MOUSE_MOVED, 0, mouse, keyboard);
             }           
         };
         // Best only if component of canvas has focus? So many events otherwise.
@@ -258,7 +258,10 @@ public class DisplayManagerA3D implements Updater {
         myRunner.start();
     }
     
-    private void forwardToMouseHelper(int id, int button, MouseState mState, KeyboardState kbState) {
+    private void forwardToMouseHelper(Canvas c, int id, int button, MouseState mState, KeyboardState kbState) {
+       if (c != canvas) {
+          return;
+       }
        int mod = 0;
        
        mod |= button;
