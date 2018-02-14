@@ -96,9 +96,9 @@ public class DefaultRendererA3D extends RendererA3D {
       }
     }
     
-    /* May not be necessary with Ardor3D 
-    if (isAnimation) setBranchEarly(branch);
-    */
+    if (isAnimation) {
+      setBranchEarly(branch);
+    }
 
     // initialize valueArray to missing
     int valueArrayLength = getDisplay().getValueArrayLength();
@@ -155,7 +155,7 @@ public class DefaultRendererA3D extends RendererA3D {
   public DataDisplayLink getLink() {
     return link;
   }
-
+  
   public void clearScene() {
     link = null;
     super.clearScene();
@@ -167,8 +167,19 @@ public class DefaultRendererA3D extends RendererA3D {
 
   public static void main(String args[]) throws VisADException,
       RemoteException, IOException {
+     
+    JFrame jframe = new JFrame("AnimationRendererTest");
+    jframe.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        System.exit(0);
+      }
+    });
+    jframe.setSize(500, 500);
+    jframe.setVisible(true);
+    
+    DisplayImplA3D dpys = new DisplayImplA3D("AnimationRendererJ3D Test", jframe, jframe.getContentPane(), DisplayImplA3D.JOGL_AWT);
 
-    String test = "new";
+    String test = "test";
     if (args.length > 0) {
       test = args[0];
       if (!test.equals("default")) {
@@ -217,18 +228,6 @@ public class DefaultRendererA3D extends RendererA3D {
       field.setSample(tt, image, false);
     }
 
-    DisplayImplA3D dpys = new DisplayImplA3D("AnimationRendererJ3D Test");
-
-    JFrame jframe = new JFrame("AnimationRendererTest");
-    jframe.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {
-        System.exit(0);
-      }
-    });
-    jframe.setContentPane((JPanel) dpys.getComponent());
-    jframe.pack();
-    jframe.setVisible(true);
-    
     ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
     dpys.addMap(xmap);
     

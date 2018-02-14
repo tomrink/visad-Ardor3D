@@ -176,7 +176,12 @@ System.out.println("doAction " + getDisplay().getName() + " " +
         if (sw.getNumberOfChildren() > 0) {
           prevNode = sw.getChild(0);
         }
-        sw.attachChildAt(branch, 0);
+        if (prevNode != null && prevNode == branch) {
+           // branch already attached. See setBranchEarly()
+        }
+        else {
+          sw.attachChildAt(branch, 0);
+        }
         ((DisplayRendererA3D) getDisplayRenderer()).markNeedDraw();
         dataBranch = branch;
          
@@ -213,30 +218,10 @@ System.out.println("doAction " + getDisplay().getName() + " " +
   public Node getBranch() {
     return dataBranch;
   }
-
-  /* Probably not need using Ardor3D
-  public void setBranchEarly(BranchGroup branch) {
-    if (branches == null) return;
-    // needed (?) to avoid NullPointerException
-    ShadowTypeA3D shadow = (ShadowTypeA3D) (getLinks()[0].getShadow());
-    shadow.ensureNotEmpty(branch);
-
-    synchronized (this) {
-      if (!branchNonEmpty[currentIndex] ||
-          branches[currentIndex].numChildren() == 0) {
-        // WLH 18 Nov 98
-        branches[currentIndex].addChild(branch);
-        branchNonEmpty[currentIndex] = true;
-      }
-      else { // if (branchNonEmpty[currentIndex])
-        if (!(branches[currentIndex].getChild(0) == branch)) {
-          flush(branches[currentIndex]);
-          branches[currentIndex].setChild(branch, 0);
-        }
-      } // end if (branchNonEmpty[currentIndex])
-    } // end synchronized (this)
+  
+  public void setBranchEarly(Node branch) {
+    sw.attachChildAt(branch, 0);
   }
-  */
 
   public void clearBranch() {
      sw.detachChild(dataBranch);
