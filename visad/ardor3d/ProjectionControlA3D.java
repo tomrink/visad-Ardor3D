@@ -29,6 +29,7 @@ package visad.ardor3d;
 import com.ardor3d.math.Matrix3;
 import com.ardor3d.math.Matrix4;
 import com.ardor3d.math.Transform;
+import com.ardor3d.scenegraph.extension.SwitchNode;
 import visad.*;
 
 import java.rmi.*;
@@ -150,9 +151,9 @@ public class ProjectionControlA3D extends ProjectionControl {
     return trans;
   }
 
-  public void addPair(Switch sw, DataRenderer re) {
+  public void addPair(SwitchNode sw, DataRenderer re) {
     switches.addElement(new SwitchProjection(sw, re));
-    sw.setWhichChild(which_child);
+    sw.setSingleVisible(which_child);
   }
 
   private void selectSwitches() {
@@ -190,7 +191,7 @@ System.out.println("which_child = " + which_child + "  " + dx +
     Enumeration pairs = ((Vector) switches.clone()).elements();
     while (pairs.hasMoreElements()) {
       SwitchProjection ss = (SwitchProjection) pairs.nextElement();
-      ss.swit.setWhichChild(which_child);
+      ss.swit.setSingleVisible(which_child);
     }
   }
 
@@ -256,10 +257,10 @@ System.out.println("which_child = " + which_child + "  " + dx +
   /** SwitchProjection is an inner class of ProjectionControlJ3D for
       (Switch, DataRenderer) structures */
   private class SwitchProjection extends Object {
-    Switch swit;
+    SwitchNode swit;
     DataRenderer renderer;
 
-    SwitchProjection(Switch sw, DataRenderer re) {
+    SwitchProjection(SwitchNode sw, DataRenderer re) {
       swit = sw;
       renderer = re;
     }

@@ -705,6 +705,51 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
      
   }
   
+  public void textureToGroup(OrderedNode group, Spatial geom, Object img, boolean smoothen) throws VisADException {
+    // Note: constant_color did not appear to be used in the Java3D graphics dependent API version, but keep for now.
+    
+    Image aImage = (Image) img;
+    
+    TextureState ts = new TextureState();
+    ts.setCorrectionType(TextureState.CorrectionType.Affine);
+    ts.setEnabled(true);
+    
+    com.ardor3d.image.Texture.MinificationFilter minFilter;
+    com.ardor3d.image.Texture.ApplyMode applyMode = com.ardor3d.image.Texture.ApplyMode.Replace;
+    if (smoothen) {
+       minFilter = com.ardor3d.image.Texture.MinificationFilter.BilinearNoMipMaps;
+    }
+    else {
+       minFilter = com.ardor3d.image.Texture.MinificationFilter.NearestNeighborNoMipMaps;
+    }
+        
+    com.ardor3d.image.Texture2D texture = (com.ardor3d.image.Texture2D) TextureManager.loadFromImage(aImage, minFilter);
+    texture.setMagnificationFilter(com.ardor3d.image.Texture.MagnificationFilter.NearestNeighbor);
+    texture.setApply(applyMode);
+    ts.setTexture(texture);
+    
+    /* this may only be necessary if array is filled
+    OffsetState offset = (OffsetState) RenderState.createState(RenderState.StateType.Offset);
+    offset.setFactor(1f);
+    offset.setUnits(1f);
+    offset.setTypeEnabled(OffsetState.OffsetType.Fill, true);
+    */
+        
+    MaterialState material = new MaterialState();
+    material.setColorMaterial(MaterialState.ColorMaterial.Emissive);
+    
+    Node branch = new Node();
+        
+    branch.attachChild(geom);
+    branch.setRenderState(material);
+    branch.setRenderState(ts);
+    //branch.setRenderState(offset); See above
+    
+    //((Node)group).attachChild(branch);
+    group.attachChild(branch);
+    
+  }
+  
   public void texture3DToGroup(Object group, VisADGeometryArray arrayX,
                     VisADGeometryArray arrayY, VisADGeometryArray arrayZ,
                     VisADGeometryArray arrayXrev,
@@ -839,24 +884,23 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
                     VisADGeometryArray arrayXrev,
                     VisADGeometryArray arrayYrev,
                     VisADGeometryArray arrayZrev,
-                    BufferedImage[] imagesX,
-                    BufferedImage[] imagesY,
-                    BufferedImage[] imagesZ,
+                    Object[] imagesX,
+                    Object[] imagesY,
+                    Object[] imagesZ,
                     GraphicsModeControl mode,
                     float constant_alpha, float[] constant_color,
                     int texture_width, int texture_height,
                     int texture_depth, DataRenderer renderer)
          throws VisADException {
-     throw new VisADException("textureStackToGroup: Not yet implemented for Ardor3D");
      
-    /*
-    GeometryArray[] geometryX = makeGeometrys(arrayX);
-    GeometryArray[] geometryY = makeGeometrys(arrayY);
-    GeometryArray[] geometryZ = makeGeometrys(arrayZ);
+     
+    Spatial[] geometryX = makeGeometrys(arrayX);
+    Spatial[] geometryY = makeGeometrys(arrayY);
+    Spatial[] geometryZ = makeGeometrys(arrayZ);
     //not needed ??
-    //GeometryArray[] geometryXrev = makeGeometrys(arrayXrev);
-    //GeometryArray[] geometryYrev = makeGeometrys(arrayYrev);
-    //GeometryArray[] geometryZrev = makeGeometrys(arrayZrev);
+    //Spatial[] geometryXrev = makeGeometrys(arrayXrev);
+    //Spatial[] geometryYrev = makeGeometrys(arrayYrev);
+    //Spatial[] geometryZrev = makeGeometrys(arrayZrev);
 
     int nx = arrayX.coordinates.length;
     boolean flipX = (arrayX.coordinates[0] > arrayX.coordinates[nx-3]);
@@ -867,56 +911,23 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
     // System.out.println("flipX = " + flipX + " flipY = " + flipY +
     //                    " flipZ = " + flipZ);
 
-    // create Attributes for Appearances
-    TransparencyAttributes c_alpha = null;
-    if (constant_alpha == 1.0f) {
-      // constant opaque alpha = NONE
-      c_alpha = null;
-    }
-    else if (constant_alpha == constant_alpha) {
-      // c_alpha = new TransparencyAttributes(mode.getTransparencyMode(),
-      c_alpha = new TransparencyAttributes(TransparencyAttributes.BLENDED,
-                                           constant_alpha);
-    }
-    else {
-      c_alpha = new TransparencyAttributes();
-      c_alpha.setTransparencyMode(TransparencyAttributes.BLENDED);
-    }
-    ColoringAttributes c_color = null;
-    if (constant_color != null && constant_color.length == 3) {
-      c_color = new ColoringAttributes();
-      c_color.setColor(constant_color[0], constant_color[1], constant_color[2]);
-    }
-    TextureAttributes texture_attributes = new TextureAttributes();
-
+    //TransparencyAttributes.BLENDED;
     // WLH 17 March 2000
     // texture_attributes.setTextureMode(TextureAttributes.MODULATE);
-    texture_attributes.setTextureMode(TextureAttributes.REPLACE);
+    //texture_attributes.setTextureMode(TextureAttributes.REPLACE);
 
-    texture_attributes.setPerspectiveCorrectionMode(
-                          TextureAttributes.NICEST);
+    //texture_attributes.setPerspectiveCorrectionMode(
+    //                      TextureAttributes.NICEST);
+    
+    /**/
 
     int transparencyMode = mode.getTransparencyMode();
 
-    OrderedGroup branchX = new OrderedGroup();
-    branchX.setCapability(Group.ALLOW_CHILDREN_READ);
+    OrderedNode branchX = new OrderedNode();
     int data_depth = geometryX.length;
-    Shape3D[] shapeX = new Shape3D[data_depth];
     for (int ii=0; ii<data_depth; ii++) {
       int i = flipX ? data_depth-1-ii : ii;
-      int width = imagesX[i].getWidth();
-      int height = imagesX[i].getHeight();
-      Texture2D texture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
-                                        width, height);
-      texture.setCapability(Texture.ALLOW_IMAGE_READ);
-      ImageComponent2D image2d =
-        new ImageComponent2D(ImageComponent.FORMAT_RGBA, imagesX[i]);
-      image2d.setCapability(ImageComponent.ALLOW_IMAGE_READ);
-      texture.setImage(0, image2d);
-      Appearance appearance =
-        makeAppearance(mode, c_alpha, null, geometryX[i], true);
-      appearance.setTextureAttributes(texture_attributes);
-      // WLH 17 March 2000
+      /* WLH 17 March 2000
       if (transparencyMode == TransparencyAttributes.FASTEST) {
         texture.setMinFilter(Texture.BASE_LEVEL_POINT);
         texture.setMagFilter(Texture.BASE_LEVEL_POINT);
@@ -927,230 +938,66 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
         texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
         texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
       }
-      texture.setEnable(true);
-      appearance.setTexture(texture);
-      appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-      shapeX[i] = new Shape3D(geometryX[i], appearance);
-      shapeX[i].setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shapeX[i].setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      branchX.addChild(shapeX[i]);
+      */
+      
+      textureToGroup(branchX, geometryX[i], imagesX[i], false);
     }
-    OrderedGroup branchXrev = new OrderedGroup();
-    branchXrev.setCapability(Group.ALLOW_CHILDREN_READ);
+    
+    OrderedNode branchXrev = new OrderedNode();
     for (int ii=data_depth-1; ii>=0; ii--) {
       int i = flipX ? data_depth-1-ii : ii;
-      int width = imagesX[i].getWidth();
-      int height = imagesX[i].getHeight();
-      Texture2D texture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
-                                        width, height);
-      texture.setCapability(Texture.ALLOW_IMAGE_READ);
-      ImageComponent2D image2d =
-        new ImageComponent2D(ImageComponent.FORMAT_RGBA, imagesX[i]);
-      image2d.setCapability(ImageComponent.ALLOW_IMAGE_READ);
-      texture.setImage(0, image2d);
-      Appearance appearance =
-        makeAppearance(mode, c_alpha, null, geometryX[i], true);
-      appearance.setTextureAttributes(texture_attributes);
-      // WLH 17 March 2000
-      if (transparencyMode == TransparencyAttributes.FASTEST) {
-        texture.setMinFilter(Texture.BASE_LEVEL_POINT);
-        texture.setMagFilter(Texture.BASE_LEVEL_POINT);
-      }
-      else {
-        texture.setBoundaryModeS(Texture.CLAMP);
-        texture.setBoundaryModeT(Texture.CLAMP);
-        texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-        texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-      }
-      texture.setEnable(true);
-      appearance.setTexture(texture);
-      appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-      shapeX[i] = new Shape3D(geometryX[i], appearance);
-      shapeX[i].setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shapeX[i].setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      branchXrev.addChild(shapeX[i]);
+      textureToGroup(branchXrev, geometryX[i], imagesX[i], false);
     }
-    shapeX = null;
-
-    OrderedGroup branchY = new OrderedGroup();
-    branchY.setCapability(Group.ALLOW_CHILDREN_READ);
+    
+    OrderedNode branchY = new OrderedNode();
     int data_height = geometryY.length;
-    Shape3D[] shapeY = new Shape3D[data_height];
     for (int ii=0; ii<data_height; ii++) {
       int i = flipY ? data_height-1-ii : ii;
-      int width = imagesY[i].getWidth();
-      int height = imagesY[i].getHeight();
-      Texture2D texture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
-                                        width, height);
-      texture.setCapability(Texture.ALLOW_IMAGE_READ);
-      // flip texture on Y axis
-      ImageComponent2D image2d =
-        new ImageComponent2D(ImageComponent.FORMAT_RGBA, imagesY[i]);
-      image2d.setCapability(ImageComponent.ALLOW_IMAGE_READ);
-      texture.setImage(0, image2d);
-      Appearance appearance =
-        makeAppearance(mode, c_alpha, null, geometryY[i], true);
-      appearance.setTextureAttributes(texture_attributes);
-      // WLH 17 March 2000
-      if (transparencyMode == TransparencyAttributes.FASTEST) {
-        texture.setMinFilter(Texture.BASE_LEVEL_POINT);
-        texture.setMagFilter(Texture.BASE_LEVEL_POINT);
-      }
-      else {
-        texture.setBoundaryModeS(Texture.CLAMP);
-        texture.setBoundaryModeT(Texture.CLAMP);
-        texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-        texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-      }
-      texture.setEnable(true);
-      appearance.setTexture(texture);
-      appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-      shapeY[i] = new Shape3D(geometryY[i], appearance);
-      shapeY[i].setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shapeY[i].setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      branchY.addChild(shapeY[i]);
+      textureToGroup(branchY, geometryY[i], imagesY[i], false);
     }
-    OrderedGroup branchYrev = new OrderedGroup();
-    branchYrev.setCapability(Group.ALLOW_CHILDREN_READ);
+    
+    OrderedNode branchYrev = new OrderedNode();
     for (int ii=data_height-1; ii>=0; ii--) {
       int i = flipY ? data_height-1-ii : ii;
-      int width = imagesY[i].getWidth();
-      int height = imagesY[i].getHeight();
-      Texture2D texture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
-                                        width, height);
-      texture.setCapability(Texture.ALLOW_IMAGE_READ);
-      // flip texture on Y axis
-      ImageComponent2D image2d =
-        new ImageComponent2D(ImageComponent.FORMAT_RGBA, imagesY[i]);
-      image2d.setCapability(ImageComponent.ALLOW_IMAGE_READ);
-      texture.setImage(0, image2d);
-      Appearance appearance =
-        makeAppearance(mode, c_alpha, null, geometryY[i], true);
-      appearance.setTextureAttributes(texture_attributes);
-      // WLH 17 March 2000
-      if (transparencyMode == TransparencyAttributes.FASTEST) {
-        texture.setMinFilter(Texture.BASE_LEVEL_POINT);
-        texture.setMagFilter(Texture.BASE_LEVEL_POINT);
-      }
-      else {
-        texture.setBoundaryModeS(Texture.CLAMP);
-        texture.setBoundaryModeT(Texture.CLAMP);
-        texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-        texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-      }
-      texture.setEnable(true);
-      appearance.setTexture(texture);
-      appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-      shapeY[i] = new Shape3D(geometryY[i], appearance);
-      shapeY[i].setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shapeY[i].setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      branchYrev.addChild(shapeY[i]);
+      textureToGroup(branchYrev, geometryY[i], imagesY[i], false);
     }
-    shapeY = null;
-
-    OrderedGroup branchZ = new OrderedGroup();
-    branchZ.setCapability(Group.ALLOW_CHILDREN_READ);
+    
+    OrderedNode branchZ = new OrderedNode();
     int data_width = geometryZ.length;
-    Shape3D[] shapeZ = new Shape3D[data_width];
     for (int ii=0; ii<data_width; ii++) {
       int i = flipZ ? data_width-1-ii : ii;
-      int width = imagesZ[i].getWidth();
-      int height = imagesZ[i].getHeight();
-      Texture2D texture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
-                                        width, height);
-      texture.setCapability(Texture.ALLOW_IMAGE_READ);
-      ImageComponent2D image2d =
-        new ImageComponent2D(ImageComponent.FORMAT_RGBA, imagesZ[i]);
-      image2d.setCapability(ImageComponent.ALLOW_IMAGE_READ);
-      texture.setImage(0, image2d);
-      Appearance appearance =
-        makeAppearance(mode, c_alpha, null, geometryZ[i], true);
-      appearance.setTextureAttributes(texture_attributes);
-      // WLH 17 March 2000
-      if (transparencyMode == TransparencyAttributes.FASTEST) {
-        texture.setMinFilter(Texture.BASE_LEVEL_POINT);
-        texture.setMagFilter(Texture.BASE_LEVEL_POINT);
-      }
-      else {
-        texture.setBoundaryModeS(Texture.CLAMP);
-        texture.setBoundaryModeT(Texture.CLAMP);
-        texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-        texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-      }
-      texture.setEnable(true);
-      appearance.setTexture(texture);
-      appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-      shapeZ[i] = new Shape3D(geometryZ[i], appearance);
-      shapeZ[i].setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shapeZ[i].setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      branchZ.addChild(shapeZ[i]);
+      textureToGroup(branchZ, geometryZ[i], imagesZ[i], false);
     }
-    OrderedGroup branchZrev = new OrderedGroup();
-    branchZrev.setCapability(Group.ALLOW_CHILDREN_READ);
+    OrderedNode branchZrev = new OrderedNode();
     for (int ii=data_width-1; ii>=0; ii--) {
       int i = flipZ ? data_width-1-ii : ii;
-      int width = imagesZ[i].getWidth();
-      int height = imagesZ[i].getHeight();
-      Texture2D texture = new Texture2D(Texture.BASE_LEVEL, Texture.RGBA,
-                                        width, height);
-      texture.setCapability(Texture.ALLOW_IMAGE_READ);
-      ImageComponent2D image2d =
-        new ImageComponent2D(ImageComponent.FORMAT_RGBA, imagesZ[i]);
-      image2d.setCapability(ImageComponent.ALLOW_IMAGE_READ);
-      texture.setImage(0, image2d);
-      Appearance appearance =
-        makeAppearance(mode, c_alpha, null, geometryZ[i], true);
-      appearance.setTextureAttributes(texture_attributes);
-      // WLH 17 March 2000
-      if (transparencyMode == TransparencyAttributes.FASTEST) {
-        texture.setMinFilter(Texture.BASE_LEVEL_POINT);
-        texture.setMagFilter(Texture.BASE_LEVEL_POINT);
-      }
-      else {
-        texture.setBoundaryModeS(Texture.CLAMP);
-        texture.setBoundaryModeT(Texture.CLAMP);
-        texture.setMinFilter(Texture.BASE_LEVEL_LINEAR);
-        texture.setMagFilter(Texture.BASE_LEVEL_LINEAR);
-      }
-      texture.setEnable(true);
-      appearance.setTexture(texture);
-      appearance.setCapability(Appearance.ALLOW_TEXTURE_READ);
-      shapeZ[i] = new Shape3D(geometryZ[i], appearance);
-      shapeZ[i].setCapability(Shape3D.ALLOW_GEOMETRY_READ);
-      shapeZ[i].setCapability(Shape3D.ALLOW_APPEARANCE_READ);
-      branchZrev.addChild(shapeZ[i]);
+      textureToGroup(branchZrev, geometryZ[i], imagesZ[i], false);
     }
-    shapeZ = null;
+    
 
-    Switch swit = (Switch) makeSwitch();
-    swit.addChild(branchX);
-    swit.addChild(branchY);
-    swit.addChild(branchZ);
-    swit.addChild(branchXrev);
-    swit.addChild(branchYrev);
-    swit.addChild(branchZrev);
+    SwitchNode swit = (SwitchNode) makeSwitch();
+    swit.attachChild(branchX);
+    swit.attachChild(branchY);
+    swit.attachChild(branchZ);
+    swit.attachChild(branchXrev);
+    swit.attachChild(branchYrev);
+    swit.attachChild(branchZrev);
 
-    // WLH 6 April 2000
-    // ((Group) group).addChild(swit);
-    BranchGroup branch = new BranchGroup();
-    branch.setCapability(BranchGroup.ALLOW_DETACH);
-    branch.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
-    branch.addChild(swit);
-    if (((Group) group).numChildren() > 0) {
-      ((Group) group).setChild(branch, 0);
+    Node branch = new Node();
+    branch.attachChild(swit);
+    if (((Node) group).getNumberOfChildren() > 0) {
+      ((Node) group).attachChildAt(branch, 0);
     }
     else {
-      ((Group) group).addChild(branch);
+      ((Node) group).attachChild(branch);
     }
 
-    ProjectionControlA3D control =
-      (ProjectionControlA3D) display.getProjectionControl();
+    ProjectionControlA3D control = (ProjectionControlA3D) display.getProjectionControl();
     control.addPair(swit, renderer);
-    */
   }
 
 
-  public Spatial[] makeGeometrys(VisADGeometryArray array)
+   public Spatial[] makeGeometrys(VisADGeometryArray array)
                   throws VisADException {
     int count = array.vertexCount;
     int depth = count / 4;
