@@ -549,6 +549,146 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
     }
   }
   
+  public Object[] createImages(int axis, int data_width_in,
+           int data_height_in, int data_depth_in, int texture_width_in,
+           int texture_height_in, int texture_depth_in, byte[][] color_values)
+         throws VisADException {
+       
+    int data_width, data_height, data_depth;
+    int texture_width, texture_height, texture_depth;
+    int kwidth, kheight, kdepth;
+    
+    if (axis == 2) {
+      kwidth = 1;
+      kheight = data_width_in;
+      kdepth = data_width_in * data_height_in;
+      data_width = data_width_in;
+      data_height = data_height_in;
+      data_depth = data_depth_in;
+      texture_width = texture_width_in;
+      texture_height = texture_height_in;
+      texture_depth = texture_depth_in;
+
+    }
+    else if (axis == 1) {
+      kwidth = 1;
+      kdepth = data_width_in;
+      kheight = data_width_in * data_height_in;
+      data_width = data_width_in;
+      data_depth = data_height_in;
+      data_height = data_depth_in;
+      texture_width = texture_width_in;
+      texture_depth = texture_height_in;
+      texture_height = texture_depth_in;
+    }
+    else if (axis == 0) {
+      kdepth = 1;
+      kwidth = data_width_in;
+      kheight = data_width_in * data_height_in;
+      data_depth = data_width_in;
+      data_width = data_height_in;
+      data_height = data_depth_in;
+      texture_depth = texture_width_in;
+      texture_width = texture_height_in;
+      texture_height = texture_depth_in;
+    }
+    else {
+      return null;
+    }
+    
+    int clrDim = color_values.length;
+    ImageDataFormat imgFmt = null;
+    
+    Image[] images = new Image[texture_depth];
+    for (int d=0; d<data_depth; d++) {
+      byte[] byteData = new byte[clrDim*texture_width*texture_height];
+      if (clrDim == 4) {
+        imgFmt = ImageDataFormat.BGRA;
+         
+        
+        int kk = d * kdepth;
+        int m = 0;
+        byte r, g, b, a;
+        for (int j=0; j<data_height; j++) {
+          int k = kk + j * kheight;
+          for (int i=0; i<data_width; i++) {
+            r = color_values[0][k];
+            g = color_values[1][k];
+            b = color_values[2][k];
+            a = color_values[3][k];
+            
+            byteData[m++] = b;
+            byteData[m++] = g;
+            byteData[m++] = r;
+            byteData[m++] = a;
+
+            k += kwidth;
+          }
+          for (int i=data_width; i<texture_width; i++) {
+            byteData[m++] = 0;
+          }
+        }
+        for (int j=data_height; j<texture_height; j++) {
+          for (int i=0; i<texture_width; i++) {
+            byteData[m++] = 0;
+          }
+        }
+      }
+      else { // (color_values.length == 3)
+        imgFmt = ImageDataFormat.BGR;
+
+        int kk = d * kdepth;
+        int m = 0;
+        byte r, g, b, a;
+        for (int j=0; j<data_height; j++) {
+          int k = kk + j * kheight;
+          for (int i=0; i<data_width; i++) {
+            r = color_values[0][k];
+            g = color_values[1][k];
+            b = color_values[2][k];
+            
+            byteData[m++] = b;
+            byteData[m++] = g;
+            byteData[m++] = r;
+             
+            k += kwidth;
+          }
+          for (int i=data_width; i<texture_width; i++) {
+            byteData[m++] = 0;
+          }
+        }
+        for (int j=data_height; j<texture_height; j++) {
+          for (int i=0; i<texture_width; i++) {
+            byteData[m++] = 0;
+          }
+        }
+      } // end if (color_values.length == 3)
+      
+      ByteBuffer bbuf = ByteBuffer.wrap(byteData);
+      Image image = new Image(imgFmt, PixelDataType.UnsignedByte, texture_width, texture_height, bbuf, null);
+      images[d] = image;
+      
+    } // end for (int d=0; d<data_depth; d++)
+    
+    for (int d=data_depth; d<texture_depth; d++) {
+      imgFmt = ImageDataFormat.BGR;
+      if (clrDim == 4) {
+         imgFmt = ImageDataFormat.BGRA;
+      }
+      byte[] byteData = new byte[clrDim*texture_width*texture_height];
+
+      for (int i=0; i<texture_width*texture_height; i++) {
+        byteData[i] = 0;
+      }
+      ByteBuffer bbuf = ByteBuffer.wrap(byteData);
+      Image image = new Image(imgFmt, PixelDataType.UnsignedByte, texture_width, texture_height, bbuf, null);
+      images[d] = image;      
+    }
+    
+    
+    return images;
+  }
+  
   public Object createImage(int data_width, int data_height, int textureWidth, int textureHeight, byte[][] color_values) {
      
     int clrDim = color_values.length;
