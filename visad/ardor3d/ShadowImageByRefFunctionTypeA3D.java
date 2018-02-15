@@ -906,10 +906,10 @@ public class ShadowImageByRefFunctionTypeA3D extends ShadowFunctionTypeA3D {
       } 
 
 
-      // make sure group is live.  group not empty (above addChild)
-      /*if (group instanceof BranchGroup) {
-        ((ImageRendererJ3D) renderer).setBranchEarly((BranchGroup) group);
-      }*/
+      // Start renderering immediately by attaching top level group to DisplayRenderer
+      if (group instanceof Node) {
+        ((ImageRendererA3D) renderer).setBranchEarly((Node) group);
+      }
 
 
       for (int k=1; k<numImages; k++) {
