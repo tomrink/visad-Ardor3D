@@ -53,6 +53,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import visad.util.AnimationWidget;
 import visad.util.ColorMapWidget;
+import visad.util.LabeledColorWidget;
+import visad.util.SelectRangeWidget;
+import visad.util.VisADSlider;
 
 /**
    DisplayImplJ3D is the VisAD class for displays that use
@@ -773,43 +776,43 @@ public class DisplayImplA3D extends DisplayImpl {
        
        //final visad.java3d.DisplayImplJ3D display = new visad.java3d.DisplayImplJ3D("Display");
        
-       GraphicsModeControl modeCtrl = display.getGraphicsModeControl();
-       modeCtrl.setCurvedSize(2);
-       modeCtrl.setTextureEnable(false);
-       modeCtrl.setPointMode(true);
-       modeCtrl.setPointSize(2);
+//       GraphicsModeControl modeCtrl = display.getGraphicsModeControl();
+//       modeCtrl.setCurvedSize(2);
+//       modeCtrl.setTextureEnable(false);
+//       modeCtrl.setPointMode(true);
+//       modeCtrl.setPointSize(2);
        
        /* Simple Test 1 */
-       FieldImpl dataFld;
-       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
-       dataFld = FlatField.makeField(fncType, 2048, false);
-       
-       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
-       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
-       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
-       
-       display.addMap(xmap);
-       display.addMap(ymap);
-       display.addMap(cmap);
-       //widget = new ColorMapWidget(cmap);
-       
-       /* test 2 */
-       FunctionType fldType = new FunctionType(RealType.Time, fncType);
-       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
-       dataFld = new FieldImpl(fldType, outerDom);
-       int len = outerDom.getLength();
-       for (int k=0; k<len; k++) {
-          FlatField vFld = FlatField.makeField(fncType, 2048, false);
-          fillField(vFld, 1, k*(2048/len));
-          dataFld.setSample(k, vFld);
-       }
-       
-       ScalarMap tmap = new ScalarMap(RealType.Time, Display.Animation);
-       
-       display.addMap(tmap);
-       AnimationControl acntrl = (AnimationControl) tmap.getControl();
-       acntrl.setOn(true);
-       widget = new AnimationWidget(tmap);
+//       FieldImpl dataFld;
+//       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
+//       dataFld = FlatField.makeField(fncType, 2048, false);
+//       
+//       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
+//       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
+//       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
+//       
+//       display.addMap(xmap);
+//       display.addMap(ymap);
+//       display.addMap(cmap);
+//       widget = new ColorMapWidget(cmap);
+//       
+//       /* test 2 */
+//       FunctionType fldType = new FunctionType(RealType.Time, fncType);
+//       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
+//       dataFld = new FieldImpl(fldType, outerDom);
+//       int len = outerDom.getLength();
+//       for (int k=0; k<len; k++) {
+//          FlatField vFld = FlatField.makeField(fncType, 2048, false);
+//          fillField(vFld, 1, k*(2048/len));
+//          dataFld.setSample(k, vFld);
+//       }
+//       
+//       ScalarMap tmap = new ScalarMap(RealType.Time, Display.Animation);
+//       
+//       display.addMap(tmap);
+//       AnimationControl acntrl = (AnimationControl) tmap.getControl();
+//       acntrl.setOn(true);
+//       widget = new AnimationWidget(tmap);
 
 //       
        /* Simple test 4 */
@@ -823,9 +826,9 @@ public class DisplayImplA3D extends DisplayImpl {
 //       display.addMap(new ConstantMap(0.5f, Display.Blue));
 //       //display.addMap(new ConstantMap(0.5, Display.Alpha));
        
-         DataReferenceImpl ref = new DataReferenceImpl("vfld");
-         ref.setData(dataFld);
-         display.addReference(ref);
+//         DataReferenceImpl ref = new DataReferenceImpl("vfld");
+//         ref.setData(dataFld);
+//         display.addReference(ref);
          //display.enableAction();
        
  
@@ -1010,7 +1013,6 @@ public class DisplayImplA3D extends DisplayImpl {
 //          };
 //         cell.addReference(cell_ref);
 
-
 //    final RealType ir_radiance =
 //      RealType.getRealType("ir_radiance", CommonUnit.degree);
 //    Unit cycles = CommonUnit.dimensionless.divide(CommonUnit.second);
@@ -1082,8 +1084,92 @@ public class DisplayImplA3D extends DisplayImpl {
 //        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
 
 
+      /* Test61: Volume Rendering */
+     
+    RealType xr = RealType.getRealType("xr");
+    RealType yr = RealType.getRealType("yr");
+    RealType zr = RealType.getRealType("zr");
+    RealType wr = RealType.getRealType("wr");
+    RealType[] types3d = {xr, yr, zr};
+    RealTupleType earth_location3d = new RealTupleType(types3d);
+    FunctionType grid_tuple = new FunctionType(earth_location3d, wr);
 
+    int NX = 256;
+    int NY = 256;
+    int NZ = 256;
+    Integer3DSet set = new Integer3DSet(NX, NY, NZ);
+    FlatField grid3d = new FlatField(grid_tuple, set);
 
+    float[][] values = new float[1][NX * NY * NZ];
+    int k = 0;
+    for (int iz=0; iz<NZ; iz++) {
+      // double z = Math.PI * (-1.0 + 2.0 * iz / (NZ - 1.0));
+      double z = Math.PI * (-1.0 + 2.0 * iz * iz / ((NZ - 1.0)*(NZ - 1.0)) );
+      for (int iy=0; iy<NY; iy++) {
+        double y = -1.0 + 2.0 * iy / (NY - 1.0);
+        for (int ix=0; ix<NX; ix++) {
+          double x = -1.0 + 2.0 * ix / (NX - 1.0);
+          double r = x - 0.5 * Math.cos(z);
+          double s = y - 0.5 * Math.sin(z);
+          double dist = Math.sqrt(r * r + s * s);
+          values[0][k] = (float) ((dist < 0.1) ? 10.0 : 1.0 / dist);
+          k++;
+        }
+      }
+    }
+    grid3d.setSamples(values);
+
+    display.addMap(new ScalarMap(xr, Display.XAxis));
+    display.addMap(new ScalarMap(yr, Display.YAxis));
+    display.addMap(new ScalarMap(zr, Display.ZAxis));
+
+    ScalarMap xrange = new ScalarMap(xr, Display.SelectRange);
+    ScalarMap yrange = new ScalarMap(yr, Display.SelectRange);
+    ScalarMap zrange = new ScalarMap(zr, Display.SelectRange);
+    display.addMap(xrange);
+    display.addMap(yrange);
+    display.addMap(zrange);
+
+    GraphicsModeControl mode = display.getGraphicsModeControl();
+    mode.setScaleEnable(true);
+
+    mode.setTexture3DMode(GraphicsModeControl.STACK2D);
+
+    // new
+    RealType duh = RealType.getRealType("duh");
+    int NT = 32;
+    Linear2DSet set2 = new Linear2DSet(0.0, (double) NX, NT,
+                                       0.0, (double) NY, NT);
+    RealType[] types2d = {xr, yr};
+    RealTupleType domain2 = new RealTupleType(types2d);
+    FunctionType ftype2 = new FunctionType(domain2, duh);
+    float[][] v2 = new float[1][NT * NT];
+    for (int i=0; i<NT*NT; i++) {
+      v2[0][i] = (i * i) % (NT/2 +3);
+    }
+    // float[][] v2 = {{1.0f,2.0f,3.0f,4.0f}};
+    FlatField field2 = new FlatField(ftype2,set2);
+    field2.setSamples(v2);
+    display.addMap(new ScalarMap(duh, Display.RGB));
+
+    ScalarMap map1color = new ScalarMap(wr, Display.RGBA);
+    display.addMap(map1color);
+
+    ColorAlphaControl control = (ColorAlphaControl) map1color.getControl();
+    control.setTable(buildTable(control.getTable()));
+
+    DataReferenceImpl ref_grid3d = new DataReferenceImpl("ref_grid3d");
+    ref_grid3d.setData(grid3d);
+
+    DataReferenceImpl ref2 = new DataReferenceImpl("ref2");
+    ref2.setData(field2);
+
+    ConstantMap[] cmaps = {new ConstantMap(0.0, Display.TextureEnable)};
+    display.addReference(ref2, cmaps);
+
+    display.addReference(ref_grid3d, null);
+
+    widget = getSpecialComponent(display);
 
 
        /* Main display window */
@@ -1191,6 +1277,37 @@ public static void fillField(FlatField image, double step, double half)
       }
     }
     image.setSamples(data);
+  }
+
+  private static float[][] buildTable(float[][] table)
+  {
+    int length = table[0].length;
+    for (int i=0; i<length; i++) {
+      float a = ((float) i) / ((float) (table[3].length - 1));
+      table[3][i] = a;
+    }
+    return table;
+  }
+  
+  private static Component getSpecialComponent(DisplayImpl display)
+    throws RemoteException, VisADException
+  {
+    java.util.Vector mapVector = display.getMapVector();
+    final int numMaps = mapVector.size();
+
+    ScalarMap xrange = (ScalarMap )mapVector.elementAt(numMaps-5);
+    ScalarMap yrange = (ScalarMap )mapVector.elementAt(numMaps-4);
+    ScalarMap zrange = (ScalarMap )mapVector.elementAt(numMaps-3);
+
+    ScalarMap map1color = (ScalarMap )mapVector.elementAt(numMaps-1);
+
+    JPanel panel = new JPanel();
+    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    panel.add(new LabeledColorWidget(map1color));
+    panel.add(new SelectRangeWidget(xrange));
+    panel.add(new SelectRangeWidget(yrange));
+    panel.add(new SelectRangeWidget(zrange));
+    return panel;
   }
    
    public static void main(String[] args) throws VisADException, RemoteException {
