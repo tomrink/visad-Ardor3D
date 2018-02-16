@@ -27,6 +27,8 @@ MA 02111-1307, USA
 package visad.ardor3d;
 
 import com.ardor3d.image.ImageDataFormat;
+import com.ardor3d.image.Texture2D;
+import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Node;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -367,6 +369,12 @@ public class ImageRendererA3D extends DefaultRendererA3D {
   private VisADImageNodeA3D imagesNode = null;
 
   private boolean lastByRef = false;
+  
+  /* Experiment with texture updating */
+  public Texture2D lastTexture = null;
+  
+  public TextureState lastTS = null;
+  //------------------------------------
 
 
   public static boolean isByRefUsable(DataDisplayLink link, ShadowType shadow) throws VisADException, RemoteException {
@@ -571,6 +579,10 @@ public class ImageRendererA3D extends DefaultRendererA3D {
       branch = getBranch();
     }
     lastByRef = doByRef;
+    
+    // Disable in place modification until texture updating works.
+    branch = null;
+    //-------------------------------------------
 
     if (branch == null) {
       branch = new Node();
