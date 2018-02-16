@@ -170,33 +170,34 @@ public class DisplayImplA3D extends DisplayImpl {
   private GraphicsModeControlA3D mode = null;
   private int apiValue = UNKNOWN;
   
-  public DisplayImplA3D(String name, Window window, Component comp, int api) 
+  public DisplayImplA3D(String name, Window window, Container comp, int api) 
          throws VisADException, RemoteException {
      this(name, null, window, comp, comp.getWidth(), comp.getHeight(), api);
   }
   
-  public DisplayImplA3D(String name, DisplayRendererA3D dspRenderer, Window window, Component comp, int api) 
+  public DisplayImplA3D(String name, DisplayRendererA3D dspRenderer, Window window, Container comp, int api) 
          throws VisADException, RemoteException {
      this(name, dspRenderer, window, comp, comp.getWidth(), comp.getHeight(), api);
   }  
   
-  public DisplayImplA3D(String name, Window window, Component comp, int width, int height, int api) 
+  public DisplayImplA3D(String name, Window window, Container comp, int width, int height, int api) 
          throws VisADException, RemoteException {
      this(name, null, window, comp, width, height, api);
   }
   
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer, Window window, Component comp, int width, int height, int api) 
+  public DisplayImplA3D(String name, DisplayRendererA3D renderer, Window window, Container comp, int width, int height, int api) 
          throws VisADException, RemoteException {
      super(name, renderer);
      
+     /* TODO: make sure comp is an ancestor of window */
      if (!window.isShowing()) {
         throw new VisADException("Containing window must exist on screen. For example JFrame.setVisible(true)");
      }
      
-     initialize(window, comp, width, height, api);
+     initialize(comp, width, height, api);
   }
   
-  private void initialize(Window window, Component comp, int width, int height, int api) 
+  private void initialize(Container comp, int width, int height, int api) 
           throws VisADException, RemoteException {
      
     // a ProjectionControl always exists
@@ -209,7 +210,7 @@ public class DisplayImplA3D extends DisplayImpl {
        }
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
        dspRenderer.createSceneGraph();
-       DisplayManagerA3D manager = new DisplayManagerA3D((Container)comp, new Dimension(width, height), dspRenderer, api);
+       DisplayManagerA3D manager = new DisplayManagerA3D(comp, new Dimension(width, height), dspRenderer, api);
        Component component = manager.getCanvas();
        setComponent(component);
        apiValue = api;
