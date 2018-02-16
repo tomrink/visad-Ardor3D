@@ -26,6 +26,10 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.image.Image;
+import com.ardor3d.image.Texture2D;
+import com.ardor3d.renderer.state.RenderState;
+import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.extension.SwitchNode;
@@ -44,6 +48,7 @@ import java.net.URL;
 import java.awt.event.*;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 
 /**
    The ShadowImageFunctionTypeJ3D class shadows the FunctionType class for
@@ -52,6 +57,8 @@ import java.awt.image.BufferedImage;
 public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
 
   private static final int MISSING1 = Byte.MIN_VALUE;      // least byte
+  
+  public ImageRendererA3D rendererA3D;
 
   public ShadowImageFunctionTypeA3D(MathType t, DataDisplayLink link,
                                 ShadowType parent)
@@ -65,6 +72,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
          throws VisADException, RemoteException {
 
     DataDisplayLink link = renderer.getLink();
+    rendererA3D = (ImageRendererA3D) renderer;
 
     //System.out.println("start doTransform " + (System.currentTimeMillis() - link.start_time));
 
@@ -522,7 +530,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
       else {
         throw new BadMappingException("cmap == null and cmaps == null ??");
       }
-
+      
 // System.out.println("end colors " + (System.currentTimeMillis() - link.start_time));
 
       // check domain and determine whether it is square or curved texture
@@ -1453,11 +1461,27 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
                                                                                                                        
     // create BufferedImage for texture from color_bytes
     Object image = createImage(data_width, data_height, texture_width, texture_height, color_bytes);
-                                                                                                                       
-                                                                                                                       
-    // add texture as sub-node of group in scene graph
-    textureToGroup(group, qarray, image, mode, constant_alpha,
-                   constant_color, texture_width, texture_height);
+
+    rendererA3D.lastTexture = null;
+    if (rendererA3D.lastTexture != null) {
+       com.ardor3d.renderer.Renderer renderer = ((DisplayRendererA3D)getDisplay().getDisplayRenderer()).getCanvasRenderer().getRenderer();
+       ByteBuffer bf = ((Image)image).getData(0);
+       try {
+         renderer.updateTexture2DSubImage(rendererA3D.lastTexture, 0, 0, texture_width, texture_height, bf, 0, 0, texture_width);
+       } catch (Exception e) {
+          e.printStackTrace();
+       }
+    }
+    else {
+                                                                                                                      
+       // add texture as sub-node of group in scene graph
+       textureToGroup(group, qarray, image, mode, constant_alpha,
+                      constant_color, texture_width, texture_height);
+    
+       TextureState ts = (TextureState) ((Spatial)((Node)group).getChild(0)).getLocalRenderState(RenderState.StateType.Texture);
+       rendererA3D.lastTS = ts;
+       rendererA3D.lastTexture = (Texture2D) ts.getTexture();
+    }
   }
 
   // test program
