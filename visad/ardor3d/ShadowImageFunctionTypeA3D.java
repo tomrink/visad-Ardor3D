@@ -33,6 +33,7 @@ import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.extension.SwitchNode;
+import com.ardor3d.util.GameTaskQueue;
 import visad.*;
 import visad.data.mcidas.BaseMapAdapter;
 import visad.data.mcidas.AreaAdapter;
@@ -49,6 +50,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Callable;
 
 /**
    The ShadowImageFunctionTypeJ3D class shadows the FunctionType class for
@@ -1466,11 +1468,19 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
     if (rendererA3D.lastTexture != null) {
        com.ardor3d.renderer.Renderer renderer = ((DisplayRendererA3D)getDisplay().getDisplayRenderer()).getCanvasRenderer().getRenderer();
        ByteBuffer bf = ((Image)image).getData(0);
-       try {
-         renderer.updateTexture2DSubImage(rendererA3D.lastTexture, 0, 0, texture_width, texture_height, bf, 0, 0, texture_width);
-       } catch (Exception e) {
-          e.printStackTrace();
-       }
+       
+       final int texW = texture_width;
+       final int texH = texture_height;
+       
+       Callable updateCallable = new Callable() {
+          public Object call() {
+             renderer.updateTexture2DSubImage(rendererA3D.lastTexture, 0, 0, texW, texH, bf, 0, 0, texW);            
+             return null;
+          }
+       };
+       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
+       uQueue.enqueue(updateCallable);
+       uQueue.execute();
     }
     else {
                                                                                                                       
