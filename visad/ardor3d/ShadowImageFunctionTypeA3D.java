@@ -26,6 +26,7 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.framework.jogl.JoglCanvasRenderer;
 import com.ardor3d.image.Image;
 import com.ardor3d.image.Texture2D;
 import com.ardor3d.renderer.state.RenderState;
@@ -1466,6 +1467,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
 
     rendererA3D.lastTexture = null;
     if (rendererA3D.lastTexture != null) {
+       JoglCanvasRenderer canvasRenderer = (JoglCanvasRenderer) ((DisplayRendererA3D)getDisplay().getDisplayRenderer()).getCanvasRenderer();
        com.ardor3d.renderer.Renderer renderer = ((DisplayRendererA3D)getDisplay().getDisplayRenderer()).getCanvasRenderer().getRenderer();
        ByteBuffer bf = ((Image)image).getData(0);
        
@@ -1474,7 +1476,9 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
        
        Callable updateCallable = new Callable() {
           public Object call() {
-             renderer.updateTexture2DSubImage(rendererA3D.lastTexture, 0, 0, texW, texH, bf, 0, 0, texW);            
+             canvasRenderer.makeCurrentContext();
+             renderer.updateTexture2DSubImage(rendererA3D.lastTexture, 0, 0, texW, texH, bf, 0, 0, texW);
+             canvasRenderer.releaseCurrentContext();
              return null;
           }
        };
