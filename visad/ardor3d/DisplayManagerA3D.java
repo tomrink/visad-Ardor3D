@@ -31,6 +31,7 @@ import com.ardor3d.renderer.Camera;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
+import com.ardor3d.util.GameTaskQueueManager;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import java.awt.Component;
@@ -64,6 +65,8 @@ public class DisplayManagerA3D implements Updater {
     
     private int canvasType = DisplayImplA3D.JOGL_AWT;
     
+    public static GameTaskQueueManager queueManager = GameTaskQueueManager.getManager(new String("VisAD"));
+    
     public DisplayManagerA3D(Dimension size, DisplayRendererA3D dspRenderer) {
        this(null, size, dspRenderer, DisplayImplA3D.JOGL_AWT);
     }
@@ -72,6 +75,9 @@ public class DisplayManagerA3D implements Updater {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
         
+        /* Only one of these per JVM (suggestion by J.Gouessej of Jogamp), but can be modified
+           for one per display 
+        */
         timer = Initialize.getTimer();
         frameWork = Initialize.getFrameHandler(timer);
         myRunner = Initialize.getRunner(frameWork);
@@ -85,6 +91,7 @@ public class DisplayManagerA3D implements Updater {
         
         frameWork.addUpdater(this);
  
+        //canvasRenderer = new JoglCanvasRenderer(dspRenderer, false, null, false);
         canvasRenderer = new JoglCanvasRenderer(dspRenderer);
         
         // Custom settings for Camera
@@ -100,6 +107,7 @@ public class DisplayManagerA3D implements Updater {
         
         dspRenderer.setCanvasRenderer(canvasRenderer);
         ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
+        dspRenderer.setDisplayManager(this);
         
 
         final DisplaySettings settings = new DisplaySettings(size.width, size.height, 24, 0, 0, 16, 0, 0, false, false);        
@@ -255,6 +263,7 @@ public class DisplayManagerA3D implements Updater {
         logicalLayer.registerTrigger(new InputTrigger(new AnyKeyCondition(), keyPressedAction));
     }
     
+    /* These mimic an AWT Event to use the VisAD core logic as is */
     private void forwardToMouseHelper(Canvas c, int id, int button, MouseState mState, KeyboardState kbState) {
        if (c != canvas) {
           return;
@@ -276,6 +285,7 @@ public class DisplayManagerA3D implements Updater {
        dspRenderer.getMouseBehavior().getMouseHelper().processEvent(me);
     }
     
+    /* These mimic an AWT Event to use the VisAD core logic as is */    
     private void forwardToKeyboardBehavior(int id, KeyboardState kbState) {
        int mod = 0;
        
