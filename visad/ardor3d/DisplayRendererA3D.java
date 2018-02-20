@@ -197,6 +197,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   
   private CanvasRenderer canvasRenderer;
   
+  private DisplayManagerA3D dspManager;
+  
   ReadOnlyColorRGBA boxColor = ColorRGBA.WHITE;
   ReadOnlyColorRGBA cursorColor = ColorRGBA.WHITE;
   
@@ -1318,6 +1320,14 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    
    public CanvasRenderer getCanvasRenderer() {
       return canvasRenderer;
+   }
+
+   void setDisplayManager(DisplayManagerA3D aThis) {
+      this.dspManager = aThis;
+   }
+   
+   public DisplayManagerA3D getDisplayManager() {
+      return this.dspManager;
    }
 
  }
