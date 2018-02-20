@@ -180,6 +180,7 @@ System.out.println("doAction " + getDisplay().getName() + " " +
            // branch already attached. See setBranchEarly()
         }
         else {
+          sw.detachChild(prevNode);
           sw.attachChildAt(branch, 0);
         }
         ((DisplayRendererA3D) getDisplayRenderer()).markNeedDraw();
