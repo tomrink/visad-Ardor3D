@@ -33,6 +33,7 @@ import javax.swing.*;
 import java.util.*;
 import java.rmi.*;
 import static visad.ardor3d.DisplayImplA3D.JOGL_AWT;
+import static visad.ardor3d.DisplayImplA3D.JOGL_SWING;
 
 
 /**
