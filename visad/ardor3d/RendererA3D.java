@@ -54,6 +54,8 @@ public abstract class RendererA3D extends DataRenderer {
   
   Node dataBranch = null;
   
+  boolean directEngaged = false;
+  
   public RendererA3D() {
     super();
   }
@@ -130,6 +132,9 @@ public abstract class RendererA3D extends DataRenderer {
   /** re-transform if needed;
       return false if not done */
   public boolean doAction() throws VisADException, RemoteException {
+    if (directEngaged) {
+       return true;
+    }
     Node branch;
     boolean all_feasible = get_all_feasible();
     boolean any_changed = get_any_changed();
@@ -214,6 +219,97 @@ System.out.println("doAction " + getDisplay().getName() + " " +
       }
     }
     return (all_feasible && (any_changed || any_transform_control));
+  }
+  
+  public synchronized void release_direct() {
+     directEngaged = false;
+  }
+  
+  public void updateScene() throws VisADException, RemoteException {
+    Node branch;
+    boolean all_feasible = get_all_feasible();
+    boolean any_changed = get_any_changed();
+    boolean any_transform_control = get_any_transform_control();
+/*
+System.out.println("doAction " + getDisplay().getName() + " " +
+                   getLinks()[0].getThingReference().getName() +
+                   " any_changed = " + any_changed +
+                   " all_feasible = " + all_feasible +
+                   " any_transform_control = " + any_transform_control);
+*/
+    if (true) {
+    //if (all_feasible && (any_changed || any_transform_control)) {
+/*
+System.out.println("doAction " + getDisplay().getName() + " " +
+                   getLinks()[0].getThingReference().getName() +
+                   " any_changed = " + any_changed +
+                   " all_feasible = " + all_feasible +
+                   " any_transform_control = " + any_transform_control);
+*/
+      // exceptionVector.removeAllElements();
+      /*clearAVControls();*/
+      try {
+        // doTransform creates a BranchGroup from a Data object
+        branch = doTransform();
+      }
+      catch (BadMappingException e) {
+        addException(e);
+        branch = null;
+      }
+      catch (UnimplementedException e) {
+        addException(e);
+        branch = null;
+      }
+      catch (RemoteException e) {
+        addException(e);
+        branch = null;
+      }
+      catch (DisplayInterruptException e) {
+        branch = null;
+      }
+
+      if (branch != null) {
+        Spatial prevNode = null;
+        if (sw.getNumberOfChildren() > 0) {
+          prevNode = sw.getChild(0);
+        }
+        if (prevNode != null && prevNode == branch) {
+           // branch already attached. See setBranchEarly()
+        }
+        else {
+          sw.detachChild(prevNode);
+          sw.attachChildAt(branch, 0);
+        }
+        ((DisplayRendererA3D) getDisplayRenderer()).markNeedDraw();
+        dataBranch = branch;
+         
+//        synchronized (this) {
+//          if (!branchNonEmpty[currentIndex] ||
+//              branches[currentIndex].numChildren() == 0) {
+//            /* WLH 18 Nov 98 */
+//            branches[currentIndex].addChild(branch);
+//            branchNonEmpty[currentIndex] = true;
+//          }
+//          else { // if (branchNonEmpty[currentIndex])
+//            if (!(branches[currentIndex].getChild(0) == branch)) {// TDR, Nov 02
+//              flush(branches[currentIndex]);
+//              branches[currentIndex].setChild(branch, 0);
+//            }
+//          } // end if (branchNonEmpty[currentIndex])
+//        } // end synchronized (this)
+      }
+      else { // if (branch == null)
+        clearBranch();
+        all_feasible = false;
+        set_all_feasible(all_feasible);
+      }
+    }
+    else { // !(all_feasible && (any_changed || any_transform_control))
+      DataDisplayLink[] links = getLinks();
+      for (int i=0; i<links.length; i++) {
+        links[i].clearData();
+      }
+    }
   }
 
   public Node getBranch() {

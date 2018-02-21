@@ -68,57 +68,68 @@ public class DirectManipulationRendererA3D extends RendererA3D {
   public void checkDirect() throws VisADException, RemoteException {
     realCheckDirect();
   }
-
+  
   public void addPoint(float[] x) throws VisADException {
-    if (branch == null) return;
-    
-    int count = x.length / 3;
-    VisADGeometryArray array = null;
-    if (count == 1) {
-      array = new VisADPointArray();
-    }
-    else if (count == 2) {
-      array = new VisADLineArray();
-    }
-    else {
-      return;
-    }
-    array.coordinates = x;
-    array.vertexCount = count;
-    
-    DisplayImplA3D display = (DisplayImplA3D) getDisplay();
-    if (display == null) return;
-    
-    Spatial geometry = display.makeGeometry(array);
-
-    DataDisplayLink[] Links = getLinks();
-    if (Links == null || Links.length == 0) {
-      return;
-    }
-    DataDisplayLink link = Links[0];
-
-    float[] default_values = link.getDefaultValues();
-    GraphicsModeControl mode = (GraphicsModeControl)
-      display.getGraphicsModeControl().clone();
-    float pointSize =
-      default_values[display.getDisplayScalarIndex(Display.PointSize)];
-    float lineWidth =
-      default_values[display.getDisplayScalarIndex(Display.LineWidth)];
-    int lineStyle = (int)
-      default_values[display.getDisplayScalarIndex(Display.LineStyle)];
-    mode.setPointSize(pointSize, true);
-    mode.setLineWidth(lineWidth, true);
-    mode.setLineStyle(lineStyle, true);
-    
-//    Appearance appearance =
-//      ShadowTypeA3D.staticMakeAppearance(mode, null, null, geometry, false);
-
-
-    Node group = new Node();
-    group.attachChild(geometry);
-    
-    branch.attachChild(group);
+     directEngaged = true;
+     try {
+       updateScene();
+     }
+     catch (RemoteException e) {
+        
+     }
   }
+
+//  TODO: Is this necessary?
+//  public void addPoint(float[] x) throws VisADException {
+//    if (branch == null) return;
+//    
+//    int count = x.length / 3;
+//    VisADGeometryArray array = null;
+//    if (count == 1) {
+//      array = new VisADPointArray();
+//    }
+//    else if (count == 2) {
+//      array = new VisADLineArray();
+//    }
+//    else {
+//      return;
+//    }
+//    array.coordinates = x;
+//    array.vertexCount = count;
+//    
+//    DisplayImplA3D display = (DisplayImplA3D) getDisplay();
+//    if (display == null) return;
+//    
+//    Spatial geometry = display.makeGeometry(array);
+//
+//    DataDisplayLink[] Links = getLinks();
+//    if (Links == null || Links.length == 0) {
+//      return;
+//    }
+//    DataDisplayLink link = Links[0];
+//
+//    float[] default_values = link.getDefaultValues();
+//    GraphicsModeControl mode = (GraphicsModeControl)
+//      display.getGraphicsModeControl().clone();
+//    float pointSize =
+//      default_values[display.getDisplayScalarIndex(Display.PointSize)];
+//    float lineWidth =
+//      default_values[display.getDisplayScalarIndex(Display.LineWidth)];
+//    int lineStyle = (int)
+//      default_values[display.getDisplayScalarIndex(Display.LineStyle)];
+//    mode.setPointSize(pointSize, true);
+//    mode.setLineWidth(lineWidth, true);
+//    mode.setLineStyle(lineStyle, true);
+//    
+////    Appearance appearance =
+////      ShadowTypeA3D.staticMakeAppearance(mode, null, null, geometry, false);
+//
+//
+//    Node group = new Node();
+//    group.attachChild(geometry);
+//    
+//    branch.attachChild(group);
+//  }
 
   /** create a BranchGroup scene graph for Data in links[0] */
   public synchronized Node doTransform()

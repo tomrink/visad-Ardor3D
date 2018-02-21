@@ -815,7 +815,6 @@ public class DisplayImplA3D extends DisplayImpl {
 //       acntrl.setOn(true);
 //       widget = new AnimationWidget(tmap);
 
-//       
        /* Simple test 4 */
 //       ScalarMap zmap = new ScalarMap(RealType.Generic, Display.ZAxis);
 //       display.addMap(zmap);
@@ -829,7 +828,7 @@ public class DisplayImplA3D extends DisplayImpl {
        
 //         DataReferenceImpl ref = new DataReferenceImpl("vfld");
 //         ref.setData(dataFld);
-//         display.addReference(ref);
+//         display.addReferences(new ImageRendererA3D(), ref);
          //display.enableAction();
        
  
@@ -1014,163 +1013,145 @@ public class DisplayImplA3D extends DisplayImpl {
 //          };
 //         cell.addReference(cell_ref);
 
-//    final RealType ir_radiance =
-//      RealType.getRealType("ir_radiance", CommonUnit.degree);
-//    Unit cycles = CommonUnit.dimensionless.divide(CommonUnit.second);
-//    Unit hz = cycles.clone("Hz");
-//    final RealType count = RealType.getRealType("count", hz);
-//    FunctionType ir_histogram = new FunctionType(ir_radiance, count);
-//    final RealType vis_radiance = RealType.getRealType("vis_radiance");
-//
-//    int size = 64;
-//    FlatField histogram1 = FlatField.makeField(ir_histogram, size, false);
-//    Real direct = new Real(ir_radiance, 2.0);
-//    Real[] reals3 = {new Real(count, 1.0), new Real(ir_radiance, 2.0),
-//                     new Real(vis_radiance, 1.0)};
-//    RealTuple direct_tuple = new RealTuple(reals3);
-//
-//    //dpys[0].addMap(new ScalarMap(vis_radiance, Display.ZAxis));
-//    ScalarMap irmap = new ScalarMap(ir_radiance, Display.XAxis);
-//    //dpys[0].addMap(irmap);
-//    irmap.setOverrideUnit(CommonUnit.radian);
-//    //dpys[0].addMap(new ScalarMap(count, Display.YAxis));
-//    //dpys[0].addMap(new ScalarMap(count, Display.Green));
-//
-//    //GraphicsModeControl mode = dpys[0].getGraphicsModeControl();
-//    //mode.setPointSize(5.0f);
-//    //mode.setPointMode(false);
-//    //mode.setScaleEnable(true);
-//
-//    DataReferenceImpl ref_direct = new DataReferenceImpl("ref_direct");
-//    ref_direct.setData(direct);
-//    DataReference[] refs1 = {ref_direct};
-//    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs1, null);
-//
-//    DataReferenceImpl ref_direct_tuple =
-//      new DataReferenceImpl("ref_direct_tuple");
-//    ref_direct_tuple.setData(direct_tuple);
-//    DataReference[] refs2 = {ref_direct_tuple};
-//    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs2, null);
-//
-//    DataReferenceImpl ref_histogram1 = new DataReferenceImpl("ref_histogram1");
-//    ref_histogram1.setData(histogram1);
-//    DataReference[] refs3 = {ref_histogram1};
-//    //dpys[0].addReferences(new DirectManipulationRendererA3D(), refs3, null);
-//
-//    display.addMap(new ScalarMap(vis_radiance, Display.ZAxis));
-//    display.addMap(new ScalarMap(ir_radiance, Display.XAxis));
-//    display.addMap(new ScalarMap(count, Display.YAxis));
-//    display.addMap(new ScalarMap(count, Display.Green));
-//    //final DisplayRenderer dr0 = dpys[0].getDisplayRenderer();
-//    final DisplayRenderer dr1 = display.getDisplayRenderer();
-//    //dr0.setCursorStringOn(true);
-//    //dr1.setCursorStringOn(false);
-//
-//    GraphicsModeControl mode = display.getGraphicsModeControl();
-//    mode.setPointSize(8.0f);
-//    mode.setPointMode(false);
-//    mode.setScaleEnable(true);
-//
-//    display.addReferences(new DirectManipulationRendererA3D(), refs1, null);
-//    display.addReferences(new DirectManipulationRendererA3D(), refs2, null);
-//    display.addReferences(new DirectManipulationRendererA3D(), refs3, new ConstantMap[][] {{new ConstantMap(2f, Display.LineWidth)}});
-//
-//    MouseHelper helper = dr1.getMouseBehavior().getMouseHelper();
-//    helper.setFunctionMap(new int[][][]
-//      {{{MouseHelper.DIRECT, MouseHelper.DIRECT},
-//        {MouseHelper.DIRECT, MouseHelper.DIRECT}},
-//       {{MouseHelper.ROTATE, MouseHelper.NONE},
-//        {MouseHelper.NONE, MouseHelper.NONE}},
-//       {{MouseHelper.TRANSLATE, MouseHelper.ZOOM},
-//        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
+    /* Simple DirectManipulation Test -------------------*/
 
+    final RealType ir_radiance =
+      RealType.getRealType("ir_radiance", CommonUnit.degree);
+    Unit cycles = CommonUnit.dimensionless.divide(CommonUnit.second);
+    Unit hz = cycles.clone("Hz");
+    final RealType count = RealType.getRealType("count", hz);
+    FunctionType ir_histogram = new FunctionType(ir_radiance, count);
+    final RealType vis_radiance = RealType.getRealType("vis_radiance");
 
-      /* Test61: Volume Rendering */
-     
-    RealType xr = RealType.getRealType("xr");
-    RealType yr = RealType.getRealType("yr");
-    RealType zr = RealType.getRealType("zr");
-    RealType wr = RealType.getRealType("wr");
-    RealType[] types3d = {xr, yr, zr};
-    RealTupleType earth_location3d = new RealTupleType(types3d);
-    FunctionType grid_tuple = new FunctionType(earth_location3d, wr);
+    int size = 64;
+    FlatField histogram1 = FlatField.makeField(ir_histogram, size, false);
+    Real direct = new Real(ir_radiance, 2.0);
+    Real[] reals3 = {new Real(count, 1.0), new Real(ir_radiance, 2.0),
+                     new Real(vis_radiance, 1.0)};
+    RealTuple direct_tuple = new RealTuple(reals3);
 
-    int NX = 256;
-    int NY = 256;
-    int NZ = 256;
-    Integer3DSet set = new Integer3DSet(NX, NY, NZ);
-    FlatField grid3d = new FlatField(grid_tuple, set);
+    DataReferenceImpl ref_direct = new DataReferenceImpl("ref_direct");
+    ref_direct.setData(direct);
+    DataReference[] refs1 = {ref_direct};
 
-    float[][] values = new float[1][NX * NY * NZ];
-    int k = 0;
-    for (int iz=0; iz<NZ; iz++) {
-      // double z = Math.PI * (-1.0 + 2.0 * iz / (NZ - 1.0));
-      double z = Math.PI * (-1.0 + 2.0 * iz * iz / ((NZ - 1.0)*(NZ - 1.0)) );
-      for (int iy=0; iy<NY; iy++) {
-        double y = -1.0 + 2.0 * iy / (NY - 1.0);
-        for (int ix=0; ix<NX; ix++) {
-          double x = -1.0 + 2.0 * ix / (NX - 1.0);
-          double r = x - 0.5 * Math.cos(z);
-          double s = y - 0.5 * Math.sin(z);
-          double dist = Math.sqrt(r * r + s * s);
-          values[0][k] = (float) ((dist < 0.1) ? 10.0 : 1.0 / dist);
-          k++;
-        }
-      }
-    }
-    grid3d.setSamples(values);
+    DataReferenceImpl ref_direct_tuple =
+      new DataReferenceImpl("ref_direct_tuple");
+    ref_direct_tuple.setData(direct_tuple);
+    DataReference[] refs2 = {ref_direct_tuple};
 
-    display.addMap(new ScalarMap(xr, Display.XAxis));
-    display.addMap(new ScalarMap(yr, Display.YAxis));
-    display.addMap(new ScalarMap(zr, Display.ZAxis));
+    DataReferenceImpl ref_histogram1 = new DataReferenceImpl("ref_histogram1");
+    ref_histogram1.setData(histogram1);
+    DataReference[] refs3 = {ref_histogram1};
 
-    ScalarMap xrange = new ScalarMap(xr, Display.SelectRange);
-    ScalarMap yrange = new ScalarMap(yr, Display.SelectRange);
-    ScalarMap zrange = new ScalarMap(zr, Display.SelectRange);
-    display.addMap(xrange);
-    display.addMap(yrange);
-    display.addMap(zrange);
+    display.addMap(new ScalarMap(vis_radiance, Display.ZAxis));
+    display.addMap(new ScalarMap(ir_radiance, Display.XAxis));
+    display.addMap(new ScalarMap(count, Display.YAxis));
+    display.addMap(new ScalarMap(count, Display.Green));
+    final DisplayRenderer dr1 = display.getDisplayRenderer();
 
     GraphicsModeControl mode = display.getGraphicsModeControl();
     mode.setScaleEnable(true);
 
-    mode.setTexture3DMode(GraphicsModeControl.STACK2D);
+    display.addReferences(new DirectManipulationRendererA3D(), refs1, new ConstantMap[][] {{new ConstantMap(6f, Display.PointSize)}});
+    display.addReferences(new DirectManipulationRendererA3D(), refs2, new ConstantMap[][] {{new ConstantMap(10f, Display.PointSize)}});
+    display.addReferences(new DirectManipulationRendererA3D(), refs3, new ConstantMap[][] {{new ConstantMap(4f, Display.LineWidth)}});
 
-    // new
-    RealType duh = RealType.getRealType("duh");
-    int NT = 32;
-    Linear2DSet set2 = new Linear2DSet(0.0, (double) NX, NT,
-                                       0.0, (double) NY, NT);
-    RealType[] types2d = {xr, yr};
-    RealTupleType domain2 = new RealTupleType(types2d);
-    FunctionType ftype2 = new FunctionType(domain2, duh);
-    float[][] v2 = new float[1][NT * NT];
-    for (int i=0; i<NT*NT; i++) {
-      v2[0][i] = (i * i) % (NT/2 +3);
-    }
-    // float[][] v2 = {{1.0f,2.0f,3.0f,4.0f}};
-    FlatField field2 = new FlatField(ftype2,set2);
-    field2.setSamples(v2);
-    display.addMap(new ScalarMap(duh, Display.RGB));
+    MouseHelper helper = dr1.getMouseBehavior().getMouseHelper();
+    helper.setFunctionMap(new int[][][]
+      {{{MouseHelper.DIRECT, MouseHelper.DIRECT},
+        {MouseHelper.DIRECT, MouseHelper.DIRECT}},
+       {{MouseHelper.ROTATE, MouseHelper.NONE},
+        {MouseHelper.NONE, MouseHelper.NONE}},
+       {{MouseHelper.TRANSLATE, MouseHelper.ZOOM},
+        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
 
-    ScalarMap map1color = new ScalarMap(wr, Display.RGBA);
-    display.addMap(map1color);
 
-    ColorAlphaControl control = (ColorAlphaControl) map1color.getControl();
-    control.setTable(buildTable(control.getTable()));
-
-    DataReferenceImpl ref_grid3d = new DataReferenceImpl("ref_grid3d");
-    ref_grid3d.setData(grid3d);
-
-    DataReferenceImpl ref2 = new DataReferenceImpl("ref2");
-    ref2.setData(field2);
-
-    ConstantMap[] cmaps = {new ConstantMap(0.0, Display.TextureEnable)};
-    display.addReference(ref2, cmaps);
-
-    display.addReference(ref_grid3d, null);
-
-    widget = getSpecialComponent(display);
+      /* Test61: Volume Rendering */
+     
+//    RealType xr = RealType.getRealType("xr");
+//    RealType yr = RealType.getRealType("yr");
+//    RealType zr = RealType.getRealType("zr");
+//    RealType wr = RealType.getRealType("wr");
+//    RealType[] types3d = {xr, yr, zr};
+//    RealTupleType earth_location3d = new RealTupleType(types3d);
+//    FunctionType grid_tuple = new FunctionType(earth_location3d, wr);
+//
+//    int NX = 256;
+//    int NY = 256;
+//    int NZ = 256;
+//    Integer3DSet set = new Integer3DSet(NX, NY, NZ);
+//    FlatField grid3d = new FlatField(grid_tuple, set);
+//
+//    float[][] values = new float[1][NX * NY * NZ];
+//    int k = 0;
+//    for (int iz=0; iz<NZ; iz++) {
+//      // double z = Math.PI * (-1.0 + 2.0 * iz / (NZ - 1.0));
+//      double z = Math.PI * (-1.0 + 2.0 * iz * iz / ((NZ - 1.0)*(NZ - 1.0)) );
+//      for (int iy=0; iy<NY; iy++) {
+//        double y = -1.0 + 2.0 * iy / (NY - 1.0);
+//        for (int ix=0; ix<NX; ix++) {
+//          double x = -1.0 + 2.0 * ix / (NX - 1.0);
+//          double r = x - 0.5 * Math.cos(z);
+//          double s = y - 0.5 * Math.sin(z);
+//          double dist = Math.sqrt(r * r + s * s);
+//          values[0][k] = (float) ((dist < 0.1) ? 10.0 : 1.0 / dist);
+//          k++;
+//        }
+//      }
+//    }
+//    grid3d.setSamples(values);
+//
+//    display.addMap(new ScalarMap(xr, Display.XAxis));
+//    display.addMap(new ScalarMap(yr, Display.YAxis));
+//    display.addMap(new ScalarMap(zr, Display.ZAxis));
+//
+//    ScalarMap xrange = new ScalarMap(xr, Display.SelectRange);
+//    ScalarMap yrange = new ScalarMap(yr, Display.SelectRange);
+//    ScalarMap zrange = new ScalarMap(zr, Display.SelectRange);
+//    display.addMap(xrange);
+//    display.addMap(yrange);
+//    display.addMap(zrange);
+//
+//    GraphicsModeControl mode = display.getGraphicsModeControl();
+//    mode.setScaleEnable(true);
+//
+//    mode.setTexture3DMode(GraphicsModeControl.STACK2D);
+//
+//    // new
+//    RealType duh = RealType.getRealType("duh");
+//    int NT = 32;
+//    Linear2DSet set2 = new Linear2DSet(0.0, (double) NX, NT,
+//                                       0.0, (double) NY, NT);
+//    RealType[] types2d = {xr, yr};
+//    RealTupleType domain2 = new RealTupleType(types2d);
+//    FunctionType ftype2 = new FunctionType(domain2, duh);
+//    float[][] v2 = new float[1][NT * NT];
+//    for (int i=0; i<NT*NT; i++) {
+//      v2[0][i] = (i * i) % (NT/2 +3);
+//    }
+//    // float[][] v2 = {{1.0f,2.0f,3.0f,4.0f}};
+//    FlatField field2 = new FlatField(ftype2,set2);
+//    field2.setSamples(v2);
+//    display.addMap(new ScalarMap(duh, Display.RGB));
+//
+//    ScalarMap map1color = new ScalarMap(wr, Display.RGBA);
+//    display.addMap(map1color);
+//
+//    ColorAlphaControl control = (ColorAlphaControl) map1color.getControl();
+//    control.setTable(buildTable(control.getTable()));
+//
+//    DataReferenceImpl ref_grid3d = new DataReferenceImpl("ref_grid3d");
+//    ref_grid3d.setData(grid3d);
+//
+//    DataReferenceImpl ref2 = new DataReferenceImpl("ref2");
+//    ref2.setData(field2);
+//
+//    ConstantMap[] cmaps = {new ConstantMap(0.0, Display.TextureEnable)};
+//    display.addReference(ref2, cmaps);
+//
+//    display.addReference(ref_grid3d, null);
+//
+//    widget = getSpecialComponent(display);
 
 
        /* Main display window */
