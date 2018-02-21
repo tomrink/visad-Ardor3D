@@ -1154,15 +1154,6 @@ public class DisplayImplA3D extends DisplayImpl {
 //    widget = getSpecialComponent(display);
 
 
-       /* Main display window */
-//       final JComponent outerComp = new JPanel(new BorderLayout());
-//       JPanel cntrlPanel = new JPanel(new FlowLayout());
-//       JPanel panel = new JPanel();
-//       final Component comp = display.getComponent();
-//       outerComp.add(comp, BorderLayout.CENTER);
-//       outerComp.add(cntrlPanel, BorderLayout.SOUTH);
-//       frame.getContentPane().add(outerComp);  
-       
       /* If we have a control widget */
        if (widget != null) {
           JPanel panel2 = new JPanel();
