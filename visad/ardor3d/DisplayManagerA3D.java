@@ -46,8 +46,8 @@ import java.awt.event.MouseEvent;
 
 public class DisplayManagerA3D implements Updater {
    
-    private Node root;
-    private Node transform;
+    private final Node root;
+    private final Node transform;
     
     private Component canvas;
     private final CanvasRenderer canvasRenderer;
@@ -88,9 +88,14 @@ public class DisplayManagerA3D implements Updater {
         
         frameWork.addUpdater(this);
         
+        dspRenderer.createSceneGraph();
+        root = dspRenderer.getRoot();
+        transform = dspRenderer.getTransformNode();
+        
         //canvasRenderer = new JoglCanvasRenderer(dspRenderer, false, null, false);
         canvasRenderer = new JoglCanvasRenderer(dspRenderer);
-        
+
+        ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
         dspRenderer.setCanvasRenderer(canvasRenderer);
         dspRenderer.setDisplayManager(this);
         
@@ -360,12 +365,6 @@ public class DisplayManagerA3D implements Updater {
         if (frameHandlerInitialized) {
            return;
         }
-        
-        dspRenderer.createSceneGraph();
-        root = dspRenderer.getRoot();
-        transform = dspRenderer.getTransformNode();
-        ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
-        
         frameHandlerInitialized = true;
     }
     
