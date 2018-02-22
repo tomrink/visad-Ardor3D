@@ -434,26 +434,3 @@ class Initialize {
       return logicalLayer;
    }
 }
-
-/*
-class DisplayManagerInitializer implements Runnable {
-   
-   private CanvasRenderer canvasRenderer;
-   private DisplayRendererA3D dspRenderer;
-   
-   DisplayManagerInitializer(CanvasRenderer canvasRenderer, DisplayRendererA3D dspRenderer) {
-      this.canvasRenderer = canvasRenderer;
-      this.dspRenderer = dspRenderer;   
-   }
-
-   @Override
-   public void run() {
-      RenderContext renderContext = canvasRenderer.getRenderContext();
-      while (renderContext == null) {
-         renderContext = canvasRenderer.getRenderContext();
-      }
-      dspRenderer.setCapabilities(renderContext.getCapabilities());
-   }
-      
-}
-*/
