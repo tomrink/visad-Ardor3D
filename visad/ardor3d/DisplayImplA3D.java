@@ -1067,7 +1067,7 @@ public class DisplayImplA3D extends DisplayImpl {
 
 
       /* Test61: Volume Rendering */
-     
+      
     RealType xr = RealType.getRealType("xr");
     RealType yr = RealType.getRealType("yr");
     RealType zr = RealType.getRealType("zr");
@@ -1085,7 +1085,6 @@ public class DisplayImplA3D extends DisplayImpl {
     float[][] values = new float[1][NX * NY * NZ];
     int k = 0;
     for (int iz=0; iz<NZ; iz++) {
-      // double z = Math.PI * (-1.0 + 2.0 * iz / (NZ - 1.0));
       double z = Math.PI * (-1.0 + 2.0 * iz * iz / ((NZ - 1.0)*(NZ - 1.0)) );
       for (int iy=0; iy<NY; iy++) {
         double y = -1.0 + 2.0 * iy / (NY - 1.0);
@@ -1129,7 +1128,6 @@ public class DisplayImplA3D extends DisplayImpl {
     for (int i=0; i<NT*NT; i++) {
       v2[0][i] = (i * i) % (NT/2 +3);
     }
-    // float[][] v2 = {{1.0f,2.0f,3.0f,4.0f}};
     FlatField field2 = new FlatField(ftype2,set2);
     field2.setSamples(v2);
     display.addMap(new ScalarMap(duh, Display.RGB));
@@ -1154,8 +1152,8 @@ public class DisplayImplA3D extends DisplayImpl {
     widget = getSpecialComponent(display);
 
 
-      /* If we have a control widget */
-       if (widget != null) {
+    /* If we have a control widget */
+    if (widget != null) {
           JPanel panel2 = new JPanel();
           panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
           panel2.setAlignmentY(JPanel.TOP_ALIGNMENT);
@@ -1169,9 +1167,7 @@ public class DisplayImplA3D extends DisplayImpl {
 
           frame2.pack();
           frame2.setVisible(true);
-       }
-       
-       //mode.setProjectionPolicy(1);
+    }
        
     }
     
