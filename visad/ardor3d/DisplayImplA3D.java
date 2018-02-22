@@ -209,7 +209,6 @@ public class DisplayImplA3D extends DisplayImpl {
           throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
        }
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
-       dspRenderer.createSceneGraph();
        DisplayManagerA3D manager = new DisplayManagerA3D(comp, new Dimension(width, height), dspRenderer, api);
        Component component = manager.getCanvas();
        setComponent(component);
@@ -787,15 +786,6 @@ public class DisplayImplA3D extends DisplayImpl {
 //       FieldImpl dataFld;
 //       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
 //       dataFld = FlatField.makeField(fncType, 2048, false);
-//       
-//       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
-//       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
-//       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
-//       
-//       display.addMap(xmap);
-//       display.addMap(ymap);
-//       display.addMap(cmap);
-//       widget = new ColorMapWidget(cmap);
 //       
 //       /* test 2 */
 //       FunctionType fldType = new FunctionType(RealType.Time, fncType);
