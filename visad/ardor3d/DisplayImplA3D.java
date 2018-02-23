@@ -161,7 +161,7 @@ public class DisplayImplA3D extends DisplayImpl {
   // can enable this based on the Canvas3D properties.
   public static final boolean TEXTURE_NPOT;
   static {
-    TEXTURE_NPOT = Boolean.parseBoolean(System.getProperty(PROP_TEXTURE_NPOT, "false"));
+    TEXTURE_NPOT = Boolean.parseBoolean(System.getProperty(PROP_TEXTURE_NPOT, "true"));
     //System.err.println("TEXTURE_NPOT:"+TEXTURE_NPOT);
   }
   
@@ -209,7 +209,6 @@ public class DisplayImplA3D extends DisplayImpl {
           throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
        }
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
-       dspRenderer.createSceneGraph();
        DisplayManagerA3D manager = new DisplayManagerA3D(comp, new Dimension(width, height), dspRenderer, api);
        Component component = manager.getCanvas();
        setComponent(component);
@@ -784,19 +783,18 @@ public class DisplayImplA3D extends DisplayImpl {
 //       modeCtrl.setPointSize(2);
        
        /* Simple Test 1 */
-//       FieldImpl dataFld;
-//       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
-//       dataFld = FlatField.makeField(fncType, 2048, false);
-//       
-//       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
-//       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
-//       ScalarMap cmap = new ScalarMap(RealType.Generic, Display.RGBA);
-//       
-//       display.addMap(xmap);
-//       display.addMap(ymap);
-//       display.addMap(cmap);
-//       widget = new ColorMapWidget(cmap);
-//       
+       FieldImpl dataFld;
+       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
+       dataFld = FlatField.makeField(fncType, 2048, false);
+       
+       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
+       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
+       ScalarMap clrMap = new ScalarMap(RealType.Generic, Display.RGB);
+       
+       display.addMap(xmap);
+       display.addMap(ymap);
+       display.addMap(clrMap);
+       
 //       /* test 2 */
 //       FunctionType fldType = new FunctionType(RealType.Time, fncType);
 //       Integer1DSet outerDom = new Integer1DSet(RealType.Time, 10);
@@ -826,9 +824,9 @@ public class DisplayImplA3D extends DisplayImpl {
 //       display.addMap(new ConstantMap(0.5f, Display.Blue));
 //       //display.addMap(new ConstantMap(0.5, Display.Alpha));
        
-//         DataReferenceImpl ref = new DataReferenceImpl("vfld");
-//         ref.setData(dataFld);
-//         display.addReferences(new ImageRendererA3D(), ref);
+         DataReferenceImpl ref = new DataReferenceImpl("vfld");
+         ref.setData(dataFld);
+         display.addReference(ref);
          //display.enableAction();
        
  
@@ -1015,59 +1013,58 @@ public class DisplayImplA3D extends DisplayImpl {
 
     /* Simple DirectManipulation Test -------------------*/
 
-    final RealType ir_radiance =
-      RealType.getRealType("ir_radiance", CommonUnit.degree);
-    Unit cycles = CommonUnit.dimensionless.divide(CommonUnit.second);
-    Unit hz = cycles.clone("Hz");
-    final RealType count = RealType.getRealType("count", hz);
-    FunctionType ir_histogram = new FunctionType(ir_radiance, count);
-    final RealType vis_radiance = RealType.getRealType("vis_radiance");
-
-    int size = 64;
-    FlatField histogram1 = FlatField.makeField(ir_histogram, size, false);
-    Real direct = new Real(ir_radiance, 2.0);
-    Real[] reals3 = {new Real(count, 1.0), new Real(ir_radiance, 2.0),
-                     new Real(vis_radiance, 1.0)};
-    RealTuple direct_tuple = new RealTuple(reals3);
-
-    DataReferenceImpl ref_direct = new DataReferenceImpl("ref_direct");
-    ref_direct.setData(direct);
-    DataReference[] refs1 = {ref_direct};
-
-    DataReferenceImpl ref_direct_tuple =
-      new DataReferenceImpl("ref_direct_tuple");
-    ref_direct_tuple.setData(direct_tuple);
-    DataReference[] refs2 = {ref_direct_tuple};
-
-    DataReferenceImpl ref_histogram1 = new DataReferenceImpl("ref_histogram1");
-    ref_histogram1.setData(histogram1);
-    DataReference[] refs3 = {ref_histogram1};
-
-    display.addMap(new ScalarMap(vis_radiance, Display.ZAxis));
-    display.addMap(new ScalarMap(ir_radiance, Display.XAxis));
-    display.addMap(new ScalarMap(count, Display.YAxis));
-    display.addMap(new ScalarMap(count, Display.Green));
-    final DisplayRenderer dr1 = display.getDisplayRenderer();
-
-    GraphicsModeControl mode = display.getGraphicsModeControl();
-    mode.setScaleEnable(true);
-
-    display.addReferences(new DirectManipulationRendererA3D(), refs1, new ConstantMap[][] {{new ConstantMap(6f, Display.PointSize)}});
-    display.addReferences(new DirectManipulationRendererA3D(), refs2, new ConstantMap[][] {{new ConstantMap(10f, Display.PointSize)}});
-    display.addReferences(new DirectManipulationRendererA3D(), refs3, new ConstantMap[][] {{new ConstantMap(4f, Display.LineWidth)}});
-
-    MouseHelper helper = dr1.getMouseBehavior().getMouseHelper();
-    helper.setFunctionMap(new int[][][]
-      {{{MouseHelper.DIRECT, MouseHelper.DIRECT},
-        {MouseHelper.DIRECT, MouseHelper.DIRECT}},
-       {{MouseHelper.ROTATE, MouseHelper.NONE},
-        {MouseHelper.NONE, MouseHelper.NONE}},
-       {{MouseHelper.TRANSLATE, MouseHelper.ZOOM},
-        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
+//    final RealType ir_radiance =
+//      RealType.getRealType("ir_radiance", CommonUnit.degree);
+//    Unit cycles = CommonUnit.dimensionless.divide(CommonUnit.second);
+//    Unit hz = cycles.clone("Hz");
+//    final RealType count = RealType.getRealType("count", hz);
+//    FunctionType ir_histogram = new FunctionType(ir_radiance, count);
+//    final RealType vis_radiance = RealType.getRealType("vis_radiance");
+//
+//    int NX = 256;
+//    int NY = 256;
+//    int NZ = 256;
+//    Integer3DSet set = new Integer3DSet(NX, NY, NZ);
+//    FlatField grid3d = new FlatField(grid_tuple, set);
+//
+//    DataReferenceImpl ref_direct = new DataReferenceImpl("ref_direct");
+//    ref_direct.setData(direct);
+//    DataReference[] refs1 = {ref_direct};
+//
+//    DataReferenceImpl ref_direct_tuple =
+//      new DataReferenceImpl("ref_direct_tuple");
+//    ref_direct_tuple.setData(direct_tuple);
+//    DataReference[] refs2 = {ref_direct_tuple};
+//
+//    DataReferenceImpl ref_histogram1 = new DataReferenceImpl("ref_histogram1");
+//    ref_histogram1.setData(histogram1);
+//    DataReference[] refs3 = {ref_histogram1};
+//
+//    display.addMap(new ScalarMap(vis_radiance, Display.ZAxis));
+//    display.addMap(new ScalarMap(ir_radiance, Display.XAxis));
+//    display.addMap(new ScalarMap(count, Display.YAxis));
+//    display.addMap(new ScalarMap(count, Display.Green));
+//    final DisplayRenderer dr1 = display.getDisplayRenderer();
+//
+//    GraphicsModeControl mode = display.getGraphicsModeControl();
+//    mode.setScaleEnable(true);
+//
+//    display.addReferences(new DirectManipulationRendererA3D(), refs1, new ConstantMap[][] {{new ConstantMap(6f, Display.PointSize)}});
+//    display.addReferences(new DirectManipulationRendererA3D(), refs2, new ConstantMap[][] {{new ConstantMap(10f, Display.PointSize)}});
+//    display.addReferences(new DirectManipulationRendererA3D(), refs3, new ConstantMap[][] {{new ConstantMap(4f, Display.LineWidth)}});
+//
+//    MouseHelper helper = dr1.getMouseBehavior().getMouseHelper();
+//    helper.setFunctionMap(new int[][][]
+//      {{{MouseHelper.DIRECT, MouseHelper.DIRECT},
+//        {MouseHelper.DIRECT, MouseHelper.DIRECT}},
+//       {{MouseHelper.ROTATE, MouseHelper.NONE},
+//        {MouseHelper.NONE, MouseHelper.NONE}},
+//       {{MouseHelper.TRANSLATE, MouseHelper.ZOOM},
+//        {MouseHelper.NONE, MouseHelper.TRANSLATE}}});
 
 
       /* Test61: Volume Rendering */
-     
+      
 //    RealType xr = RealType.getRealType("xr");
 //    RealType yr = RealType.getRealType("yr");
 //    RealType zr = RealType.getRealType("zr");
@@ -1076,16 +1073,15 @@ public class DisplayImplA3D extends DisplayImpl {
 //    RealTupleType earth_location3d = new RealTupleType(types3d);
 //    FunctionType grid_tuple = new FunctionType(earth_location3d, wr);
 //
-//    int NX = 256;
-//    int NY = 256;
-//    int NZ = 256;
+//    int NX = 100;
+//    int NY = 100;
+//    int NZ = 100;
 //    Integer3DSet set = new Integer3DSet(NX, NY, NZ);
 //    FlatField grid3d = new FlatField(grid_tuple, set);
 //
 //    float[][] values = new float[1][NX * NY * NZ];
 //    int k = 0;
 //    for (int iz=0; iz<NZ; iz++) {
-//      // double z = Math.PI * (-1.0 + 2.0 * iz / (NZ - 1.0));
 //      double z = Math.PI * (-1.0 + 2.0 * iz * iz / ((NZ - 1.0)*(NZ - 1.0)) );
 //      for (int iy=0; iy<NY; iy++) {
 //        double y = -1.0 + 2.0 * iy / (NY - 1.0);
@@ -1129,7 +1125,6 @@ public class DisplayImplA3D extends DisplayImpl {
 //    for (int i=0; i<NT*NT; i++) {
 //      v2[0][i] = (i * i) % (NT/2 +3);
 //    }
-//    // float[][] v2 = {{1.0f,2.0f,3.0f,4.0f}};
 //    FlatField field2 = new FlatField(ftype2,set2);
 //    field2.setSamples(v2);
 //    display.addMap(new ScalarMap(duh, Display.RGB));
@@ -1154,17 +1149,8 @@ public class DisplayImplA3D extends DisplayImpl {
 //    widget = getSpecialComponent(display);
 
 
-       /* Main display window */
-//       final JComponent outerComp = new JPanel(new BorderLayout());
-//       JPanel cntrlPanel = new JPanel(new FlowLayout());
-//       JPanel panel = new JPanel();
-//       final Component comp = display.getComponent();
-//       outerComp.add(comp, BorderLayout.CENTER);
-//       outerComp.add(cntrlPanel, BorderLayout.SOUTH);
-//       frame.getContentPane().add(outerComp);  
-       
-      /* If we have a control widget */
-       if (widget != null) {
+    /* If we have a control widget */
+    if (widget != null) {
           JPanel panel2 = new JPanel();
           panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
           panel2.setAlignmentY(JPanel.TOP_ALIGNMENT);
@@ -1178,9 +1164,7 @@ public class DisplayImplA3D extends DisplayImpl {
 
           frame2.pack();
           frame2.setVisible(true);
-       }
-       
-       //mode.setProjectionPolicy(1);
+    }
        
     }
     

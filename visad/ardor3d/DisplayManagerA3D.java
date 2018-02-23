@@ -75,6 +75,9 @@ public class DisplayManagerA3D implements Updater {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
         
+        this.dspRenderer = dspRenderer;
+        this.canvasType = canvasType;
+        
         /* Only one of these per JVM (suggestion by J.Gouessej of Jogamp), but can be modified
            for one per display 
         */
@@ -83,16 +86,18 @@ public class DisplayManagerA3D implements Updater {
         myRunner = Initialize.getRunner(frameWork);
         logicalLayer = Initialize.getLogicalLayer();
         
-        this.dspRenderer = dspRenderer;
-        this.canvasType = canvasType;
+        frameWork.addUpdater(this);
         
+        dspRenderer.createSceneGraph();
         root = dspRenderer.getRoot();
         transform = dspRenderer.getTransformNode();
         
-        frameWork.addUpdater(this);
- 
         //canvasRenderer = new JoglCanvasRenderer(dspRenderer, false, null, false);
         canvasRenderer = new JoglCanvasRenderer(dspRenderer);
+
+        ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
+        dspRenderer.setCanvasRenderer(canvasRenderer);
+        dspRenderer.setDisplayManager(this);
         
         // Custom settings for Camera
         Camera camera = new Camera(size.width, size.height);
@@ -104,10 +109,6 @@ public class DisplayManagerA3D implements Updater {
         /** Move our camera to a correct place and orientation. */
         camera.setFrame(loc, left, up, dir);
         canvasRenderer.setCamera(camera);
-        
-        dspRenderer.setCanvasRenderer(canvasRenderer);
-        ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
-        dspRenderer.setDisplayManager(this);
         
 
         final DisplaySettings settings = new DisplaySettings(size.width, size.height, 24, 0, 0, 16, 0, 0, false, false);        
@@ -138,6 +139,7 @@ public class DisplayManagerA3D implements Updater {
         
         registerInputTriggers();
         
+        /* This should be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
         myRunner.start();
     }
     
@@ -339,19 +341,6 @@ public class DisplayManagerA3D implements Updater {
        return canvasRenderer;
     }
     
-//    public void start() {
-//       if (myRunner == null) {
-//          myRunner = new RunnerA3D(frameWork, canvasRenderer, dspRenderer, this);
-//          myRunner.start();
-//       }
-//       markNeedDraw();
-//    }
-//    
-//    public void stop() {
-//       myRunner.exit();
-//       myRunner = null;
-//    }
-    
     @Override
     public void update(ReadOnlyTimer rot) {
        logicalLayer.checkTriggers(rot.getTimePerFrame());
@@ -434,26 +423,3 @@ class Initialize {
       return logicalLayer;
    }
 }
-
-/*
-class DisplayManagerInitializer implements Runnable {
-   
-   private CanvasRenderer canvasRenderer;
-   private DisplayRendererA3D dspRenderer;
-   
-   DisplayManagerInitializer(CanvasRenderer canvasRenderer, DisplayRendererA3D dspRenderer) {
-      this.canvasRenderer = canvasRenderer;
-      this.dspRenderer = dspRenderer;   
-   }
-
-   @Override
-   public void run() {
-      RenderContext renderContext = canvasRenderer.getRenderContext();
-      while (renderContext == null) {
-         renderContext = canvasRenderer.getRenderContext();
-      }
-      dspRenderer.setCapabilities(renderContext.getCapabilities());
-   }
-      
-}
-*/
