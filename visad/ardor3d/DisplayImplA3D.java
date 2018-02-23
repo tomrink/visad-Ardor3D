@@ -1021,11 +1021,12 @@ public class DisplayImplA3D extends DisplayImpl {
 //    FunctionType ir_histogram = new FunctionType(ir_radiance, count);
 //    final RealType vis_radiance = RealType.getRealType("vis_radiance");
 //
-//    int NX = 256;
-//    int NY = 256;
-//    int NZ = 256;
-//    Integer3DSet set = new Integer3DSet(NX, NY, NZ);
-//    FlatField grid3d = new FlatField(grid_tuple, set);
+//    int size = 64;
+//    FlatField histogram1 = FlatField.makeField(ir_histogram, size, false);
+//    Real direct = new Real(ir_radiance, 2.0);
+//    Real[] reals3 = {new Real(count, 1.0), new Real(ir_radiance, 2.0),
+//                     new Real(vis_radiance, 1.0)};
+//    RealTuple direct_tuple = new RealTuple(reals3);
 //
 //    DataReferenceImpl ref_direct = new DataReferenceImpl("ref_direct");
 //    ref_direct.setData(direct);
