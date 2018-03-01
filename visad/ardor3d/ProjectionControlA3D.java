@@ -29,7 +29,7 @@ package visad.ardor3d;
 import com.ardor3d.math.Matrix3;
 import com.ardor3d.math.Matrix4;
 import com.ardor3d.math.Transform;
-import com.ardor3d.scenegraph.extension.SwitchNode;
+import visad.ardor3d.SwitchNode;
 import visad.*;
 
 import java.rmi.*;

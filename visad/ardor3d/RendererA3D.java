@@ -28,7 +28,7 @@ package visad.ardor3d;
 
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.extension.SwitchNode;
+import visad.ardor3d.SwitchNode;
 import visad.*;
 import visad.util.Delay;
 

@@ -27,7 +27,7 @@ MA 02111-1307, USA
 package visad.ardor3d;
 
 import com.ardor3d.scenegraph.Node;
-import com.ardor3d.scenegraph.extension.SwitchNode;
+import visad.ardor3d.SwitchNode;
 import visad.*;
 
 import java.util.Vector;
