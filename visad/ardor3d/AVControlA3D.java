@@ -26,11 +26,13 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
-import com.ardor3d.scenegraph.extension.SwitchNode;
+import visad.ardor3d.SwitchNode;
+import com.ardor3d.util.GameTaskQueue;
 import visad.*;
 
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.concurrent.Callable;
 
 /**
    AVControlA3D is the VisAD abstract superclass for AnimationControlA3D
@@ -145,7 +147,26 @@ public abstract class AVControlA3D extends Control implements AVControl {
         double upper = values[0][0] + (resInSecs/2.0);
         indices = new int[] {getIndexForRange(set, lower, upper)};
       }
-
+      
+      Callable updateCallable = new Callable() {
+          public Object call() {
+             displayRenderer.getCanvasRenderer().makeCurrentContext();
+             
+             if (0 <= indices[0] && indices[0] < ss.swit.getNumberOfChildren()) {
+                ss.setWhichChild(indices[0]);
+             }
+             else {
+                ss.setWhichChild(VisADSwitch.NONE_VISIBLE);
+             }
+             
+             displayRenderer.getCanvasRenderer().releaseCurrentContext();
+             return null;
+          }
+       };
+       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
+       //uQueue.enqueue(updateCallable);
+       //uQueue.execute();
+       
       if (0 <= indices[0] && indices[0] < ss.swit.getNumberOfChildren()) {
         ss.setWhichChild(indices[0]);
       }
@@ -153,6 +174,7 @@ public abstract class AVControlA3D extends Control implements AVControl {
         ss.setWhichChild(VisADSwitch.NONE_VISIBLE);
       }
       displayRenderer.markNeedDraw();
+      
     } // end while (pairs.hasMoreElements())
   }
   

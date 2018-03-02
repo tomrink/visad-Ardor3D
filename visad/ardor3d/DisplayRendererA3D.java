@@ -44,11 +44,13 @@ import com.ardor3d.scenegraph.Mesh;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.event.DirtyType;
-import com.ardor3d.scenegraph.extension.SwitchNode;
+import visad.ardor3d.SwitchNode;
+import com.ardor3d.util.GameTaskQueue;
 
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 import visad.AxisScale;
 import visad.ColorAlphaControl;
@@ -573,8 +575,19 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   public void addSceneGraphComponent(Object group) {
     if (not_destroyed == null) return;
+       Callable updateCallable = new Callable() {
+          public Object call() {
+             canvasRenderer.makeCurrentContext();
+             non_direct.attachChild((Node)group);
+             canvasRenderer.releaseCurrentContext();
+             return null;
+          }
+       };
+       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
+       //uQueue.enqueue(updateCallable);
+       //uQueue.execute();    
     non_direct.attachChild((Node)group);
-    markNeedDraw();
+    //markNeedDraw();
   }
 
   public void addLockedSceneGraphComponent(Object node) {
@@ -1130,6 +1143,17 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       /* experiment
       needDraw = true;
       */
+      Callable updateCallable = new Callable() {
+          public Object call() {
+             canvasRenderer.makeCurrentContext();
+             trans.setTransform(t);
+             canvasRenderer.releaseCurrentContext();
+             return null;
+          }
+      };
+      GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
+      //uQueue.enqueue(updateCallable);
+      //uQueue.execute();
       trans.setTransform(t);
     }
   }
