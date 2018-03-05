@@ -30,6 +30,7 @@ import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.math.Transform;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.state.MaterialState;
+import com.ardor3d.renderer.state.OffsetState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
 import visad.*;
@@ -1215,7 +1216,28 @@ public abstract class ShadowTypeA3D extends ShadowType {
     MaterialState material = new MaterialState();
     material.setColorMaterial(MaterialState.ColorMaterial.Diffuse);
     //material.setColorMaterial(MaterialState.ColorMaterial.AmbientAndDiffuse);          
-    geometry.setRenderState(material);    
+    geometry.setRenderState(material);
+    
+    // Check polygon offset
+    float polygonOffset = mode.getPolygonOffset();
+    OffsetState offState = null;
+    if (!Float.isNaN(polygonOffset)) {
+       offState = new OffsetState();
+       offState.setTypeEnabled(OffsetState.OffsetType.Fill, true);
+       offState.setUnits(polygonOffset);
+    }
+    
+    float polygonOffsetFactor = mode.getPolygonOffsetFactor();
+    if (!Float.isNaN(polygonOffsetFactor)) {
+       if (offState == null) {
+          offState = new OffsetState();
+          offState.setTypeEnabled(OffsetState.OffsetType.Fill, true);          
+       }
+       offState.setFactor(polygonOffsetFactor);
+    }
+    if (offState != null) {
+       geometry.setRenderState(offState);
+    }
       
 //      Leave here for reference for now.      
 //      Appearance appearance = makeCachedAppearance(mode, c_alpha, c_color, geometry, false, true);
