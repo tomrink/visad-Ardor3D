@@ -784,11 +784,11 @@ public class DisplayImplA3D extends DisplayImpl {
        
        /* Simple Test 1 */
        FieldImpl dataFld;
-       FunctionType fncType = new FunctionType(RealTupleType.SpatialEarth2DTuple, RealType.Generic);
+       FunctionType fncType = new FunctionType(new RealTupleType(RealType.XAxis, RealType.YAxis), RealType.Generic);
        dataFld = FlatField.makeField(fncType, 2048, false);
        
-       ScalarMap xmap = new ScalarMap(RealType.Longitude, Display.XAxis);
-       ScalarMap ymap = new ScalarMap(RealType.Latitude, Display.YAxis);
+       ScalarMap xmap = new ScalarMap(RealType.XAxis, Display.XAxis);
+       ScalarMap ymap = new ScalarMap(RealType.YAxis, Display.YAxis);
        ScalarMap clrMap = new ScalarMap(RealType.Generic, Display.RGB);
        
        display.addMap(xmap);
