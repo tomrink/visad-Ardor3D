@@ -25,29 +25,22 @@ public abstract class SceneA3D implements Scene
 
   // for screen locked
   private OrderedNode screen_locked = null;
-  private TransformNode locked_trans = null;
+  private Node locked_trans = null;
 
   /** root Node of scene graph for this display */
   private com.ardor3d.scenegraph.Node root = null;
   
   /** single Node for a common model Transfrom between root and Nodes holding
    * all Data depiction sub-graphs */
-  private TransformNode trans = null;
+  private Node trans = null;
   
   private OrderedNode non_direct = null;
-
-
-  /** MouseBehaviorA3D */
-  private MouseBehaviorA3D mouse = null;
-
-  /** KeyboardBehaviorA3D */
-  private KeyboardBehaviorA3D keyboard = null;
 
   /** background attached to root */
   private Object background = null;
 
   /** TransformGroup between trans and cursor */
-  private TransformNode cursor_trans = null;
+  private Node cursor_trans = null;
   
   /** single Switch between cursor_trans and cursor */
   private SwitchNode cursor_switch = null;
@@ -120,7 +113,7 @@ public abstract class SceneA3D implements Scene
     return root;
   }
 
-  public TransformNode getTransformNode() {
+  public Node getTransformNode() {
      return trans;
   }
 
@@ -134,15 +127,13 @@ public abstract class SceneA3D implements Scene
 
   public abstract Node createSceneGraph();
 
-  public Node createBasicSceneGraph(MouseBehaviorA3D m) {
+  public Node createBasicSceneGraph() {
     if (root != null) return root;
-
-    mouse = m;
 
     // Create the root of the branch graph
     root = new Node();
     
-    locked_trans = new TransformNode();
+    locked_trans = new Node();
     screen_locked = new OrderedNode();
     locked_trans.attachChild(screen_locked);
     Node node = new Node();
@@ -168,7 +159,7 @@ public abstract class SceneA3D implements Scene
     non_direct = new OrderedNode();
     trans.attachChild(non_direct);
 
-    cursor_trans = new TransformNode();
+    cursor_trans = new Node();
     trans.attachChild(cursor_trans);
     cursor_switch = new SwitchNode();
     cursor_trans.attachChild(cursor_switch);
@@ -270,7 +261,7 @@ public abstract class SceneA3D implements Scene
 
   public void setTransform(Transform t) {
     if (trans == null) {
-      trans = new TransformNode();
+      trans = new Node();
     }
     if (t != null) {
       Callable updateCallable = new Callable() {
