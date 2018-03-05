@@ -30,7 +30,7 @@ import com.ardor3d.image.Image;
 import com.ardor3d.image.ImageDataFormat;
 import com.ardor3d.image.PixelDataType;
 import com.ardor3d.scenegraph.Node;
-import com.ardor3d.scenegraph.extension.SwitchNode;
+import visad.ardor3d.SwitchNode;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.rmi.RemoteException;

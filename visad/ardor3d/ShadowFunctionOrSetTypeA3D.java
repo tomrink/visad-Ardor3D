@@ -35,7 +35,7 @@ import com.ardor3d.renderer.state.RenderState;
 import com.ardor3d.renderer.state.TextureState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.extension.SwitchNode;
+import visad.ardor3d.SwitchNode;
 import com.ardor3d.util.TextureManager;
 import visad.*;
 import visad.util.ThreadManager;
