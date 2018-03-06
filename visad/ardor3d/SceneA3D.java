@@ -15,6 +15,7 @@ import com.ardor3d.renderer.state.ClipState;
 import com.ardor3d.renderer.state.RenderState;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
+import com.ardor3d.util.GameTaskQueue;
 import visad.ardor3d.SwitchNode;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -191,37 +192,6 @@ public abstract class SceneA3D implements Scene
     return root;
   }  
 
-  // WLH 23 Oct 2001
-  /** 
-   * Define a clipping plane in (XAxis, YAxis, ZAxis) space.  Allows
-   * up to 6 arbitrary planes.  Each clip plane is defined by the equation:
-   * <PRE>
-   *      aX + bY + cZ + d <= 0
-   * </PRE>
-   * <p>Example useage:</p>
-   * To clip to the usual VisAD cube (i.e., x, y and z values in the 
-   * range -1.0 to +1.0) (see Test35.java), call:
-   * <PRE>
-   *    DisplayRendererJ3D dr = 
-   *             (DisplayRendererJ3D) display.getDisplayRenderer();
-   *    dr.setClip(0, true,  1.0f,  0.0f,  0.0f, -1.01f);  // X_POS face
-   *    dr.setClip(1, true, -1.0f,  0.0f,  0.0f, -1.01f);  // X_NEG face
-   *    dr.setClip(2, true,  0.0f,  1.0f,  0.0f, -1.01f);  // Y_POS face
-   *    dr.setClip(3, true,  0.0f, -1.0f,  0.0f, -1.01f);  // Y_NEG face
-   *    dr.setClip(4, true,  0.0f,  0.0f,  1.0f, -1.01f);  // Z_POS face
-   *    dr.setClip(5, true,  0.0f,  0.0f, -1.0f, -1.01f);  // Z_NEG face
-   * </PRE>
-   * <b>Note:</b> d value is slightly less than -1.0 so items in the plane
-   *              are not clipped.
-   * @param  plane  plane number must be in (0, ..., 5)).
-   * @param  enable true to enable clipping on this plane, false to disable
-   * @param  a      x coefficent
-   * @param  b      y coefficent
-   * @param  c      z coefficent
-   * @param  d      constant
-   * @throws  VisADException  illegal plane argument or 
-   *                          unsupported (&lt; 1.2) version of Java 3D
-   */
   public void setClip(int plane, boolean enable, float a, float b, float c, float d) {
     rootClipState.setClipPlaneEquation(plane, a, b, c, d);
     rootClipState.setEnabled(enable);
@@ -236,10 +206,10 @@ public abstract class SceneA3D implements Scene
              return null;
           }
        };
-       //GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
-       //uQueue.enqueue(updateCallable);
-       //uQueue.execute();    
-    non_direct.attachChild((Node)group);
+       GameTaskQueue uQueue = ManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
+       uQueue.enqueue(updateCallable);
+       uQueue.execute();    
+    //non_direct.attachChild((Node)group);
   }
 
   public void addLockedSceneGraphComponent(Object node) {
