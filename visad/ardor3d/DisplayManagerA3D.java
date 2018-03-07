@@ -67,11 +67,8 @@ public class DisplayManagerA3D implements Updater {
     
     public static GameTaskQueueManager queueManager = GameTaskQueueManager.getManager(new String("VisAD"));
     
-    public DisplayManagerA3D(Dimension size, DisplayRendererA3D dspRenderer) {
-       this(null, size, dspRenderer, DisplayImplA3D.JOGL_AWT);
-    }
     
-    public DisplayManagerA3D(Container container, Dimension size, DisplayRendererA3D dspRenderer, int canvasType) {
+    public DisplayManagerA3D(Container container, DisplaySettings settings, DisplayRendererA3D dspRenderer, int canvasType) {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
         
@@ -99,9 +96,17 @@ public class DisplayManagerA3D implements Updater {
         dspRenderer.setCanvasRenderer(canvasRenderer);
         dspRenderer.setDisplayManager(this);
         
+        int width = settings.getWidth();
+        int height = settings.getHeight();
+        
         // Custom settings for Camera
-        Camera camera = new Camera(size.width, size.height);
-        camera.setFrustumPerspective(60f, size.width/size.height, 1, 100);
+        Camera camera = new Camera(width, height);
+        
+        double aspect = 1;
+        if (height > 0) {
+           aspect = width/height;
+        }
+        camera.setFrustumPerspective(60f, aspect, 1, 100);
         final Vector3 loc = new Vector3(0.0f, 0.0f, 5f);
         final Vector3 left = new Vector3(-1.0f, 0.0f, 0.0f);
         final Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
@@ -111,8 +116,6 @@ public class DisplayManagerA3D implements Updater {
         canvasRenderer.setCamera(camera);
         
 
-        final DisplaySettings settings = new DisplaySettings(size.width, size.height, 24, 0, 0, 16, 0, 0, false, false);        
-        
         canvas = createCanvas(settings, canvasType);
         
         addCanvas(canvas);

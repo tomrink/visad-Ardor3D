@@ -26,6 +26,7 @@ MA 02111-1307, USA
 
 package visad.ardor3d;
 
+import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.math.ColorRGBA;
 import com.ardor3d.renderer.Camera;
 import com.ardor3d.renderer.IndexMode;
@@ -208,8 +209,9 @@ public class DisplayImplA3D extends DisplayImpl {
        if (width < 0 || height < 0) {
           throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
        }
+       DisplaySettings settings = new DisplaySettings(width, height, 24, 0, 0, 16, 0, 0, false, false);        
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
-       DisplayManagerA3D manager = new DisplayManagerA3D(comp, new Dimension(width, height), dspRenderer, api);
+       DisplayManagerA3D manager = new DisplayManagerA3D(comp, settings, dspRenderer, api);
        Component component = manager.getCanvas();
        setComponent(component);
        apiValue = api;
