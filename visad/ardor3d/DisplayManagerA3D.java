@@ -28,6 +28,8 @@ import com.ardor3d.input.logical.TriggerConditions;
 import com.ardor3d.input.logical.TwoInputStates;
 import com.ardor3d.math.Vector3;
 import com.ardor3d.renderer.Camera;
+import com.ardor3d.renderer.ContextCapabilities;
+import com.ardor3d.renderer.RenderContext;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
@@ -56,6 +58,7 @@ public class DisplayManagerA3D implements Updater {
     private FrameHandler frameWork = null;
     private LogicalLayer logicalLayer = null;
     private RunnerA3D myRunner = null;
+    private RenderContext renderContext;
 
     public boolean frameHandlerInitialized = false;
     
@@ -82,8 +85,6 @@ public class DisplayManagerA3D implements Updater {
         frameWork = Initialize.getFrameHandler(timer);
         myRunner = Initialize.getRunner(frameWork);
         logicalLayer = Initialize.getLogicalLayer();
-        
-        frameWork.addUpdater(this);
         
         dspRenderer.createSceneGraph();
         root = dspRenderer.getRoot();
@@ -141,6 +142,13 @@ public class DisplayManagerA3D implements Updater {
         });
         
         registerInputTriggers();
+        ((Canvas)canvas).init();
+        
+        /* This must be done AFTER Canvas.init() */
+        renderContext = canvasRenderer.getRenderContext();
+        
+        /* This must be done AFTER the renderContext has been obtained */
+        frameWork.addUpdater(this);
         
         /* This should be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
         myRunner.start();
@@ -344,6 +352,10 @@ public class DisplayManagerA3D implements Updater {
        return canvasRenderer;
     }
     
+    public ContextCapabilities getCapabilities() {
+       return renderContext.getCapabilities();
+    }
+    
     @Override
     public void update(ReadOnlyTimer rot) {
        logicalLayer.checkTriggers(rot.getTimePerFrame());
@@ -365,10 +377,6 @@ public class DisplayManagerA3D implements Updater {
     
     @Override
     public void init() {
-        if (frameHandlerInitialized) {
-           return;
-        }
-        frameHandlerInitialized = true;
     }
     
     public Component getComponent() {

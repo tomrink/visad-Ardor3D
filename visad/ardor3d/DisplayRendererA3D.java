@@ -1275,25 +1275,13 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public int getTextureWidthMax() {
-    // TODO: fix this. Need to make sure we have this when we need it
-//    while (contextCapabilities == null) {
-//       try {
-//          java.lang.Thread.sleep(5);
-//       } catch (InterruptedException e) {}
-//    }
-//    return contextCapabilities.getMaxTextureSize();
-      return 8192;
+    return dspManager.getCapabilities().getMaxTextureSize();
+    //return 8192;
   }
 
   public int getTextureHeightMax() {
-    // same as above
-//    while (contextCapabilities == null) {
-//       try {
-//          java.lang.Thread.sleep(5);
-//       } catch (InterruptedException e) {}
-//    }
-//    return contextCapabilities.getMaxTextureSize();
-      return 8192;
+    return dspManager.getCapabilities().getMaxTextureSize();     
+    //return 8192;
   }
   
   public void setCapabilities(ContextCapabilities obj) {

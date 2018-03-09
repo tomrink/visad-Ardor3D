@@ -15,7 +15,6 @@ public class RunnerA3D implements Runnable {
    }
    
    public void run() {
-        frameWork.init();
         while (!exit) {
            if (!pause) {
               /* experiment
