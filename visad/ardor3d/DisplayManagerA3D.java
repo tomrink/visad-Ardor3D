@@ -142,6 +142,8 @@ public class DisplayManagerA3D implements Updater {
         });
         
         registerInputTriggers();
+        
+        /* This probably need to be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
         ((Canvas)canvas).init();
         
         /* This must be done AFTER Canvas.init() */
