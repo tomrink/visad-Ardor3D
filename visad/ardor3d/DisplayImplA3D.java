@@ -207,7 +207,7 @@ public class DisplayImplA3D extends DisplayImpl {
     projection = new ProjectionControlA3D(this);
     addControl(projection);
 
-    if (api == JOGL_AWT || api == JOGL_SWING) {
+    if (api == JOGL_AWT || api == JOGL_SWING || api == JOGL_NEWT) {
        if (width < 0 || height < 0) {
           throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
        }

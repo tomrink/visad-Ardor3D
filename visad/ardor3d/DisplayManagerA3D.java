@@ -6,8 +6,10 @@ import com.ardor3d.framework.DisplaySettings;
 import com.ardor3d.framework.FrameHandler;
 import com.ardor3d.framework.Updater;
 import com.ardor3d.framework.jogl.JoglCanvasRenderer;
+import com.ardor3d.framework.jogl.NewtWindowContainer;
 import com.ardor3d.framework.jogl.awt.JoglAwtCanvas;
 import com.ardor3d.framework.jogl.awt.JoglSwingCanvas;
+import com.ardor3d.framework.jogl.awt.JoglNewtAwtCanvas;
 import com.ardor3d.input.Key;
 import com.ardor3d.input.KeyboardState;
 import com.ardor3d.input.MouseButton;
@@ -17,6 +19,10 @@ import com.ardor3d.input.awt.AwtFocusWrapper;
 import com.ardor3d.input.awt.AwtKeyboardWrapper;
 import com.ardor3d.input.awt.AwtMouseManager;
 import com.ardor3d.input.awt.AwtMouseWrapper;
+import com.ardor3d.input.jogl.JoglNewtFocusWrapper;
+import com.ardor3d.input.jogl.JoglNewtKeyboardWrapper;
+import com.ardor3d.input.jogl.JoglNewtMouseManager;
+import com.ardor3d.input.jogl.JoglNewtMouseWrapper;
 import com.ardor3d.input.logical.AnyKeyCondition;
 import com.ardor3d.input.logical.DummyControllerWrapper;
 import com.ardor3d.input.logical.InputTrigger;
@@ -327,22 +333,39 @@ public class DisplayManagerA3D implements Updater {
     public Component createCanvas(final DisplaySettings settings, int canvasType) {
         Component canvas = null;
         
-        if (canvasType == DisplayImplA3D.JOGL_SWING) {
-           canvas = new JoglSwingCanvas(settings, (JoglCanvasRenderer)canvasRenderer);
-        }
-        else if (canvasType == DisplayImplA3D.JOGL_AWT) {
-           canvas = new JoglAwtCanvas(settings, (JoglCanvasRenderer)canvasRenderer);
-        }
+       switch (canvasType) {
+          case DisplayImplA3D.JOGL_SWING:
+             canvas = new JoglSwingCanvas(settings, (JoglCanvasRenderer)canvasRenderer);
+             break;
+          case DisplayImplA3D.JOGL_AWT:
+             canvas = new JoglAwtCanvas(settings, (JoglCanvasRenderer)canvasRenderer);
+             break;
+          case DisplayImplA3D.JOGL_NEWT:
+             canvas = new JoglNewtAwtCanvas(settings, (JoglCanvasRenderer)canvasRenderer);
+             break;
+          default:
+             break;
+       }
         
         return canvas;
     }
     
     public void addCanvas(Component canvas) {
-        AwtMouseManager mouseManager = new AwtMouseManager(canvas);
-        PhysicalLayer pl = new PhysicalLayer(new AwtKeyboardWrapper(canvas),
-                new AwtMouseWrapper(canvas, mouseManager),
-                DummyControllerWrapper.INSTANCE,
-                new AwtFocusWrapper(canvas));
+        PhysicalLayer pl = null;
+        if (canvas instanceof JoglAwtCanvas || canvas instanceof JoglSwingCanvas) {
+           AwtMouseManager mouseManager = new AwtMouseManager(canvas);
+           pl = new PhysicalLayer(new AwtKeyboardWrapper(canvas),
+                   new AwtMouseWrapper(canvas, mouseManager),
+                   DummyControllerWrapper.INSTANCE,
+                   new AwtFocusWrapper(canvas));
+        }
+        else if (canvas instanceof JoglNewtAwtCanvas) {
+           JoglNewtMouseManager mouseManager = new JoglNewtMouseManager((NewtWindowContainer)canvas);
+           pl = new PhysicalLayer(new JoglNewtKeyboardWrapper((NewtWindowContainer)canvas),
+                   new JoglNewtMouseWrapper((NewtWindowContainer)canvas, mouseManager),
+                   DummyControllerWrapper.INSTANCE,
+                   new JoglNewtFocusWrapper((NewtWindowContainer)canvas));
+        }
 
         // may need to add 'deRegisterInput'
         logicalLayer.registerInput((com.ardor3d.framework.Canvas)canvas, pl);
