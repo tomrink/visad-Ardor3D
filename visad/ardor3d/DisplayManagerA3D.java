@@ -381,6 +381,10 @@ public class DisplayManagerA3D implements Updater {
     public void init() {
     }
     
+    public void start() {
+       myRunner.start();
+    }
+    
     public Component getComponent() {
        return canvas;
     } 

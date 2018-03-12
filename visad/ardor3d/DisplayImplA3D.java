@@ -125,6 +125,7 @@ public class DisplayImplA3D extends DisplayImpl {
   /** Ardor3D Canvas type */
   public static final int JOGL_SWING = 5;
   public static final int JOGL_AWT = 6;
+  public static final int JOGL_NEWT = 7;
   
   /** AWT-SWING Tab */
   public static boolean isTab = false;
@@ -170,6 +171,7 @@ public class DisplayImplA3D extends DisplayImpl {
   private ProjectionControlA3D projection = null;
   private GraphicsModeControlA3D mode = null;
   private int apiValue = UNKNOWN;
+  public DisplayManagerA3D manager = null;
   
   public DisplayImplA3D(String name, Window window, Container comp, int api) 
          throws VisADException, RemoteException {
@@ -211,7 +213,7 @@ public class DisplayImplA3D extends DisplayImpl {
        }
        DisplaySettings settings = new DisplaySettings(width, height, 24, 0, 0, 16, 0, 0, false, false);        
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
-       DisplayManagerA3D manager = new DisplayManagerA3D(comp, settings, dspRenderer, api);
+       manager = new DisplayManagerA3D(comp, settings, dspRenderer, api);
        Component component = manager.getCanvas();
        setComponent(component);
        apiValue = api;
@@ -501,6 +503,10 @@ public class DisplayImplA3D extends DisplayImpl {
 	throws VisADException
   {
     return apiValue;
+  }
+  
+  public DisplayManagerA3D getDisplayManager() {
+     return manager;
   }
 
   public Spatial makeGeometry(VisADGeometryArray vga) throws VisADException {
@@ -830,8 +836,8 @@ public class DisplayImplA3D extends DisplayImpl {
          ref.setData(dataFld);
          display.addReference(ref);
          //display.enableAction();
-       
- 
+         
+         
        /* Simple test 3 */
 //       RealType[] types3d = {RealType.Latitude, RealType.Longitude, RealType.Radius};
 //       RealTupleType earth_location3d = new RealTupleType(types3d);
