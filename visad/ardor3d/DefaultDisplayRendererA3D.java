@@ -167,11 +167,6 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
     Node cursor_on = getCursorOnBranch();
     cursor_on.attachChild(cursor);
     
-
-    // insert MouseBehaviorA3D into scene graph. This is a place holder until we figure out best for Ardor3D
-    trans.setMouseBehavior(mouse);
-
-    
     /**
      * Create a ZBuffer to display pixels closest to the camera above
      * farther ones.
