@@ -129,7 +129,6 @@ public class DefaultDisplayRendererA3D extends DisplayRendererA3D {
 
     getDisplay().setMouseBehavior(mouse);
     root = createBasicSceneGraph(mouse);
-    TransformNode trans = getTransformNode();
 
     /* create box containing data depictions */
     Mesh box = new Mesh();
