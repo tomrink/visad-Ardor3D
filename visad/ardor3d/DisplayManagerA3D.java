@@ -91,13 +91,16 @@ public class DisplayManagerA3D implements Updater {
         frameWork = Initialize.getFrameHandler(timer);
         myRunner = Initialize.getRunner(frameWork);
         logicalLayer = Initialize.getLogicalLayer();
+        myRunner.start();
         
         dspRenderer.createSceneGraph();
         root = dspRenderer.getRoot();
         transform = dspRenderer.getTransformNode();
         
+        SceneA3D scene = new SceneA3D();
+        
         //canvasRenderer = new JoglCanvasRenderer(dspRenderer, false, null, false);
-        canvasRenderer = new JoglCanvasRenderer(dspRenderer);
+        canvasRenderer = new JoglCanvasRenderer(scene);
 
         ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
         dspRenderer.setCanvasRenderer(canvasRenderer);
@@ -127,6 +130,8 @@ public class DisplayManagerA3D implements Updater {
         
         addCanvas(canvas);
         container.add(canvas);
+        
+        scene.getRoot().attachChild(root);
         
         canvas.addComponentListener(new ComponentAdapter() {
             Dimension size = canvas.getSize();
@@ -158,8 +163,10 @@ public class DisplayManagerA3D implements Updater {
         /* This must be done AFTER the renderContext has been obtained */
         frameWork.addUpdater(this);
         
+        frameWork.addCanvas((com.ardor3d.framework.Canvas)canvas);
+        
         /* This should be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
-        myRunner.start();
+       // myRunner.start();
     }
     
     protected void registerInputTriggers() {
@@ -369,8 +376,6 @@ public class DisplayManagerA3D implements Updater {
 
         // may need to add 'deRegisterInput'
         logicalLayer.registerInput((com.ardor3d.framework.Canvas)canvas, pl);
-
-        frameWork.addCanvas((com.ardor3d.framework.Canvas)canvas);      
     }
     
     public CanvasRenderer getCanvasRenderer() {
