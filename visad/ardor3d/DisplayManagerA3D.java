@@ -165,8 +165,6 @@ public class DisplayManagerA3D implements Updater {
         
         frameWork.addCanvas((com.ardor3d.framework.Canvas)canvas);
         
-        /* This should be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
-       // myRunner.start();
     }
     
     protected void registerInputTriggers() {
