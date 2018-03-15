@@ -10,12 +10,18 @@ import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ContextGarbageCollector;
 import com.ardor3d.util.GameTaskQueue;
 import com.ardor3d.util.GameTaskQueueManager;
+import java.rmi.RemoteException;
+import visad.DisplayEvent;
+import visad.DisplayRenderer;
+import visad.VisADException;
 
 
 public final class SceneA3D implements Scene {
     private final Node root;
+    private DisplayRenderer dspRenderer;
 
-    public SceneA3D() {
+    public SceneA3D(DisplayRenderer dspRenderer) {
+        this.dspRenderer = dspRenderer;
         root = new Node("root");
     }
 
@@ -32,6 +38,14 @@ public final class SceneA3D implements Scene {
         //ContextGarbageCollector.doRuntimeCleanup(renderer);
 
         renderer.draw(root);
+        // This might be better to do in a custom FrameHandler, but would require extending Ardor3D
+        try {
+           dspRenderer.getDisplay().notifyListeners(DisplayEvent.FRAME_DONE, 0, 0);
+        }
+        catch (VisADException e) {
+        }
+        catch (RemoteException e) {
+        }
         return true;
     }
 

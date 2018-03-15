@@ -97,7 +97,7 @@ public class DisplayManagerA3D implements Updater {
         root = dspRenderer.getRoot();
         transform = dspRenderer.getTransformNode();
         
-        SceneA3D scene = new SceneA3D();
+        SceneA3D scene = new SceneA3D(dspRenderer);
         
         //canvasRenderer = new JoglCanvasRenderer(dspRenderer, false, null, false);
         canvasRenderer = new JoglCanvasRenderer(scene);
