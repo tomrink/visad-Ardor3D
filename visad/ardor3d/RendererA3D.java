@@ -82,8 +82,6 @@ public abstract class RendererA3D extends DataRenderer {
     // add to DisplayRenderer
     addSwitch((DisplayRendererA3D) getDisplayRenderer(), swParent);
 
-//    sw = swt;
-//    toggle(getEnabled());
   }
 
   public void toggle(boolean on) {
