@@ -73,6 +73,8 @@ public abstract class RendererA3D extends DataRenderer {
 
     // set up switch logic for clean BranchGroup replacement
     SwitchNode swt = new SwitchNode();
+    sw = swt;
+    toggle(getEnabled());
 
     swParent = new Node();
     swParent.attachChild(swt);
@@ -80,8 +82,8 @@ public abstract class RendererA3D extends DataRenderer {
     // add to DisplayRenderer
     addSwitch((DisplayRendererA3D) getDisplayRenderer(), swParent);
 
-    sw = swt;
-    toggle(getEnabled());
+//    sw = swt;
+//    toggle(getEnabled());
   }
 
   public void toggle(boolean on) {
