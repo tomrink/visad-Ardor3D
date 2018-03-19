@@ -802,6 +802,7 @@ public class DisplayImplA3D extends DisplayImpl {
        display.addMap(xmap);
        display.addMap(ymap);
        display.addMap(clrMap);
+//       widget = new ColorMapWidget(clrMap);
        
 //       /* test 2 */
 //       FunctionType fldType = new FunctionType(RealType.Time, fncType);
