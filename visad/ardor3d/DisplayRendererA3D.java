@@ -113,8 +113,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
     */
   }
 
-  private Object not_destroyed = new Object();
-
   // for screen locked
   private OrderedNode screen_locked = null;
   private TransformNode locked_trans = null;
@@ -212,7 +210,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   // WLH 17 Dec 2001
   public void destroy() {
-    not_destroyed = null;
 
     /* Keep for reference
     if (canvas != null) canvas.stop();
@@ -254,7 +251,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void setDisplay(DisplayImpl dpy)
     throws VisADException
   {
-    if (not_destroyed == null) return;
     super.setDisplay(dpy);
     dpy.addRendererSourceListener(this);
     boxOn = getRendererControl().getBoxOn();
@@ -267,7 +263,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    */
   
   public BufferedImage getImage() {
-    if (not_destroyed == null) return null;
 
     return null;
   }
@@ -303,8 +298,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    */
   public void initControl(RendererControl ctl)
   {
-    if (not_destroyed == null) return;
-    
     try {
       ctl.setBoxColor(boxColor.getRed(), boxColor.getGreen(), boxColor.getBlue());
       ctl.setCursorColor(cursorColor.getRed(), cursorColor.getGreen(), cursorColor.getBlue());
@@ -329,7 +322,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    */
   public void controlChanged(ControlEvent evt)
   {
-    if (not_destroyed == null) return;
     RendererControl ctl = (RendererControl)evt.getControl();
 
     // update box color
@@ -388,7 +380,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * @param  on   true to display the cursor, false to hide it.
    */
   public void setCursorOn(boolean on) {
-    if (not_destroyed == null) return;
     cursorOn = on;
     if (on) {
       cursor_switch.setSingleVisible(1); // set cursor on
@@ -405,7 +396,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * @param  on  true for enabling direct manipulation, false to disable
    */
   public void setDirectOn(boolean on) {
-    if (not_destroyed == null) return;
     directOn = on;
     if (!on) {
       setCursorStringVector(null);
@@ -416,7 +406,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   public Node createBasicSceneGraph(MouseBehaviorA3D m) {
     if (root != null) return root;
-    if (not_destroyed == null) return null;
 
     mouse = m;
 
@@ -535,7 +524,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    */
   public void setClip(int plane, boolean enable, float a, float b, float c, float d)
          throws VisADException {
-    if (not_destroyed == null) return;
     if (plane < 0 || 5 < plane) {
       throw new DisplayException("plane must be in 0,...,5 range " + plane);
     }
@@ -545,13 +533,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   private void clipOff() {
-    if (not_destroyed == null) return;
-
   }
 
   private void clipOn() {
-    if (not_destroyed == null) return;
-
   }
 
   /**
@@ -574,7 +558,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public void addSceneGraphComponent(Object group) {
-    if (not_destroyed == null) return;
     Callable updateCallable = new Callable() {
       public Object call() {
         non_direct.attachChild((Node)group);
@@ -588,14 +571,14 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public void addLockedSceneGraphComponent(Object node) {
-    if (not_destroyed == null || screen_locked == null) return;
+    if (screen_locked == null) return;
     screen_locked.attachChild((Node)node);
     markNeedDraw();
   }
 
   //- TDR, Hydra stuff
   public void addLockedSceneGraphComponent(Object node, boolean initWithProj) {
-    if (not_destroyed == null || screen_locked == null) return;
+    if (screen_locked == null) return;
     if (initWithProj) {
       ProjectionControl proj = getDisplay().getProjectionControl();
       //locked_trans.setTransform(new Transform3D(proj.getMatrix()));
@@ -613,7 +596,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   public void addDirectManipulationSceneGraphComponent(Object group,
                          DirectManipulationRendererA3D renderer) {
-    if (not_destroyed == null) return;
     Callable updateCallable = new Callable() {
       public Object call() {
         non_direct.attachChild((Node)group);
@@ -630,7 +612,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
 
   public void clearScene(DataRenderer renderer, Object group) {
-    if (not_destroyed == null) return;
     Callable updateCallable = new Callable() {
       public Object call() {
         directs.removeElement(renderer);
@@ -671,7 +652,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public void drag_depth(float diff) {
-    if (not_destroyed == null) return;
     cursorX = point_x + diff * line_x;
     cursorY = point_y + diff * line_y;
     cursorZ = point_z + diff * line_z;
@@ -679,7 +659,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public void drag_cursor(VisADRay ray, boolean first) {
-    if (not_destroyed == null) return;
     float o_x = (float) ray.position[0];
     float o_y = (float) ray.position[1];
     float o_z = (float) ray.position[2];
@@ -706,7 +685,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   private void setCursorLoc() {
-    if (not_destroyed == null) return;
     cursor_trans.setTranslation(cursorX, cursorY, cursorZ);
     if (cursorOn) {
       setCursorStringVector();
@@ -720,7 +698,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * @param  z  z location
    */
   public void setCursorLoc(float x, float y, float z) {
-    if (not_destroyed == null) return;
     cursor_trans.setTranslation(x, y, z);
     if (cursorOn) {
       setCursorStringVector();
@@ -735,7 +712,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   
   public void drawCursorStringVector(Object canvas) {
   /*  
-	if (not_destroyed == null) return;
 
     GraphicsContext3D graphics = null;
 
@@ -948,7 +924,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    *          modifiers for direct manipulation or null if there is none.
    */
   public DataRenderer findDirect(VisADRay ray, int mouseModifiers) {
-    if (not_destroyed == null) return null;
     DirectManipulationRendererA3D renderer = null;
     float distance = Float.MAX_VALUE;
     Enumeration renderers = ((Vector) directs.clone()).elements();
@@ -978,7 +953,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * @return  true if there are any
    */
   public boolean anyDirects() {
-    if (not_destroyed == null) return false;
     return !directs.isEmpty();
   }
 
@@ -987,7 +961,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * @param  on   turn on if true, otherwise turn them off
    */
   public void setScaleOn(boolean on) {
-    if (not_destroyed == null) return;
     if (on) {
       scale_switch.setSingleVisible(1); // on
     }
@@ -1003,7 +976,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    */
   public void setScale(AxisScale axisScale)
          throws VisADException {
-    if (not_destroyed == null) return;
     if (axisScale.getScreenBased() && getMode2D()) {
       if (!axis_vector.contains(axisScale)) {
         axis_vector.addElement(axisScale);
@@ -1032,7 +1004,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void setScale(int axis, int axis_ordinal,
               VisADLineArray array, float[] scale_color)
          throws VisADException {
-    if (not_destroyed == null) return;
     setScale(axis, axis_ordinal, array, null, scale_color);
   }
 
@@ -1051,10 +1022,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
               VisADLineArray array, VisADTriangleArray labels,
               float[] scale_color)
          throws VisADException {
-    if (not_destroyed == null) {
-       return;
-    }
-    
+     
     DisplayImplA3D display = (DisplayImplA3D) getDisplay();
     
     ColorRGBA color = new ColorRGBA(scale_color[0], scale_color[1], scale_color[2], 1);
@@ -1109,7 +1077,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * Remove all the scales being rendered.
    */
   public void clearScales() {
-    if (not_destroyed == null) return;
     if (scale_on != null) {
       synchronized (scale_on) {
         int n = scale_on.getNumberOfChildren();
@@ -1127,7 +1094,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    */
   
   public void clearScale(AxisScale axisScale) {
-    if (not_destroyed == null) return;
     // eliminate any non-screen-based scale for this AxisScale
     int axis = axisScale.getAxis();
     int axis_ordinal = axisScale.getAxisOrdinal();
@@ -1151,7 +1117,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
   
   public void setTransform(Transform t) {
-    if (not_destroyed == null) return;
     if (trans == null) {
       trans = new TransformNode();
       setSceneGraphObjectName(trans, "Trans");
@@ -1183,7 +1148,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
    * @return The appropriate <CODE>Control</CODE>.
    */
   public Control makeControl(ScalarMap map) {
-    if (not_destroyed == null) return null;
     DisplayRealType type = map.getDisplayScalar();
     DisplayImplA3D display = (DisplayImplA3D) getDisplay();
     if (type == null) return null;
@@ -1275,7 +1239,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   public void rendererDeleted(DataRenderer renderer)
   {
-    if (not_destroyed == null) return;
     clearScene(renderer, null);
   }
 
@@ -1283,7 +1246,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public void setWaitFlag(boolean b) {
-    if (not_destroyed == null) return;
     boolean old = getWaitFlag();
     super.setWaitFlag(b);
   }
