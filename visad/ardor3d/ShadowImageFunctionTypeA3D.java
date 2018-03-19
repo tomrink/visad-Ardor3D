@@ -270,7 +270,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
           byte[][] itable = new byte[table[0].length][4];
           // int r, g, b, a = 255;
           int r, g, b;
-          int c = (int) (255.0 * (1.0f - constant_alpha));
+          int c = (int) (255.0 * (constant_alpha));
           int a = (c < 0) ? 0 : ((c > 255) ? 255 : c);
           for (int j=0; j<table[0].length; j++) {
             c = (int) (255.0 * table[0][j]);
@@ -388,7 +388,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
           // combine color RGB components into bytes
           // int r, g, b, a = 255;
           int r, g, b;
-          int c = (int) (255.0 * (1.0f - constant_alpha));
+          int c = (int) (255.0 * (constant_alpha));
           int a = (c < 0) ? 0 : ((c > 255) ? 255 : c);
           color_bytes = new byte[4][domain_length];
           for (int i=0; i<domain_length; i++) {
@@ -467,7 +467,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
           	color_bytes[1] = cmaps[permute[1]].scaleValues(bytes[permute[1]], 255);
           	color_bytes[2] = cmaps[permute[2]].scaleValues(bytes[permute[2]], 255);
 	  }
-          int c = (int) (255.0 * (1.0f - constant_alpha));
+          int c = (int) (255.0 * (constant_alpha));
           color_bytes[3] = new byte[domain_length];
           Arrays.fill(color_bytes[3], (byte) c);
         }
@@ -479,7 +479,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
           new_values[2] = cmaps[permute[2]].scaleValues(values[permute[2]]);
           values = new_values;
           int r, g, b;
-          int c = (int) (255.0 * (1.0f - constant_alpha));
+          int c = (int) (255.0 * (constant_alpha));
           int a = (c < 0) ? 0 : ((c > 255) ? 255 : c);
           color_bytes = new byte[4][domain_length];
 	 if  (cmaps[0].getDisplayScalar() == Display.RGB && cmaps[1].getDisplayScalar() == Display.RGB && cmaps[2].getDisplayScalar() == Display.RGB) { //Inserted by Ghansham (starts here)
@@ -1476,15 +1476,12 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
        
        Callable updateCallable = new Callable() {
           public Object call() {
-             canvasRenderer.makeCurrentContext();
              renderer.updateTexture2DSubImage(rendererA3D.lastTexture, 0, 0, texW, texH, bf, 0, 0, texW);
-             canvasRenderer.releaseCurrentContext();
              return null;
           }
        };
-       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
+       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
        uQueue.enqueue(updateCallable);
-       uQueue.execute();
     }
     else {
                                                                                                                       
@@ -1493,7 +1490,6 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
                       constant_color, texture_width, texture_height);
     
        TextureState ts = (TextureState) ((Spatial)((Node)group).getChild(0)).getLocalRenderState(RenderState.StateType.Texture);
-       rendererA3D.lastTS = ts;
        rendererA3D.lastTexture = (Texture2D) ts.getTexture();
     }
   }
