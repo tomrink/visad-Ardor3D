@@ -4,12 +4,9 @@ import com.ardor3d.annotation.MainThread;
 import com.ardor3d.framework.Scene;
 import com.ardor3d.intersection.PickResults;
 import com.ardor3d.math.Ray3;
-import com.ardor3d.renderer.ContextManager;
 import com.ardor3d.renderer.Renderer;
 import com.ardor3d.scenegraph.Node;
-import com.ardor3d.util.ContextGarbageCollector;
 import com.ardor3d.util.GameTaskQueue;
-import com.ardor3d.util.GameTaskQueueManager;
 import java.rmi.RemoteException;
 import visad.DisplayEvent;
 import visad.DisplayRenderer;
@@ -32,12 +29,15 @@ public final class SceneA3D implements Scene {
     @Override
     @MainThread
     public boolean renderUnto(final Renderer renderer) {
-        // Execute renderQueue item
-        //GameTaskQueueManager.getManager(ContextManager.getCurrentContext()).getQueue(GameTaskQueue.RENDER)
-        //        .execute(renderer);
-        //ContextGarbageCollector.doRuntimeCleanup(renderer);
 
         renderer.draw(root);
+            
+        // executes all queued update tasks
+        DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE).execute(renderer);
+            
+        // executes all queued rendering tasks
+        DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER).execute(renderer);
+        
         // This might be better to do in a custom FrameHandler, but would require extending Ardor3D
         try {
            dspRenderer.getDisplay().notifyListeners(DisplayEvent.FRAME_DONE, 0, 0);
@@ -54,4 +54,4 @@ public final class SceneA3D implements Scene {
         // does nothing.
         return null;
     }
-}
+ }
