@@ -28,12 +28,14 @@ package visad.ardor3d;
 
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
+import com.ardor3d.util.GameTaskQueue;
 import visad.ardor3d.SwitchNode;
 import visad.*;
 import visad.util.Delay;
 
 
 import java.rmi.*;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -180,8 +182,19 @@ System.out.println("doAction " + getDisplay().getName() + " " +
            // branch already attached. See setBranchEarly()
         }
         else {
-          sw.detachChild(prevNode);
-          sw.attachChildAt(branch, 0);
+          final Spatial node = prevNode;
+          final Node fbranch = branch;
+          Callable updateCallable = new Callable() {
+            public Object call() {
+              sw.detachChild(node);
+              sw.attachChildAt(fbranch, 0);               
+              return null;
+            }
+          };
+          GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+          uQueue.enqueue(updateCallable);
+          //sw.detachChild(prevNode);
+          //sw.attachChildAt(branch, 0);
         }
         ((DisplayRendererA3D) getDisplayRenderer()).markNeedDraw();
         dataBranch = branch;

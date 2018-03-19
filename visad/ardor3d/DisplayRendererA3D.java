@@ -575,18 +575,15 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 
   public void addSceneGraphComponent(Object group) {
     if (not_destroyed == null) return;
-       Callable updateCallable = new Callable() {
-          public Object call() {
-             canvasRenderer.makeCurrentContext();
-             non_direct.attachChild((Node)group);
-             canvasRenderer.releaseCurrentContext();
-             return null;
-          }
-       };
-       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
-       //uQueue.enqueue(updateCallable);
-       //uQueue.execute();    
-    non_direct.attachChild((Node)group);
+    Callable updateCallable = new Callable() {
+      public Object call() {
+        non_direct.attachChild((Node)group);
+        return null;
+      }
+     };
+     GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+     uQueue.enqueue(updateCallable);
+    //non_direct.attachChild((Node)group);
     //markNeedDraw();
   }
 
@@ -617,18 +614,38 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public void addDirectManipulationSceneGraphComponent(Object group,
                          DirectManipulationRendererA3D renderer) {
     if (not_destroyed == null) return;
-    non_direct.attachChild((Node)group);
-    directs.addElement(renderer);
+    Callable updateCallable = new Callable() {
+      public Object call() {
+        non_direct.attachChild((Node)group);
+        directs.addElement(renderer);
+        return null;
+      }
+    };
+    GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+    uQueue.enqueue(updateCallable);
+    //non_direct.attachChild((Node)group);
+    //directs.addElement(renderer);
     markNeedDraw();
   }
 
 
   public void clearScene(DataRenderer renderer, Object group) {
     if (not_destroyed == null) return;
-    directs.removeElement(renderer);
-    if (group != null) {
-      non_direct.detachChild((Spatial)group);
-    }
+    Callable updateCallable = new Callable() {
+      public Object call() {
+        directs.removeElement(renderer);
+        if (group != null) {
+          non_direct.detachChild((Spatial)group);
+        }        
+        return null;
+      }
+    };
+    GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+    uQueue.enqueue(updateCallable);
+//    directs.removeElement(renderer);
+//    if (group != null) {
+//      non_direct.detachChild((Spatial)group);
+//    }
     markNeedDraw();
   }
 
@@ -1145,16 +1162,13 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       */
       Callable updateCallable = new Callable() {
           public Object call() {
-             canvasRenderer.makeCurrentContext();
              trans.setTransform(t);
-             canvasRenderer.releaseCurrentContext();
              return null;
           }
       };
-      GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
-      //uQueue.enqueue(updateCallable);
-      //uQueue.execute();
-      trans.setTransform(t);
+      GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+      uQueue.enqueue(updateCallable);
+      //trans.setTransform(t);
     }
   }
   

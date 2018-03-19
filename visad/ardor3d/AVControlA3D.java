@@ -150,29 +150,24 @@ public abstract class AVControlA3D extends Control implements AVControl {
       
       Callable updateCallable = new Callable() {
           public Object call() {
-             displayRenderer.getCanvasRenderer().makeCurrentContext();
-             
              if (0 <= indices[0] && indices[0] < ss.swit.getNumberOfChildren()) {
                 ss.setWhichChild(indices[0]);
              }
              else {
                 ss.setWhichChild(VisADSwitch.NONE_VISIBLE);
              }
-             
-             displayRenderer.getCanvasRenderer().releaseCurrentContext();
              return null;
           }
        };
-       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER);
-       //uQueue.enqueue(updateCallable);
-       //uQueue.execute();
+       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+       uQueue.enqueue(updateCallable);
        
-      if (0 <= indices[0] && indices[0] < ss.swit.getNumberOfChildren()) {
-        ss.setWhichChild(indices[0]);
-      }
-      else {
-        ss.setWhichChild(VisADSwitch.NONE_VISIBLE);
-      }
+//      if (0 <= indices[0] && indices[0] < ss.swit.getNumberOfChildren()) {
+//        ss.setWhichChild(indices[0]);
+//      }
+//      else {
+//        ss.setWhichChild(VisADSwitch.NONE_VISIBLE);
+//      }
       displayRenderer.markNeedDraw();
       
     } // end while (pairs.hasMoreElements())
