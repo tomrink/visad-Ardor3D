@@ -3,7 +3,7 @@ package visad.ardor3d;
 import com.ardor3d.framework.FrameHandler;
 
 public class RunnerA3D implements Runnable {
-   private static final long FrameUpdateIntervalMillis = 20;
+   private static final long FrameUpdateIntervalMillis = 5;
    
    private final FrameHandler frameWork;
    private Thread thread;
