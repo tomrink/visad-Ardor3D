@@ -372,8 +372,6 @@ public class ImageRendererA3D extends DefaultRendererA3D {
   
   /* Experiment with texture updating */
   public Texture2D lastTexture = null;
-  
-  public TextureState lastTS = null;
   //------------------------------------
 
 
