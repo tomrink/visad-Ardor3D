@@ -1,21 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package visad.ardor3d;
 
 import com.ardor3d.framework.FrameHandler;
 import com.ardor3d.input.logical.LogicalLayer;
+import com.ardor3d.util.GameTaskQueueManager;
 import com.ardor3d.util.Timer;
 
 /**
- *
- * @author rink
+ * Only one of these per JVM (suggestion by J.Gouessej of Jogamp).
+ * 
  */
 public class Ardor3D {
    
    private static final Ardor3D instance = new Ardor3D();
+   
+   public static final GameTaskQueueManager queueManager = GameTaskQueueManager.getManager(new String("VisAD"));
    
    private static Timer timer;
    private static FrameHandler frameHandler;
