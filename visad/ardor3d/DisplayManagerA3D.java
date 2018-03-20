@@ -87,11 +87,11 @@ public class DisplayManagerA3D implements Updater {
         /* Only one of these per JVM (suggestion by J.Gouessej of Jogamp), but can be modified
            for one per display 
         */
-        timer = Initialize.getTimer();
-        frameWork = Initialize.getFrameHandler(timer);
-        myRunner = Initialize.getRunner(frameWork);
-        logicalLayer = Initialize.getLogicalLayer();
-        myRunner.start();
+        
+        timer = Ardor3D.getTimer();
+        frameWork = Ardor3D.getFrameHander();
+        logicalLayer = Ardor3D.getLogicalLayer();
+        Ardor3D.start();
         
         dspRenderer.createSceneGraph();
         root = dspRenderer.getRoot();
@@ -429,39 +429,4 @@ public class DisplayManagerA3D implements Updater {
     public boolean getFrameHandlerInitialized() {
        return frameHandlerInitialized;
     }
-}
-
-class Initialize {
-   private static Timer timer = null;
-   private static FrameHandler frameHandler = null;
-   private static RunnerA3D runner = null;
-   private static LogicalLayer logicalLayer = null;
-   
-   public static Timer getTimer() {
-      if (timer == null) {
-         timer = new Timer();
-      }
-      return timer;
-   }
-   
-   public static FrameHandler getFrameHandler(Timer timer) {
-      if (frameHandler == null) {
-         frameHandler = new FrameHandler(timer);
-      }
-      return frameHandler;
-   }
-   
-   public static RunnerA3D getRunner(FrameHandler frameHandler) {
-      if (runner == null) {
-         runner = new RunnerA3D(frameHandler);
-      }
-      return runner;
-   }
-   
-   public static LogicalLayer getLogicalLayer() {
-      if (logicalLayer == null) {
-         logicalLayer = new LogicalLayer();
-      }
-      return logicalLayer;
-   }
 }
