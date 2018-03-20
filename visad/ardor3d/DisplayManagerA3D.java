@@ -99,7 +99,6 @@ public class DisplayManagerA3D implements Updater {
         
         SceneA3D scene = new SceneA3D(dspRenderer);
         
-        //canvasRenderer = new JoglCanvasRenderer(dspRenderer, false, null, false);
         canvasRenderer = new JoglCanvasRenderer(scene);
 
         ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
