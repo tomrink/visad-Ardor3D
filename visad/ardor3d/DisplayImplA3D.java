@@ -172,6 +172,21 @@ public class DisplayImplA3D extends DisplayImpl {
   private GraphicsModeControlA3D mode = null;
   private int apiValue = UNKNOWN;
   public DisplayManagerA3D manager = null;
+
+  
+  /**
+   * Trusted that comp is an ancestor of a Window that isShowing=true
+   * 
+   * @param name
+   * @param comp
+   * @param api
+   * @throws VisADException
+   * @throws RemoteException 
+   */
+  public DisplayImplA3D(String name, Container comp, int api) 
+         throws VisADException, RemoteException {
+     this(name, null, null, comp, comp.getWidth(), comp.getHeight(), api);
+  }
   
   public DisplayImplA3D(String name, Window window, Container comp, int api) 
          throws VisADException, RemoteException {
@@ -182,6 +197,22 @@ public class DisplayImplA3D extends DisplayImpl {
          throws VisADException, RemoteException {
      this(name, dspRenderer, window, comp, comp.getWidth(), comp.getHeight(), api);
   }  
+
+  /**
+   * Trusted that comp is an ancestor of a Window that isShowing=true.
+   * 
+   * @param name
+   * @param comp
+   * @param width
+   * @param height
+   * @param api
+   * @throws VisADException
+   * @throws RemoteException 
+   */
+  public DisplayImplA3D(String name, Container comp, int width, int height, int api) 
+         throws VisADException, RemoteException {
+     this(name, null, null, comp, width, height, api);
+  }
   
   public DisplayImplA3D(String name, Window window, Container comp, int width, int height, int api) 
          throws VisADException, RemoteException {
@@ -193,7 +224,7 @@ public class DisplayImplA3D extends DisplayImpl {
      super(name, renderer);
      
      /* TODO: make sure comp is an ancestor of window */
-     if (!window.isShowing()) {
+     if (window != null && !window.isShowing()) {
         throw new VisADException("Containing window must exist on screen. For example JFrame.setVisible(true)");
      }
      
@@ -778,7 +809,7 @@ public class DisplayImplA3D extends DisplayImpl {
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        frame.setVisible(true);
 
-       final DisplayImplA3D display = new DisplayImplA3D("Display", frame, frame.getContentPane(), JOGL_AWT);
+       final DisplayImplA3D display = new DisplayImplA3D("Display", frame.getContentPane(), JOGL_AWT);
        //display.disableAction();
        //frame.pack();
        
