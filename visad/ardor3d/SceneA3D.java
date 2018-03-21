@@ -15,9 +15,9 @@ import visad.VisADException;
 
 public final class SceneA3D implements Scene {
     private final Node root;
-    private DisplayRenderer dspRenderer;
+    private DisplayRendererA3D dspRenderer;
 
-    public SceneA3D(DisplayRenderer dspRenderer) {
+    public SceneA3D(DisplayRendererA3D dspRenderer) {
         this.dspRenderer = dspRenderer;
         root = new Node("root");
     }
@@ -33,10 +33,10 @@ public final class SceneA3D implements Scene {
         renderer.draw(root);
             
         // executes all queued update tasks
-        DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE).execute(renderer);
+        dspRenderer.getTaskQueueManager().getQueue(GameTaskQueue.UPDATE).execute(renderer);
             
         // executes all queued rendering tasks
-        DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.RENDER).execute(renderer);
+        dspRenderer.getTaskQueueManager().getQueue(GameTaskQueue.RENDER).execute(renderer);
         
         // This might be better to do in a custom FrameHandler, but would require extending Ardor3D
         try {

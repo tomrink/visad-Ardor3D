@@ -171,22 +171,8 @@ public class DisplayImplA3D extends DisplayImpl {
   private ProjectionControlA3D projection = null;
   private GraphicsModeControlA3D mode = null;
   private int apiValue = UNKNOWN;
-  public DisplayManagerA3D manager = null;
+  public UpdaterA3D manager = null;
 
-  
-  /**
-   * Trusted that comp is an ancestor of a Window that isShowing=true
-   * 
-   * @param name
-   * @param comp
-   * @param api
-   * @throws VisADException
-   * @throws RemoteException 
-   */
-  public DisplayImplA3D(String name, Container comp, int api) 
-         throws VisADException, RemoteException {
-     this(name, null, null, comp, comp.getWidth(), comp.getHeight(), api);
-  }
   
   public DisplayImplA3D(String name, Window window, Container comp, int api) 
          throws VisADException, RemoteException {
@@ -198,22 +184,6 @@ public class DisplayImplA3D extends DisplayImpl {
      this(name, dspRenderer, window, comp, comp.getWidth(), comp.getHeight(), api);
   }  
 
-  /**
-   * Trusted that comp is an ancestor of a Window that isShowing=true.
-   * 
-   * @param name
-   * @param comp
-   * @param width
-   * @param height
-   * @param api
-   * @throws VisADException
-   * @throws RemoteException 
-   */
-  public DisplayImplA3D(String name, Container comp, int width, int height, int api) 
-         throws VisADException, RemoteException {
-     this(name, null, null, comp, width, height, api);
-  }
-  
   public DisplayImplA3D(String name, Window window, Container comp, int width, int height, int api) 
          throws VisADException, RemoteException {
      this(name, null, window, comp, width, height, api);
@@ -228,10 +198,10 @@ public class DisplayImplA3D extends DisplayImpl {
         throw new VisADException("Containing window must exist on screen. For example JFrame.setVisible(true)");
      }
      
-     initialize(comp, width, height, api);
+     initialize(window, comp, width, height, api);
   }
   
-  private void initialize(Container comp, int width, int height, int api) 
+  private void initialize(Window window, Container comp, int width, int height, int api) 
           throws VisADException, RemoteException {
      
     // a ProjectionControl always exists
@@ -244,10 +214,13 @@ public class DisplayImplA3D extends DisplayImpl {
        }
        DisplaySettings settings = new DisplaySettings(width, height, 24, 0, 0, 16, 0, 0, false, false);        
        DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
-       manager = new DisplayManagerA3D(comp, settings, dspRenderer, api);
+       manager = new UpdaterA3D(comp, settings, dspRenderer, api);
+       apiValue = api;
+       
+       WindowObserver.attach(window, this, manager);
+       
        Component component = manager.getCanvas();
        setComponent(component);
-       apiValue = api;
     }
     else if (api == TRANSFORM_ONLY) {
       if (!(getDisplayRenderer() instanceof TransformOnlyDisplayRendererA3D)) {
@@ -536,7 +509,7 @@ public class DisplayImplA3D extends DisplayImpl {
     return apiValue;
   }
   
-  public DisplayManagerA3D getDisplayManager() {
+  public UpdaterA3D getDisplayManager() {
      return manager;
   }
 
@@ -709,22 +682,20 @@ public class DisplayImplA3D extends DisplayImpl {
   
   
   public void destroy() throws VisADException, RemoteException {
-    /** TDR, keep temporarily for reference
     if(isDestroyed())return;
 
     ((DisplayRendererA3D) getDisplayRenderer()).destroy();
     if (apiValue == OFFSCREEN) {
-      destroyUniverse();
+      // ?
     }
+    
     MouseBehavior mouse =  getMouseBehavior();
-    if(mouse!=null && mouse instanceof MouseBehaviorJ3D) {
-        ((MouseBehaviorJ3D) mouse).destroy();
+    if(mouse!=null && mouse instanceof MouseBehaviorA3D) {
+      ((MouseBehaviorA3D) mouse).destroy();
     }
     super.destroy();
-    applet = null;
     projection = null;
     mode = null;
-    */
   }
   
   float getOffsetDepthMinimum(float depthOffsetMax) {
@@ -809,7 +780,7 @@ public class DisplayImplA3D extends DisplayImpl {
        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        frame.setVisible(true);
 
-       final DisplayImplA3D display = new DisplayImplA3D("Display", frame.getContentPane(), JOGL_AWT);
+       final DisplayImplA3D display = new DisplayImplA3D("Display", frame, frame.getContentPane(), JOGL_AWT);
        //display.disableAction();
        //frame.pack();
        

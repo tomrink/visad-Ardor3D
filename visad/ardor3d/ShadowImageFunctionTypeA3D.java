@@ -1467,8 +1467,9 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
 
     rendererA3D.lastTexture = null;
     if (rendererA3D.lastTexture != null) {
-       JoglCanvasRenderer canvasRenderer = (JoglCanvasRenderer) ((DisplayRendererA3D)getDisplay().getDisplayRenderer()).getCanvasRenderer();
-       com.ardor3d.renderer.Renderer renderer = ((DisplayRendererA3D)getDisplay().getDisplayRenderer()).getCanvasRenderer().getRenderer();
+       DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplay().getDisplayRenderer();
+       JoglCanvasRenderer canvasRenderer = (JoglCanvasRenderer) dspRenderer.getCanvasRenderer();
+       com.ardor3d.renderer.Renderer renderer = dspRenderer.getCanvasRenderer().getRenderer();
        ByteBuffer bf = ((Image)image).getData(0);
        
        final int texW = texture_width;
@@ -1480,7 +1481,7 @@ public class ShadowImageFunctionTypeA3D extends ShadowFunctionTypeA3D {
              return null;
           }
        };
-       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+       GameTaskQueue uQueue = dspRenderer.getTaskQueueManager().getQueue(GameTaskQueue.UPDATE);
        uQueue.enqueue(updateCallable);
     }
     else {

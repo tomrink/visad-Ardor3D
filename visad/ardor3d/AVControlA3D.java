@@ -159,7 +159,7 @@ public abstract class AVControlA3D extends Control implements AVControl {
              return null;
           }
        };
-       GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+       GameTaskQueue uQueue = displayRenderer.getTaskQueueManager().getQueue(GameTaskQueue.UPDATE);
        uQueue.enqueue(updateCallable);
        
 //      if (0 <= indices[0] && indices[0] < ss.swit.getNumberOfChildren()) {

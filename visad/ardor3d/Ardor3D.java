@@ -2,7 +2,6 @@ package visad.ardor3d;
 
 import com.ardor3d.framework.FrameHandler;
 import com.ardor3d.input.logical.LogicalLayer;
-import com.ardor3d.util.GameTaskQueueManager;
 import com.ardor3d.util.Timer;
 
 /**
@@ -12,8 +11,6 @@ import com.ardor3d.util.Timer;
 public class Ardor3D {
    
    private static final Ardor3D instance = new Ardor3D();
-   
-   public static final GameTaskQueueManager queueManager = GameTaskQueueManager.getManager(new String("VisAD"));
    
    private static Timer timer;
    private static FrameHandler frameHandler;

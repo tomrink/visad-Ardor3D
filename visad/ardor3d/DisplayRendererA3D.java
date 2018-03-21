@@ -46,6 +46,7 @@ import com.ardor3d.scenegraph.Spatial;
 import com.ardor3d.scenegraph.event.DirtyType;
 import visad.ardor3d.SwitchNode;
 import com.ardor3d.util.GameTaskQueue;
+import com.ardor3d.util.GameTaskQueueManager;
 
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
@@ -197,7 +198,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   
   private CanvasRenderer canvasRenderer;
   
-  private DisplayManagerA3D dspManager;
+  private UpdaterA3D dspManager;
+  
+  private final GameTaskQueueManager queueManager;
   
   ReadOnlyColorRGBA boxColor = ColorRGBA.WHITE;
   ReadOnlyColorRGBA cursorColor = ColorRGBA.WHITE;
@@ -206,6 +209,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   public DisplayRendererA3D () {
     super();
       this.rootClipState = (ClipState) RenderState.createState(RenderState.StateType.Clip);
+      this.queueManager = GameTaskQueueManager.getManager(new String("VisAD"));
   }
 
   // WLH 17 Dec 2001
@@ -219,6 +223,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       root = null;
     }
     */
+    
+    queueManager.clearTasks();
 
     axis_vector.removeAllElements();
     directs.removeAllElements();
@@ -564,7 +570,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
         return null;
       }
      };
-     GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+     GameTaskQueue uQueue = queueManager.getQueue(GameTaskQueue.UPDATE);
      uQueue.enqueue(updateCallable);
     //non_direct.attachChild((Node)group);
     //markNeedDraw();
@@ -603,7 +609,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
         return null;
       }
     };
-    GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+    GameTaskQueue uQueue = queueManager.getQueue(GameTaskQueue.UPDATE);
     uQueue.enqueue(updateCallable);
     //non_direct.attachChild((Node)group);
     //directs.addElement(renderer);
@@ -621,7 +627,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
         return null;
       }
     };
-    GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+    GameTaskQueue uQueue = queueManager.getQueue(GameTaskQueue.UPDATE);
     uQueue.enqueue(updateCallable);
 //    directs.removeElement(renderer);
 //    if (group != null) {
@@ -1131,7 +1137,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
              return null;
           }
       };
-      GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+      GameTaskQueue uQueue = queueManager.getQueue(GameTaskQueue.UPDATE);
       uQueue.enqueue(updateCallable);
       //trans.setTransform(t);
     }
@@ -1310,12 +1316,16 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       return canvasRenderer;
    }
 
-   void setDisplayManager(DisplayManagerA3D aThis) {
+   void setDisplayManager(UpdaterA3D aThis) {
       this.dspManager = aThis;
    }
    
-   public DisplayManagerA3D getDisplayManager() {
+   public UpdaterA3D getDisplayManager() {
       return this.dspManager;
+   }
+   
+   public GameTaskQueueManager getTaskQueueManager() {
+      return queueManager;
    }
 
  }

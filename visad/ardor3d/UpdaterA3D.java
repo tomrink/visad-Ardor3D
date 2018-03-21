@@ -52,7 +52,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 
-public class DisplayManagerA3D implements Updater {
+public class UpdaterA3D implements Updater {
    
     private final Node root;
     private final Node transform;
@@ -74,19 +74,13 @@ public class DisplayManagerA3D implements Updater {
     
     private int canvasType = DisplayImplA3D.JOGL_AWT;
     
-    public static GameTaskQueueManager queueManager = GameTaskQueueManager.getManager(new String("VisAD"));
     
-    
-    public DisplayManagerA3D(Container container, DisplaySettings settings, DisplayRendererA3D dspRenderer, int canvasType) {
+    public UpdaterA3D(Container container, DisplaySettings settings, DisplayRendererA3D dspRenderer, int canvasType) {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
         
         this.dspRenderer = dspRenderer;
         this.canvasType = canvasType;
-        
-        /* Only one of these per JVM (suggestion by J.Gouessej of Jogamp), but can be modified
-           for one per display 
-        */
         
         timer = Ardor3D.getTimer();
         frameWork = Ardor3D.getFrameHander();
@@ -412,21 +406,14 @@ public class DisplayManagerA3D implements Updater {
     
     public Component getComponent() {
        return canvas;
-    } 
-    
-    public void toggleRunner() {
-       myRunner.toggle();
     }
     
-    public void toggleRunner(boolean on) {
-       myRunner.toggle(on);
+    public void destroy() {
+       // deRegister triggers and Input
+       Ardor3D.toggleRunner(false);
+       frameWork.removeCanvas((com.ardor3d.framework.Canvas)canvas);
+       frameWork.removeUpdater(this);
+       Ardor3D.toggleRunner(true);
     }
     
-    public FrameHandler getFrameHandler() {
-       return frameWork;
-    }
-    
-    public boolean getFrameHandlerInitialized() {
-       return frameHandlerInitialized;
-    }
 }

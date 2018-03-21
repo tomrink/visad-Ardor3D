@@ -191,7 +191,7 @@ System.out.println("doAction " + getDisplay().getName() + " " +
               return null;
             }
           };
-          GameTaskQueue uQueue = DisplayManagerA3D.queueManager.getQueue(GameTaskQueue.UPDATE);
+          GameTaskQueue uQueue = ((DisplayRendererA3D) getDisplayRenderer()).getTaskQueueManager().getQueue(GameTaskQueue.UPDATE);
           uQueue.enqueue(updateCallable);
           //sw.detachChild(prevNode);
           //sw.attachChildAt(branch, 0);
