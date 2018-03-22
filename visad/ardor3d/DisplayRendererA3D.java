@@ -27,23 +27,15 @@ MA 02111-1307, USA
 package visad.ardor3d;
 
 import com.ardor3d.framework.CanvasRenderer;
-import com.ardor3d.framework.Scene;
-import com.ardor3d.intersection.PickResults;
-import com.ardor3d.intersection.PickingUtil;
-import com.ardor3d.intersection.PrimitivePickResults;
 import com.ardor3d.math.ColorRGBA;
-import com.ardor3d.math.Ray3;
 import com.ardor3d.math.Transform;
 import com.ardor3d.math.type.ReadOnlyColorRGBA;
 import com.ardor3d.renderer.ContextCapabilities;
-import com.ardor3d.renderer.RenderContext;
-import com.ardor3d.renderer.Renderer;
 import com.ardor3d.renderer.state.ClipState;
 import com.ardor3d.renderer.state.RenderState;
 import com.ardor3d.scenegraph.Mesh;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.scenegraph.Spatial;
-import com.ardor3d.scenegraph.event.DirtyType;
 import visad.ardor3d.SwitchNode;
 import com.ardor3d.util.GameTaskQueue;
 import com.ardor3d.util.GameTaskQueueManager;
