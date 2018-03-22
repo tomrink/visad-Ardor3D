@@ -54,7 +54,6 @@ import java.awt.event.MouseEvent;
 public class UpdaterA3D implements Updater {
    
     private final Node root;
-    private final Node transform;
     
     private Component canvas;
     private final CanvasRenderer canvasRenderer;
@@ -65,8 +64,6 @@ public class UpdaterA3D implements Updater {
     private RunnerA3D myRunner = null;
     private RenderContext renderContext;
 
-    public boolean frameHandlerInitialized = false;
-    
     public boolean needDraw = false;
     
     private DisplayRendererA3D dspRenderer;
@@ -88,7 +85,6 @@ public class UpdaterA3D implements Updater {
         
         dspRenderer.createSceneGraph();
         root = dspRenderer.getRoot();
-        transform = dspRenderer.getTransformNode();
         
         SceneA3D scene = new SceneA3D(dspRenderer);
         
@@ -150,7 +146,7 @@ public class UpdaterA3D implements Updater {
         /* This must be done AFTER Canvas.init() */
         renderContext = canvasRenderer.getRenderContext();
         
-        /* This must be done AFTER the renderContext has been obtained */
+        /* These must be done AFTER the renderContext has been obtained */
         frameWork.addUpdater(this);
         
         frameWork.addCanvas((com.ardor3d.framework.Canvas)canvas);
