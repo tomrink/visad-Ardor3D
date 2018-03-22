@@ -55,7 +55,7 @@ public class MouseHelperA3D extends MouseHelper {
           zWorldToNormDepth.setSamples(new float[][] {normDepth});
         }
         catch (Exception e) {
-           
+           e.printStackTrace();
         }
      }
      
@@ -64,7 +64,7 @@ public class MouseHelperA3D extends MouseHelper {
      try {
         normDepthAtWorldOrigin = ((Real)zWorldToNormDepth.evaluate(new Real(RealType.Generic, 0.0))).getValue();
      } catch (Exception e) {
-        
+        e.printStackTrace();
      }
       
      final Vector2 pos = Vector2.fetchTempInstance().set(screen_x, screen_y);
