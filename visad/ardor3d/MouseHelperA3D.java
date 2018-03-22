@@ -31,7 +31,7 @@ public class MouseHelperA3D extends MouseHelper {
    }
    
    public void setTranslationFactor(int screen_x, int screen_y) {
-     Camera camera = ((MouseBehaviorA3D)getMouseBehavior()).getCanvasRenderer().getCamera();
+     Camera camera = ((DisplayRendererA3D)getDisplayRenderer()).getCanvasRenderer().getCamera();
      Real worldZ0;
      
      if (zWorldToNormDepth == null) {

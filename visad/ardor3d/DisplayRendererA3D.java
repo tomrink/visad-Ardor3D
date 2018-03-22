@@ -83,23 +83,22 @@ import visad.VisADRay;
 import visad.VisADTriangleArray;
 
 /**
- * <CODE>DisplayRendererJ3D</CODE> is the VisAD abstract super-class for
+ * <CODE>DisplayRendererA3D</CODE> is the VisAD abstract super-class for
  * background and metadata rendering algorithms.  These complement
  * depictions of <CODE>Data</CODE> objects created by
  * <CODE>DataRenderer</CODE> objects.<P>
  *
- * <CODE>DisplayRendererJ3D</CODE> also manages the overall relation of
+ * <CODE>DisplayRendererA3D</CODE> also manages the overall relation of
  * <CODE>DataRenderer</CODE> output to Java3D and manages the scene graph.<P>
  *
  * It creates the binding between <CODE>Control</CODE> objects and scene
  * graph <CODE>Behavior</CODE> objects for direct manipulation of
  * <CODE>Control</CODE> objects.<P>
  *
- * <CODE>DisplayRendererJ3D</CODE> is not <CODE>Serializable</CODE> and
+ * <CODE>DisplayRendererA3D</CODE> is not <CODE>Serializable</CODE> and
  * should not be copied between JVMs.<P>
 */
-public abstract class DisplayRendererA3D extends DisplayRenderer
-  implements RendererSourceListener, Scene
+public abstract class DisplayRendererA3D extends DisplayRenderer implements RendererSourceListener
 {
 
   /**
@@ -197,8 +196,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   private ContextCapabilities contextCapabilities;
   
   private CanvasRenderer canvasRenderer;
-  
-  private UpdaterA3D dspManager;
   
   private final GameTaskQueueManager queueManager;
   
@@ -1257,19 +1254,13 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
   }
 
   public int getTextureWidthMax() {
-    return dspManager.getCapabilities().getMaxTextureSize();
-    //return 8192;
+    return canvasRenderer.getRenderContext().getCapabilities().getMaxTextureSize();
   }
 
   public int getTextureHeightMax() {
-    return dspManager.getCapabilities().getMaxTextureSize();     
-    //return 8192;
+    return canvasRenderer.getRenderContext().getCapabilities().getMaxTextureSize();
   }
   
-  public void setCapabilities(ContextCapabilities obj) {
-     this.contextCapabilities = obj;
-  }
-
 //   @Override
 //   public boolean renderUnto(Renderer renderer) {
 //      synchronized (MUTEX) {
@@ -1282,23 +1273,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
 //      }
 //      return false;      
 //   }
-   
-   @Override
-   public boolean renderUnto(Renderer renderer) {
-      root.onDraw(renderer);
-      /* experiment
-      needDraw = false;
-      */
-      return true;
-   }
-      
-   @Override
-   public PickResults doPick(Ray3 pickRay) {
-      final PickResults pickResults = new PrimitivePickResults();
-      pickResults.setCheckDistance(true);
-      PickingUtil.findPick(getRoot(), pickRay, pickResults);
-      return null;
-   }
    
    public void markNeedDraw() {
       needDraw = true;
@@ -1316,14 +1290,6 @@ public abstract class DisplayRendererA3D extends DisplayRenderer
       return canvasRenderer;
    }
 
-   void setDisplayManager(UpdaterA3D aThis) {
-      this.dspManager = aThis;
-   }
-   
-   public UpdaterA3D getDisplayManager() {
-      return this.dspManager;
-   }
-   
    public GameTaskQueueManager getTaskQueueManager() {
       return queueManager;
    }

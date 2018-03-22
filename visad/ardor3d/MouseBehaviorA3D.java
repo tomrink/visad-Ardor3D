@@ -58,7 +58,6 @@ public class MouseBehaviorA3D implements MouseBehavior {
   DisplayImpl display;
 
   MouseHelper helper = null;
-  private CanvasRenderer canvasRenderer = null;
 
   /**
    * Default Constructor
@@ -111,16 +110,6 @@ public class MouseBehaviorA3D implements MouseBehavior {
     return helper;
   }
   
-  public void setCanvasRenderer(CanvasRenderer cr) {
-     if (canvasRenderer == null) {
-        canvasRenderer = cr;
-     }
-  }
-  
-  public CanvasRenderer getCanvasRenderer() {
-     return canvasRenderer;
-  }
-
   /**
    * Return the VisAD ray corresponding to the component coordinates.
    * @param  screen_x  x coordinate of the component
@@ -131,7 +120,7 @@ public class MouseBehaviorA3D implements MouseBehavior {
    */
   public VisADRay findRay(int screen_x, int screen_y) {
      
-    Camera camera = canvasRenderer.getCamera();
+    Camera camera = display_renderer.getCanvasRenderer().getCamera();
     
     final Vector2 pos = new Vector2(screen_x, screen_y);
     final Ray3 pickRay = new Ray3();
@@ -198,7 +187,7 @@ public class MouseBehaviorA3D implements MouseBehavior {
    * @return  corresponding (x, y) screen coordinates
    */
   public int[] getScreenCoords(double[] position) {
-    Camera camera = canvasRenderer.getCamera();
+    Camera camera = display_renderer.getCanvasRenderer().getCamera();
     Vector3 worldPos = new Vector3(position[0], position[1], position[2]);
     Vector3 screen = camera.getScreenCoordinates(worldPos);
     return new int[] {(int) screen.getX(), (int) screen.getY()};

@@ -94,9 +94,7 @@ public class UpdaterA3D implements Updater {
         
         canvasRenderer = new JoglCanvasRenderer(scene);
 
-        ((MouseBehaviorA3D)dspRenderer.getMouseBehavior()).setCanvasRenderer(canvasRenderer);
         dspRenderer.setCanvasRenderer(canvasRenderer);
-        dspRenderer.setDisplayManager(this);
         
         int width = settings.getWidth();
         int height = settings.getHeight();
