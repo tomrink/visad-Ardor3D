@@ -39,7 +39,6 @@ import com.ardor3d.renderer.RenderContext;
 import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.ReadOnlyTimer;
 import com.ardor3d.util.Timer;
-import com.ardor3d.util.GameTaskQueueManager;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import java.awt.Component;
