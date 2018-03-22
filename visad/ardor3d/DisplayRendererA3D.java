@@ -212,14 +212,12 @@ public abstract class DisplayRendererA3D extends DisplayRenderer implements Rend
   // WLH 17 Dec 2001
   public void destroy() {
 
-    /* Keep for reference
-    if (canvas != null) canvas.stop();
     if (mouse != null) mouse.destroy();
     if (root != null) {
-      //root.detach();
+      Node node = root.getParent(); //SceneA3D root
+      node.detachChild(root);
       root = null;
     }
-    */
     
     queueManager.clearTasks();
 
