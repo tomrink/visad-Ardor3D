@@ -198,7 +198,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer implements Rend
   public DisplayRendererA3D () {
     super();
       this.rootClipState = (ClipState) RenderState.createState(RenderState.StateType.Clip);
-      this.queueManager = GameTaskQueueManager.getManager(new String("VisAD"));
+      this.queueManager = GameTaskQueueManager.getManager(hashCode());
   }
 
   // WLH 17 Dec 2001
