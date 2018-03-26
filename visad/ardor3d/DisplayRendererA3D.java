@@ -194,6 +194,8 @@ public abstract class DisplayRendererA3D extends DisplayRenderer implements Rend
   ReadOnlyColorRGBA boxColor = ColorRGBA.WHITE;
   ReadOnlyColorRGBA cursorColor = ColorRGBA.WHITE;
   
+  private boolean destroyed = false;
+  
   
   public DisplayRendererA3D () {
     super();
@@ -233,6 +235,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer implements Rend
     scale_switch = null;
     scale_on = null; 
     scale_off = null;
+    destroyed = true;
   }
 
   /**
@@ -605,6 +608,7 @@ public abstract class DisplayRendererA3D extends DisplayRenderer implements Rend
 
 
   public void clearScene(DataRenderer renderer, Object group) {
+    if (destroyed) return;
     Callable updateCallable = new Callable() {
       public Object call() {
         directs.removeElement(renderer);
