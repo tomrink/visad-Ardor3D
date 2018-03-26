@@ -49,6 +49,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class UpdaterA3D implements Updater {
@@ -69,6 +71,8 @@ public class UpdaterA3D implements Updater {
     private DisplayRendererA3D dspRenderer;
     
     private int canvasType = DisplayImplA3D.JOGL_AWT;
+    
+    private ArrayList<InputTrigger> inputTriggers = new ArrayList();
     
     
     public UpdaterA3D(Container container, DisplaySettings settings, DisplayRendererA3D dspRenderer, int canvasType) {
@@ -140,17 +144,32 @@ public class UpdaterA3D implements Updater {
         
         registerInputTriggers();
         
-        /* This probably need to be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
-        ((Canvas)canvas).init();
+        /* This must need to be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
+        //((Canvas)canvas).init();
         
         /* This must be done AFTER Canvas.init() */
-        renderContext = canvasRenderer.getRenderContext();
+        //renderContext = canvasRenderer.getRenderContext();
         
         /* These must be done AFTER the renderContext has been obtained */
         frameWork.addUpdater(this);
         
         frameWork.addCanvas((com.ardor3d.framework.Canvas)canvas);
         
+        waitForRenderContext();
+        
+    }
+    
+    private void waitForRenderContext() {
+        renderContext = canvasRenderer.getRenderContext();
+        while (renderContext == null) {
+           renderContext = canvasRenderer.getRenderContext();
+           try {
+              synchronized (this) {
+                 wait(100);
+              }
+            }
+            catch (InterruptedException e)  {}           
+        }       
     }
     
     protected void registerInputTriggers() {
@@ -166,7 +185,9 @@ public class UpdaterA3D implements Updater {
                 forwardToMouseHelper(source, MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
             }
         };
-        logicalLayer.registerTrigger(new InputTrigger(new MouseButtonPressedCondition(MouseButton.LEFT), leftPressedAction));
+        InputTrigger trigger = new InputTrigger(new MouseButtonPressedCondition(MouseButton.LEFT), leftPressedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
         
         final TriggerAction cntrPressedAction = new TriggerAction() {
             @Override
@@ -175,8 +196,10 @@ public class UpdaterA3D implements Updater {
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
                 forwardToMouseHelper(source, MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);                
             }
-        };        
-        logicalLayer.registerTrigger(new InputTrigger(new MouseButtonPressedCondition(MouseButton.MIDDLE), cntrPressedAction));
+        };
+        trigger = new InputTrigger(new MouseButtonPressedCondition(MouseButton.MIDDLE), cntrPressedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
         
         final TriggerAction rightPressedAction = new TriggerAction() {
             @Override
@@ -186,8 +209,10 @@ public class UpdaterA3D implements Updater {
                 forwardToMouseHelper(source, MouseEvent.MOUSE_PRESSED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
 
             }
-        };        
-        logicalLayer.registerTrigger(new InputTrigger(new MouseButtonPressedCondition(MouseButton.RIGHT), rightPressedAction));
+        };
+        trigger = new InputTrigger(new MouseButtonPressedCondition(MouseButton.RIGHT), rightPressedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
         
         final TriggerAction leftReleasedAction = new TriggerAction() {
             @Override
@@ -198,7 +223,9 @@ public class UpdaterA3D implements Updater {
 
             }
         };
-        logicalLayer.registerTrigger(new InputTrigger(new MouseButtonReleasedCondition(MouseButton.LEFT), leftReleasedAction));
+        trigger = new InputTrigger(new MouseButtonReleasedCondition(MouseButton.LEFT), leftReleasedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
         
         final TriggerAction cntrReleasedAction = new TriggerAction() {
             @Override
@@ -207,8 +234,10 @@ public class UpdaterA3D implements Updater {
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
                 forwardToMouseHelper(source, MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);
             }
-        };        
-        logicalLayer.registerTrigger(new InputTrigger(new MouseButtonReleasedCondition(MouseButton.MIDDLE), cntrReleasedAction));
+        };
+        trigger = new InputTrigger(new MouseButtonReleasedCondition(MouseButton.MIDDLE), cntrReleasedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
         
         final TriggerAction rightReleasedAction = new TriggerAction() {
             @Override
@@ -217,8 +246,10 @@ public class UpdaterA3D implements Updater {
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
                 forwardToMouseHelper(source, MouseEvent.MOUSE_RELEASED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
             }
-        };        
-        logicalLayer.registerTrigger(new InputTrigger(new MouseButtonReleasedCondition(MouseButton.RIGHT), rightReleasedAction));        
+        };
+        trigger = new InputTrigger(new MouseButtonReleasedCondition(MouseButton.RIGHT), rightReleasedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);        
         
         final Predicate<TwoInputStates> leftDownMouseMoved = Predicates.and(TriggerConditions.leftButtonDown(), TriggerConditions.mouseMoved());
         final Predicate<TwoInputStates> cntrDownMouseMoved = Predicates.and(TriggerConditions.middleButtonDown(), TriggerConditions.mouseMoved());
@@ -232,7 +263,9 @@ public class UpdaterA3D implements Updater {
                 forwardToMouseHelper(source, MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON1_MASK, mouse, keyboard);
             }
         };
-        logicalLayer.registerTrigger(new InputTrigger(leftDownMouseMoved, leftDraggedAction));
+        trigger = new InputTrigger(leftDownMouseMoved, leftDraggedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
         
         final TriggerAction cntrDraggedAction = new TriggerAction() {
             @Override
@@ -241,8 +274,10 @@ public class UpdaterA3D implements Updater {
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
                 forwardToMouseHelper(source, MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON2_MASK, mouse, keyboard);
             }
-        };        
-        logicalLayer.registerTrigger(new InputTrigger(cntrDownMouseMoved, cntrDraggedAction));
+        };
+        trigger = new InputTrigger(cntrDownMouseMoved, cntrDraggedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
         
         final TriggerAction rightDraggedAction = new TriggerAction() {
             @Override
@@ -251,8 +286,10 @@ public class UpdaterA3D implements Updater {
                 final KeyboardState keyboard = inputStates.getCurrent().getKeyboardState();
                 forwardToMouseHelper(source, MouseEvent.MOUSE_DRAGGED, java.awt.event.InputEvent.BUTTON3_MASK, mouse, keyboard);
             }
-        };        
+        };
+        trigger = new InputTrigger(rghtDownMouseMoved, rightDraggedAction);        
         logicalLayer.registerTrigger(new InputTrigger(rghtDownMouseMoved, rightDraggedAction));
+        inputTriggers.add(trigger);
         
         final TriggerAction mouseMovedAction = new TriggerAction() {
             @Override
@@ -272,7 +309,9 @@ public class UpdaterA3D implements Updater {
                 forwardToKeyboardBehavior(KeyEvent.KEY_PRESSED, keyboard);
             }           
         };
-        logicalLayer.registerTrigger(new InputTrigger(new AnyKeyCondition(), keyPressedAction));
+        trigger = new InputTrigger(new AnyKeyCondition(), keyPressedAction);
+        logicalLayer.registerTrigger(trigger);
+        inputTriggers.add(trigger);
     }
     
     /* These mimic an AWT Event to use the VisAD core logic as is */
@@ -402,11 +441,24 @@ public class UpdaterA3D implements Updater {
     }
     
     public void destroy() {
-       // deRegister triggers and Input
        Ardor3D.toggleRunner(false);
-       frameWork.removeCanvas((com.ardor3d.framework.Canvas)canvas);
-       frameWork.removeUpdater(this);
-       Ardor3D.toggleRunner(true);
+       try {
+          Iterator<InputTrigger> iter = inputTriggers.iterator();
+          while (iter.hasNext()) {
+             logicalLayer.deregisterTrigger(iter.next());
+          }
+          inputTriggers.clear();
+          
+          //deRegisterInput, how to do this?
+          
+          frameWork.removeCanvas((com.ardor3d.framework.Canvas)canvas);
+          frameWork.removeUpdater(this);
+       }
+       catch (Exception e) {
+       }
+       finally {
+         Ardor3D.toggleRunner(true);
+       }
     }
     
 }
