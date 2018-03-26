@@ -9,7 +9,6 @@ import com.ardor3d.scenegraph.Node;
 import com.ardor3d.util.GameTaskQueue;
 import java.rmi.RemoteException;
 import visad.DisplayEvent;
-import visad.DisplayRenderer;
 import visad.VisADException;
 
 
