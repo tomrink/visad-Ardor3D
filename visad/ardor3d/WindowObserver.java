@@ -49,14 +49,15 @@ public class WindowObserver extends WindowAdapter {
    @Override
    public void windowClosing(WindowEvent e) {
       try {
-         Iterator<UpdaterA3D> iterU = updaters.iterator();
-         while (iterU.hasNext()) {
-            iterU.next().destroy();
-         }
-
+         
          Iterator<DisplayImplA3D> iterD = displays.iterator();
          while (iterD.hasNext()) {
             iterD.next().destroy();
+         }
+         
+         Iterator<UpdaterA3D> iterU = updaters.iterator();
+         while (iterU.hasNext()) {
+            iterU.next().destroy();
          }
       }
       catch (Exception exc) {
