@@ -203,8 +203,9 @@ public abstract class DisplayRendererA3D extends DisplayRenderer implements Rend
       this.queueManager = GameTaskQueueManager.getManager(hashCode());
   }
 
-  // WLH 17 Dec 2001
   public void destroy() {
+     
+    if (destroyed) return;
 
     if (mouse != null) mouse.destroy();
     if (root != null) {
