@@ -41,9 +41,7 @@ public final class SceneA3D implements Scene {
         try {
            dspRenderer.getDisplay().notifyListeners(DisplayEvent.FRAME_DONE, 0, 0);
         }
-        catch (VisADException e) {
-        }
-        catch (RemoteException e) {
+        catch (VisADException | RemoteException e) {
         }
         return true;
     }
