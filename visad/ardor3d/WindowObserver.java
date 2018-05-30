@@ -3,9 +3,11 @@ package visad.ardor3d;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import visad.VisADException;
 
 /**
  *
@@ -19,8 +21,10 @@ public class WindowObserver extends WindowAdapter {
    
    private final ArrayList<UpdaterA3D> updaters = new ArrayList();
    
+   private final Window window;
+   
    public WindowObserver(Window window) {
-      window.addWindowListener(this);
+      this.window = window;
    }
    
    public static void attach(Window window, DisplayImplA3D display, UpdaterA3D updater) {
@@ -33,6 +37,7 @@ public class WindowObserver extends WindowAdapter {
       WindowObserver adapter = windowAdapters.get(window);
       if (adapter == null) {
         adapter = new WindowObserver(window);
+        window.addWindowListener(adapter);
         windowAdapters.put(window, adapter);
       }
       return adapter;
@@ -49,7 +54,6 @@ public class WindowObserver extends WindowAdapter {
    @Override
    public void windowClosing(WindowEvent e) {
       try {
-         
          Iterator<DisplayImplA3D> iterD = displays.iterator();
          while (iterD.hasNext()) {
             iterD.next().destroy();
@@ -60,14 +64,14 @@ public class WindowObserver extends WindowAdapter {
             iterU.next().destroy();
          }
       }
-      catch (Exception exc) {
+      catch (VisADException | RemoteException exc) {
          exc.printStackTrace();
       }
-      
-      updaters.clear();
-      displays.clear();
-      
-      windowAdapters.remove(this);
+      finally {
+         updaters.clear();
+         displays.clear();
+         windowAdapters.remove(window);
+      }
    }
    
 }
