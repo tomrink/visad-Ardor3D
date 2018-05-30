@@ -63,22 +63,23 @@ public class UpdaterA3D implements Updater {
     private Timer timer = null;
     private FrameHandler frameWork = null;
     private LogicalLayer logicalLayer = null;
-    private RunnerA3D myRunner = null;
+    private final RunnerA3D myRunner = null;
     private RenderContext renderContext;
 
     public boolean needDraw = false;
     
-    private DisplayRendererA3D dspRenderer;
+    private final DisplayRendererA3D dspRenderer;
     
     private int canvasType = DisplayImplA3D.JOGL_AWT;
     
-    private ArrayList<InputTrigger> inputTriggers = new ArrayList();
+    private final ArrayList<InputTrigger> inputTriggers;
     
     
     public UpdaterA3D(Container container, DisplaySettings settings, DisplayRendererA3D dspRenderer, int canvasType) {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
         
+        this.inputTriggers = new ArrayList();
         this.dspRenderer = dspRenderer;
         this.canvasType = canvasType;
         
@@ -137,20 +138,12 @@ public class UpdaterA3D implements Updater {
                       camera.resize(w, h);
                       camera.setFrustumPerspective(camera.getFovY(), r, camera.getFrustumNear(), camera.getFrustumFar());
                    }
-                   markNeedDraw();
                 }
             }
         });
         
         registerInputTriggers();
         
-        /* This must need to be done AFTER adding the com.ardor3d.framework.Canvas to a visible component */
-        //((Canvas)canvas).init();
-        
-        /* This must be done AFTER Canvas.init() */
-        //renderContext = canvasRenderer.getRenderContext();
-        
-        /* These must be done AFTER the renderContext has been obtained */
         frameWork.addUpdater(this);
         
         frameWork.addCanvas((com.ardor3d.framework.Canvas)canvas);
@@ -423,10 +416,6 @@ public class UpdaterA3D implements Updater {
 //        root.updateGeometricState(rot.getTimePerFrame(), false);
 //        */
 //    }
-    
-    public void markNeedDraw() {
-       dspRenderer.markNeedDraw();
-    }
     
     @Override
     public void init() {
