@@ -51,6 +51,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import visad.VisADException;
 
 
 public class UpdaterA3D implements Updater {
@@ -74,8 +75,9 @@ public class UpdaterA3D implements Updater {
     
     private final ArrayList<InputTrigger> inputTriggers;
     
-    
-    public UpdaterA3D(Container container, DisplaySettings settings, DisplayRendererA3D dspRenderer, int canvasType) {
+    private double TIMEOUT = 10000;
+       
+    public UpdaterA3D(Container container, DisplaySettings settings, DisplayRendererA3D dspRenderer, int canvasType) throws VisADException {
         System.setProperty("ardor3d.useMultipleContexts", "true");
         System.setProperty("jogl.gljpanel.noglsl", "true"); // Use OpenGL shading
         
@@ -152,17 +154,22 @@ public class UpdaterA3D implements Updater {
         
     }
     
-    private void waitForRenderContext() {
+    private void waitForRenderContext() throws VisADException {
         renderContext = canvasRenderer.getRenderContext();
-        while (renderContext == null) {
+        double accum = 0;
+        while (renderContext == null && accum < TIMEOUT) {
            renderContext = canvasRenderer.getRenderContext();
            try {
               synchronized (this) {
                  wait(100);
+                 accum += 100;
               }
             }
             catch (InterruptedException e)  {}           
-        }       
+        }
+        if (renderContext == null) {
+           throw new VisADException("Unable to acquire Ardor3D RenderContext: TIMEOUT");
+        }
     }
     
     protected void registerInputTriggers() {
