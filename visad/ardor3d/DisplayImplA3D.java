@@ -172,24 +172,24 @@ public class DisplayImplA3D extends DisplayImpl {
   private GraphicsModeControlA3D mode = null;
   private int apiValue = UNKNOWN;
   public UpdaterA3D manager = null;
-
+  
+           
+  public DisplayImplA3D(String name, Window window, Container comp) 
+         throws VisADException, RemoteException {
+     this(name, null, window, comp, JOGL_AWT);
+  }
+  
+  public DisplayImplA3D(String name, DisplayRendererA3D renderer, Window window, Container comp)
+          throws VisADException, RemoteException {
+     this(name, renderer, window, comp, JOGL_AWT);
+  }
   
   public DisplayImplA3D(String name, Window window, Container comp, int api) 
          throws VisADException, RemoteException {
-     this(name, null, window, comp, comp.getWidth(), comp.getHeight(), api);
+     this(name, null, window, comp, api);
   }
-  
-  public DisplayImplA3D(String name, DisplayRendererA3D dspRenderer, Window window, Container comp, int api) 
-         throws VisADException, RemoteException {
-     this(name, dspRenderer, window, comp, comp.getWidth(), comp.getHeight(), api);
-  }  
 
-  public DisplayImplA3D(String name, Window window, Container comp, int width, int height, int api) 
-         throws VisADException, RemoteException {
-     this(name, null, window, comp, width, height, api);
-  }
-  
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer, Window window, Container comp, int width, int height, int api) 
+  public DisplayImplA3D(String name, DisplayRendererA3D renderer, Window window, Container comp, int api) 
          throws VisADException, RemoteException {
      super(name, renderer);
      
@@ -198,10 +198,10 @@ public class DisplayImplA3D extends DisplayImpl {
         throw new VisADException("Containing window must exist on screen. For example JFrame.setVisible(true)");
      }
      
-     initialize(window, comp, width, height, api);
+     initialize(window, comp, api);
   }
   
-  private void initialize(Window window, Container comp, int width, int height, int api) 
+  private void initialize(Window window, Container comp, int api) 
           throws VisADException, RemoteException {
      
     // a ProjectionControl always exists
@@ -209,6 +209,8 @@ public class DisplayImplA3D extends DisplayImpl {
     addControl(projection);
 
     if (api == JOGL_AWT || api == JOGL_SWING || api == JOGL_NEWT) {
+       int width = comp.getWidth();
+       int height = comp.getHeight();
        if (width < 0 || height < 0) {
           throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
        }
@@ -243,227 +245,7 @@ public class DisplayImplA3D extends DisplayImpl {
     mode = new GraphicsModeControlA3D(this);
     addControl(mode);
   }
-
-  /** construct a DisplayImpl for Java3D with the
-      default DisplayRenderer, in a JFC JPanel */
-  public DisplayImplA3D(String name)
-         throws VisADException, RemoteException {
-    this(name, null, JOGL_AWT, null);
-  }
-
-  /** construct a DisplayImpl for Java3D with a non-default
-      DisplayRenderer, in a JFC JPanel */
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer)
-         throws VisADException, RemoteException {
-    this(name, renderer, JOGL_AWT, null);
-  }
-
-  /** constructor with default DisplayRenderer */
-  public DisplayImplA3D(String name, int api)
-         throws VisADException, RemoteException {
-    this(name, null, api, null);
-  }
-
-  /** construct a DisplayImpl for Java3D with a non-default
-      GraphicsConfiguration, in a JFC JPanel */
-  public DisplayImplA3D(String name, GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(name, null, JOGL_AWT, config);
-  }
   
-  public DisplayImplA3D(String name, int width, int height, int api)
-         throws VisADException, RemoteException {
-     super(name, null);
-     initialize(api, null, width, height);
-  }
-
-  /** construct a DisplayImpl for Java3D with a non-default
-      DisplayRenderer;
-      in a JFC JPanel if api == DisplayImplJ3D.JPANEL and
-      in an AppletFrame if api == DisplayImplJ3D.APPLETFRAME */
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer, int api)
-         throws VisADException, RemoteException {
-    this(name, renderer, api, null);
-  }
-
-  /** construct a DisplayImpl for Java3D with a non-default
-      DisplayRenderer and GraphicsConfiguration, in a JFC JPanel */
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer,
-                        GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(name, renderer, JOGL_AWT, config);
-  }
-
-  /** constructor with default DisplayRenderer and a non-default
-      GraphicsConfiguration */
-  public DisplayImplA3D(String name, int api, GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(name, null, api, config);
-  }
-
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer, int api,
-                        GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(name, renderer, api, config, null);
-  }
-
-  /** the 'c' argument is intended to be an extension class of
-      VisADCanvasJ3D (or null); if it is non-null, then api must
-      be JPANEL and its super() constructor for VisADCanvasJ3D
-      must be 'super(renderer, config)' */
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer, int api,
-                        GraphicsConfiguration config, Object c)
-         throws VisADException, RemoteException {
-    super(name, renderer);
-
-    initialize(api, config, c);
-  }
-
-  /** constructor for off screen */
-  public DisplayImplA3D(String name, int width, int height)
-         throws VisADException, RemoteException {
-    this(name, null, width, height);
-  }
-
-  /** constructor for off screen */
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer,
-                        int width, int height)
-         throws VisADException, RemoteException {
-    this(name, renderer, width, height, null);
-  }
-
-  /** constructor for off screen;
-      the 'c' argument is intended to be an extension class of
-      VisADCanvasJ3D (or null); if it is non-null, then its super()
-      constructor for VisADCanvasJ3D must be
-      'super(renderer, width, height)' */
-  public DisplayImplA3D(String name, DisplayRendererA3D renderer,
-                        int width, int height, Object c)
-         throws VisADException, RemoteException {
-    super(name, renderer);
-
-    initialize(OFFSCREEN, null, width, height, c);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy)
-         throws VisADException, RemoteException {
-    this(rmtDpy, null, rmtDpy.getDisplayAPI(), null);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy, DisplayRendererA3D renderer)
-         throws VisADException, RemoteException {
-    this(rmtDpy, renderer, rmtDpy.getDisplayAPI(), null);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy, int api)
-         throws VisADException, RemoteException {
-    this(rmtDpy, null, api, null);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy, GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(rmtDpy, null, rmtDpy.getDisplayAPI(), config);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy, DisplayRendererA3D renderer,
-			int api)
-         throws VisADException, RemoteException {
-    this(rmtDpy, renderer, api, null);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy, DisplayRendererA3D renderer,
-                        GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(rmtDpy, renderer, rmtDpy.getDisplayAPI(), config);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy, int api,
-                        GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(rmtDpy, null, api, config);
-  }
-
-  public DisplayImplA3D(RemoteDisplay rmtDpy, DisplayRendererA3D renderer,
-                        int api, GraphicsConfiguration config)
-         throws VisADException, RemoteException {
-    this(rmtDpy, renderer, api, config, null);
-  }
-
-  /** the 'c' argument is intended to be an extension class of
-      VisADCanvasJ3D (or null); if it is non-null, then api must
-      be JPANEL and its super() constructor for VisADCanvasJ3D
-      must be 'super(renderer, config)' */
-  public DisplayImplA3D(RemoteDisplay rmtDpy, DisplayRendererA3D renderer,
-                        int api, GraphicsConfiguration config,
-                        Object c)
-         throws VisADException, RemoteException {
-    super(rmtDpy,
-          ((renderer == null && api == TRANSFORM_ONLY) ?
-             new TransformOnlyDisplayRendererA3D() : renderer));
-
-    initialize(api, config, c);
-
-    syncRemoteData(rmtDpy);
-  }
-
-  private void initialize(int api, GraphicsConfiguration config)
-          throws VisADException, RemoteException {
-    initialize(api, config, -1, -1, null);
-  }
-
-  private void initialize(int api, GraphicsConfiguration config,
-                          Object c)
-          throws VisADException, RemoteException {
-    initialize(api, config, -1, -1, c);
-  }
-
-  private void initialize(int api, GraphicsConfiguration config,
-                          int width, int height)
-          throws VisADException, RemoteException {
-    initialize(api, config, width, height, null);
-  }
-
-  private void initialize(int api, GraphicsConfiguration config,
-                          int width, int height, Object c)
-          throws VisADException, RemoteException {
-     
-    // a ProjectionControl always exists
-    projection = new ProjectionControlA3D(this);
-    addControl(projection);
-
-    if (api == JOGL_AWT || api == JOGL_SWING) {
-       if (width < 0 || height < 0) {
-          throw new VisADException("DisplayImplA3D: must define Jogl canvas dimension up front");
-       }
-       DisplayRendererA3D dspRenderer = (DisplayRendererA3D) getDisplayRenderer();
-       dspRenderer.createSceneGraph();
-       //DisplayManagerA3D manager = DisplayManagerA3D.createDisplayManager(new Dimension(width, height), dspRenderer, api);
-       //Component component = manager.getCanvas();
-       //setComponent(component);
-       apiValue = api;
-    }
-    else if (api == TRANSFORM_ONLY) {
-      if (!(getDisplayRenderer() instanceof TransformOnlyDisplayRendererA3D)) {
-        throw new DisplayException("must be TransformOnlyDisplayRendererA3D " +
-                                   "for api = TRANSFORM_ONLY");
-      }
-      setComponent(null);
-      apiValue = api;
-    }
-    else if (api == OFFSCREEN) {
-      DisplayRendererA3D renderer = (DisplayRendererA3D) getDisplayRenderer();
-      setComponent(null);
-      apiValue = api;
-    }
-    else {
-      throw new DisplayException("DisplayImplA3D: bad graphics API " + api);
-    }
-    
-    // a GraphicsModeControl always exists
-    mode = new GraphicsModeControlA3D(this);
-    addControl(mode);
-  }
-
   /** return a DefaultDisplayRendererJ3D */
   protected DisplayRenderer getDefaultDisplayRenderer() {
     return new DefaultDisplayRendererA3D();
@@ -782,7 +564,6 @@ public class DisplayImplA3D extends DisplayImpl {
 
        final DisplayImplA3D display = new DisplayImplA3D("Display", frame, frame.getContentPane(), JOGL_AWT);
        //display.disableAction();
-       //frame.pack();
        
        //final visad.java3d.DisplayImplJ3D display = new visad.java3d.DisplayImplJ3D("Display");
        
