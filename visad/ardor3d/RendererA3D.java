@@ -69,13 +69,15 @@ public abstract class RendererA3D extends DataRenderer {
     if (!(d instanceof DisplayImplA3D)) {
       throw new DisplayException("RendererJ3D.setLinks: must be DisplayImplJ3D");
     }
+    
+    // set up switch logic for clean BranchGroup replacement
+    SwitchNode swt = new SwitchNode();
+    sw = swt;    
+    
     setDisplay(d);
     setDisplayRenderer(d.getDisplayRenderer());
     setLinks(links);
 
-    // set up switch logic for clean BranchGroup replacement
-    SwitchNode swt = new SwitchNode();
-    sw = swt;
     toggle(getEnabled());
 
     swParent = new Node();
@@ -87,7 +89,9 @@ public abstract class RendererA3D extends DataRenderer {
   }
 
   public void toggle(boolean on) {
-    sw.setVisible(0, on);
+    if (sw != null) {
+       sw.setVisible(0, on);
+    }
     super.toggle(on);
   }
 
