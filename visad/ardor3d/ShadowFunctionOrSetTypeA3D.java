@@ -1289,7 +1289,7 @@ public class ShadowFunctionOrSetTypeA3D extends ShadowTypeA3D {
     double[] times = TrajectoryManager.getTimes((Gridded1DSet)anim1DdomainSet);
     double[] timeSteps = TrajectoryManager.getTimeSteps((Gridded1DSet)anim1DdomainSet);
     
-    TrajectoryManager trajMan = new TrajectoryManager(renderer, trajParams, flowInfoList, dataDomainLength, times[0], altitudeToDisplayZ, dspCoordSys);
+    TrajectoryManager trajMan = new TrajectoryManager(renderer, trajParams, flowInfoList, dataDomainLength, times[0], altitudeToDisplayZ, dspCoordSys, (Gridded1DSet)anim1DdomainSet);
     
     trcrEnabled = (trcrEnabled && (trajForm == TrajectoryManager.LINE)) && trajForm != TrajectoryManager.POINT;
     
